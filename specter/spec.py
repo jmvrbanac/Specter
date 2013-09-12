@@ -16,7 +16,8 @@ class TimedObject(object):
 
     @property
     def elapsed_time(self):
-        return self.end_time - self.start_time
+        elapsed = self.end_time - self.start_time
+        return elapsed if elapsed >= 0 else 0
 
 
 class CaseWrapper(TimedObject):
