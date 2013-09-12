@@ -8,16 +8,42 @@ class ExpectAssert(object):
     def __init__(self, target):
         super(ExpectAssert, self).__init__()
         self.target = target
-        self.actions = []
+        self.actions = [str(target)]
         self.success = False
+        self.used_negative = False
 
-    def to_be(self, expected):
-        self.actions.extend([str(self.target), 'to be', str(expected)])
-        try:
-            assert self.target == expected
-            self.success = True
-        except:
-            pass
+    def _verify_condition(self, condition):
+        return condition if not self.used_negative else not condition
+
+    @property
+    def not_to(self):
+        self.actions.append('not')
+        self.used_negative = not self.used_negative
+        return self.to
+
+    @property
+    def to(self):
+        self.actions.append('to')
+        return self
+
+    def equal(self, expected):
+        self.actions.extend(['equal', str(expected)])
+        result = self.target == expected
+        self.success = self._verify_condition(result)
+
+        return self
+
+    def be_greater_than(self, expected):
+        self.actions.extend(['be greater than', str(expected)])
+        result = self.target > expected
+        self.success = self._verify_condition(result)
+
+        return self
+
+    def be_less_than(self, expected):
+        self.actions.extend(['be less than', str(expected)])
+        result = self.target < expected
+        self.success = self._verify_condition(result)
 
         return self
 
