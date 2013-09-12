@@ -1,7 +1,7 @@
 from os import path
 
 from pynsive import PluginManager, rlist_classes
-from specter.spec import Suite
+from specter.spec import Describe
 
 
 class SuiteScanner(object):
@@ -21,4 +21,4 @@ class SuiteScanner(object):
         plugin_manager = PluginManager()
         plugin_manager.plug_into(path.abspath(base_path))
 
-        return rlist_classes(module, cls_filter=Suite.plugin_filter)
+        return rlist_classes(module, cls_filter=Describe.plugin_filter)
