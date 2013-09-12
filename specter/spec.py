@@ -47,6 +47,10 @@ class Describe(object):
         self.describes = [desc_type() for desc_type in self.describe_types]
 
     @property
+    def doc(self):
+        return self.__dict__.__doc__
+
+    @property
     def __members__(self):
         return {key: val for key, val in vars(type(self)).items()}
 
@@ -84,3 +88,7 @@ class Describe(object):
         func_name = obj.func_name
         return (not func_name.startswith('_') and
                 not func_name == 'execute')
+
+
+class Spec(Describe):
+    pass
