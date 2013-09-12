@@ -26,9 +26,9 @@ class CaseWrapper(TimedObject):
         self.case_func = case_func
         self.expects = []
 
-    def execute(self):
+    def execute(self, context=None):
         self.start()
-        result = self.case_func(self)
+        result = self.case_func(context or self)
         self.stop()
         return result
 
@@ -48,6 +48,10 @@ class Describe(object):
         self.describes = [desc_type() for desc_type in self.describe_types]
 
     @property
+    def name(self):
+        return self.__class__.__name__
+
+    @property
     def doc(self):
         return self.__dict__.__doc__
 
@@ -65,10 +69,18 @@ class Describe(object):
         return [val for key, val in self.__members__.items()
                 if Describe.case_filter(val)]
 
+    def before_each(self):
+        pass
+
+    def after_each(self):
+        pass
+
     def execute(self):
         # Execute Cases
         for case in self.cases:
-            case.execute()
+            self.before_each()
+            case.execute(context=self)
+            self.after_each()
 
         # Execute Suites
         for describe in self.describes:
@@ -88,7 +100,9 @@ class Describe(object):
 
         func_name = obj.func_name
         return (not func_name.startswith('_') and
-                not func_name == 'execute')
+                not func_name == 'execute' and
+                not func_name == 'before_each' and
+                not func_name == 'after_each')
 
 
 class Spec(Describe):
