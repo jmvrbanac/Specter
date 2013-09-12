@@ -1,4 +1,5 @@
-import inspect
+from types import FunctionType
+
 
 class SuiteResults(object):
     def __init__(self):
@@ -7,21 +8,47 @@ class SuiteResults(object):
         self.end_time = None
         self.children = []
 
+
 class Suite(object):
     def __init__(self):
         super(Suite, self).__init__()
-        self.results = []
 
-    def get_nested_suites(self):
-        members = inspect.getmembers(self)
-        return [val for name, val in members if self.is_suite(val)]
+    @property
+    def __members__(self):
+        return {key: val for key, val in vars(type(self)).items()}
+
+    @property
+    def child_suites(self):
+        return [val for key, val in self.__members__.items()
+                if Suite.plugin_filter(val)]
+
+    @property
+    def tests(self):
+        return [val for key, val in self.__members__.items()
+                if Suite.test_filter(val)]
 
     def execute(self):
-        print self.get_nested_suites()
+        # Execute Tests
+        for test_func in self.tests:
+            result = test_func(self)
+
+        # Execute Suites
+        for child_type in self.child_suites:
+            child = child_type()
+            child.execute()
 
     @classmethod
-    def is_suite(cls, obj_type):
-        if not isinstance(obj_type, type):
+    def plugin_filter(cls, other):
+        if not isinstance(other, type):
             return False
 
-        return issubclass(obj_type, Suite) and obj_type is not cls
+        return issubclass(other, Suite) and other is not cls
+
+    @classmethod
+    def test_filter(cls, obj):
+        if type(obj) is not FunctionType:
+            return False
+
+        func_name = obj.func_name
+        return (not func_name.startswith('_') and
+                not func_name == 'execute')

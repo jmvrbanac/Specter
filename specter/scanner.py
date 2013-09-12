@@ -21,4 +21,4 @@ class SuiteScanner(object):
         plugin_manager = PluginManager()
         plugin_manager.plug_into(path.abspath(base_path))
 
-        return rlist_classes(module, cls_filter=Suite.is_suite)
+        return rlist_classes(module, cls_filter=Suite.plugin_filter)
