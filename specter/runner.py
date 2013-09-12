@@ -21,7 +21,7 @@ class SpecterRunner(object):
                                      help=_('Disables ASCII art'))
 
     def ascii_art(self):
-        tag_line = _('Keeping the boogy man out of your code!')
+        tag_line = _('Keeping the boogy man away from your code!')
         ascii_art = """
           ___
         _/ @@\\
