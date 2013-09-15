@@ -1,5 +1,8 @@
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 from time import sleep
-from unittest2 import TestCase
 
 from specter.spec import TimedObject
 
