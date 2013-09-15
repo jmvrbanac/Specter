@@ -1,4 +1,4 @@
-## Specter
+## Specter [![Build Status](https://travis-ci.org/jmvrbanac/Specter.png?branch=master)](https://travis-ci.org/jmvrbanac/Specter) [![Coverage Status](https://coveralls.io/repos/jmvrbanac/Specter/badge.png?branch=master)](https://coveralls.io/r/jmvrbanac/Specter?branch=master)
 #### Keeping the boogy man away from your code!
 
 
