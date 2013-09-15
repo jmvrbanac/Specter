@@ -1,6 +1,8 @@
+from random import shuffle
 from argparse import ArgumentParser
 from specter import _
 from specter.scanner import SuiteScanner
+from specter.reporting import ConsoleReporter
 
 
 class SpecterRunner(object):
@@ -10,6 +12,7 @@ class SpecterRunner(object):
     def __init__(self):
         super(SpecterRunner, self).__init__()
         self.suite_scanner = SuiteScanner()
+        self.collector = ConsoleReporter()
         self.arg_parser = ArgumentParser(description=self.DESCRIPTION)
         self.setup_argparse()
 
@@ -40,9 +43,11 @@ class SpecterRunner(object):
             self.ascii_art()
 
         self.suite_types = self.suite_scanner.scan(self.arguments.search)
+        shuffle(self.suite_types)
 
         for suite_type in self.suite_types:
             suite = suite_type()
+            self.collector.add_describe(suite)
             suite.execute()
 
 
