@@ -1,5 +1,6 @@
 from specter.spec import TestEvent, DescribeEvent
 
+
 class ConsoleReporter(object):
     INDENT = 2
 
@@ -38,7 +39,6 @@ class ConsoleReporter(object):
         for expect in test_case.expects:
             expect_msg = u'\u2022 {0}'.format(expect)
             self.print_msg(expect_msg, level+1, success=expect.success)
-
 
     def start_describe(self, evt):
         level = self.get_item_level(evt.payload)
