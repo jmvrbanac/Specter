@@ -32,19 +32,16 @@ class ExpectAssert(object):
         self.expected = expected
         self.actions.extend([_('equal'), str(expected)])
         self._verify_condition(condition=self.target == expected)
-        return self
 
     def be_greater_than(self, expected):
         self.expected = expected
         self.actions.extend([_('be greater than'), str(expected)])
         self._verify_condition(condition=self.target > expected)
-        return self
 
     def be_less_than(self, expected):
         self.expected = expected
         self.actions.extend([_('be less than'), str(expected)])
         self._verify_condition(condition=self.target < expected)
-        return self
 
     def __str__(self):
         action_str = ' '.join(self.actions)
