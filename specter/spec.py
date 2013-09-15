@@ -1,3 +1,4 @@
+import sys
 from random import shuffle
 from time import time
 from types import FunctionType
@@ -75,7 +76,12 @@ class Describe(EventDispatcher):
 
     @property
     def __members__(self):
-        return {key: val for key, val in vars(type(self)).items()}
+        if sys.version_info<(2,7,0):
+            results = dict((key, val)
+                           for key, val in vars(type(self)).items())
+        else:
+            results = {key: val for key, val in vars(type(self)).items()}
+        return results
 
     @property
     def describe_types(self):
