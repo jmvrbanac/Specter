@@ -4,6 +4,8 @@ python:
   - 2.7
   - 3.3
   - pypy
+before_install:
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
 install:
   - pip install -r tools/test-requires --use-mirrors
   - pip install coveralls
