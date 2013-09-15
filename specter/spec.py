@@ -1,5 +1,8 @@
+from random import shuffle
 from time import time
 from types import FunctionType
+from pyevents.manager import EventDispatcher
+from pyevents.event import Event
 
 
 class TimedObject(object):
@@ -21,10 +24,11 @@ class TimedObject(object):
 
 
 class CaseWrapper(TimedObject):
-    def __init__(self, case_func):
+    def __init__(self, case_func, parent):
         super(CaseWrapper, self).__init__()
         self.case_func = case_func
         self.expects = []
+        self.parent = parent
 
     def execute(self, context=None):
         self.start()
@@ -37,15 +41,29 @@ class CaseWrapper(TimedObject):
         return self.case_func.func_name
 
     @property
+    def pretty_name(self):
+        return self.case_func.func_name.replace('_', ' ')
+
+    @property
     def doc(self):
         return self.case_func.__doc__
 
+    @property
+    def success(self):
+        return len([exp for exp in self.expects if not exp.success]) == 0
 
-class Describe(object):
-    def __init__(self):
+
+class Describe(EventDispatcher):
+    def __init__(self, parent=None):
         super(Describe, self).__init__()
-        self.cases = [CaseWrapper(case_func) for case_func in self.case_funcs]
-        self.describes = [desc_type() for desc_type in self.describe_types]
+        self.parent = parent
+        self.cases = [CaseWrapper(case_func, parent=self)
+                      for case_func in self.case_funcs]
+        self.describes = [desc_type(parent=self)
+                          for desc_type in self.describe_types]
+
+        shuffle(self.cases)
+        shuffle(self.describes)
 
     @property
     def name(self):
@@ -69,6 +87,16 @@ class Describe(object):
         return [val for key, val in self.__members__.items()
                 if Describe.case_filter(val)]
 
+    @property
+    def top_parent(self):
+        parent_above = last_parent = self.parent or self
+
+        while parent_above is not None:
+            last_parent = parent_above
+            parent_above = parent_above.parent
+
+        return last_parent
+
     def before_each(self):
         pass
 
@@ -76,22 +104,27 @@ class Describe(object):
         pass
 
     def execute(self):
+        self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
         # Execute Cases
         for case in self.cases:
             self.before_each()
             case.execute(context=self)
             self.after_each()
+            self.top_parent.dispatch(TestEvent(case))
 
         # Execute Suites
         for describe in self.describes:
             describe.execute()
+        self.top_parent.dispatch(DescribeEvent(DescribeEvent.COMPLETE, self))
 
     @classmethod
     def plugin_filter(cls, other):
         if not isinstance(other, type):
             return False
 
-        return issubclass(other, Describe) and other is not cls
+        return (issubclass(other, Describe) and
+                other is not cls
+                and other is not Spec)
 
     @classmethod
     def case_filter(cls, obj):
@@ -107,3 +140,15 @@ class Describe(object):
 
 class Spec(Describe):
     pass
+
+
+class DescribeEvent(Event):
+    START = 'start'
+    COMPLETE = 'complete'
+
+
+class TestEvent(Event):
+    COMPLETE = 'test_complete'
+
+    def __init__(self, payload):
+        super(TestEvent, self).__init__(TestEvent.COMPLETE, payload=payload)

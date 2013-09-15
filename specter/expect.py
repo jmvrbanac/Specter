@@ -14,7 +14,8 @@ class ExpectAssert(object):
         self.used_negative = False
 
     def _verify_condition(self, condition):
-        return condition if not self.used_negative else not condition
+        self.success = condition if not self.used_negative else not condition
+        return self.success
 
     @property
     def not_to(self):
@@ -28,24 +29,21 @@ class ExpectAssert(object):
         return self
 
     def equal(self, expected):
+        self.expected = expected
         self.actions.extend([_('equal'), str(expected)])
-        result = self.target == expected
-        self.success = self._verify_condition(result)
-
+        self._verify_condition(condition=self.target == expected)
         return self
 
     def be_greater_than(self, expected):
+        self.expected = expected
         self.actions.extend([_('be greater than'), str(expected)])
-        result = self.target > expected
-        self.success = self._verify_condition(result)
-
+        self._verify_condition(condition=self.target > expected)
         return self
 
     def be_less_than(self, expected):
+        self.expected = expected
         self.actions.extend([_('be less than'), str(expected)])
-        result = self.target < expected
-        self.success = self._verify_condition(result)
-
+        self._verify_condition(condition=self.target < expected)
         return self
 
     def __str__(self):
