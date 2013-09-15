@@ -1,10 +1,16 @@
+import os
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-def read(relative):
-    contents = open(relative, 'r').read()
+def read_requires(relative):
+    try:
+        abs_path = os.path.abspath(relative)
+        contents = open(abs_path, 'r').read()
+    except IOError:
+        # We should only hit this when we are using tox
+        return []
     return [l for l in contents.split('\n') if l != '']
 
 setup(
@@ -25,8 +31,8 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
     ),
-    tests_require=read('./tools/test-requires'),
-    install_requires=read('./tools/pip-requires'),
+    tests_require=read_requires('./tools/test-requires'),
+    install_requires=read_requires('./tools/pip-requires'),
     entry_points = {
         'console_scripts':
         ['specter = specter.runner:activate']}

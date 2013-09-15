@@ -76,12 +76,8 @@ class Describe(EventDispatcher):
 
     @property
     def __members__(self):
-        if sys.version_info<(2,7,0):
-            results = dict((key, val)
-                           for key, val in vars(type(self)).items())
-        else:
-            results = {key: val for key, val in vars(type(self)).items()}
-        return results
+        # Using the dict constructor instead of comp for 2.6 compatibility
+        return dict((key, val) for key, val in vars(type(self)).items())
 
     @property
     def describe_types(self):
