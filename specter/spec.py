@@ -72,7 +72,7 @@ class Describe(EventDispatcher):
 
     @property
     def doc(self):
-        return self.__dict__.__doc__
+        return type(self).__doc__
 
     @property
     def __members__(self):
@@ -133,7 +133,7 @@ class Describe(EventDispatcher):
         if type(obj) is not FunctionType:
             return False
 
-        func_name = obj.func_name
+        func_name = obj.__name__
         return (not func_name.startswith('_') and
                 not func_name == 'execute' and
                 not func_name == 'before_each' and
