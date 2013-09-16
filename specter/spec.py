@@ -39,11 +39,11 @@ class CaseWrapper(TimedObject):
 
     @property
     def name(self):
-        return self.case_func.func_name
+        return self.case_func.__name__
 
     @property
     def pretty_name(self):
-        return self.case_func.func_name.replace('_', ' ')
+        return self.case_func.__name__.replace('_', ' ')
 
     @property
     def doc(self):
