@@ -50,6 +50,8 @@ class SpecterRunner(object):
             self.collector.add_describe(suite)
             suite.execute()
 
+        self.collector.print_summary()
+
 
 def activate():
     runner = SpecterRunner()
