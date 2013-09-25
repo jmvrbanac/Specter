@@ -13,14 +13,18 @@ class ConsoleColors():
 
 
 class ConsoleReporter(object):
+    """ Temporary console reporter.
+    At least until I can get a real one written.
+    """
     INDENT = 2
 
-    def __init__(self):
+    def __init__(self, output_docstrings=False):
         super(ConsoleReporter, self).__init__()
-        self.total = 0
-        self.passed = 0
-        self.failed = 0
-        self.assertions = 0
+        self.test_total = 0
+        self.test_expects = 0
+        self.passed_tests = 0
+        self.failed_tests = 0
+        self.output_docstrings = output_docstrings
 
     def add_describe(self, describe):
         describe.add_listener(TestEvent.COMPLETE, self.event_received)
@@ -58,7 +62,9 @@ class ConsoleReporter(object):
             name = u'\u221F {0}'.format(name)
 
         self.print_passfail_msg(name, level, test_case.success)
-        self.print_indent_msg(test_case.doc, level+1)
+
+        if test_case.doc and self.output_docstrings:
+            self.print_indent_msg(test_case.doc, level+1, test_case.success)
 
         # Print expects
         for expect in test_case.expects:
@@ -67,12 +73,12 @@ class ConsoleReporter(object):
                                     success=expect.success)
 
         # Add test to totals
-        self.total += 1
+        self.test_total += 1
         if test_case.success:
-            self.passed += 1
+            self.passed_tests += 1
         else:
-            self.failed += 1
-        self.assertions += len(test_case.expects)
+            self.failed_tests += 1
+        self.test_expects += len(test_case.expects)
 
     def start_describe(self, evt):
         level = self.get_item_level(evt.payload)
@@ -80,19 +86,22 @@ class ConsoleReporter(object):
         if level > 0:
             name = u'\u221F {0}'.format(name)
         self.print_indent_msg(name, level, color=ConsoleColors.GREEN)
-        if evt.payload.doc:
+        if evt.payload.doc and self.output_docstrings:
             self.print_indent_msg(evt.payload.doc, level+1)
 
     def print_summary(self):
-        msg = """-- Summary of tests --
-Total        | {total}
+        msg = """------- Summary --------
 Passed       | {passed}
 Failed       | {failed}
-Expectations | {expects}""".format(
-            total=self.total, passed=self.passed,
-            failed=self.failed, expects=self.assertions)
+Expectations | {expects}
+Test Total   | {total}
+""".format(
+            total=self.test_total, passed=self.passed_tests,
+            failed=self.failed_tests, expects=self.test_expects)
+
+        success = self.failed_tests == 0
 
         self.print_colored('\n')
-        self.print_passfail_msg('-'*24, 0, self.failed == 0)
-        self.print_passfail_msg(msg, 0, self.failed == 0)
-        self.print_passfail_msg('-'*24, 0, self.failed == 0)
+        self.print_passfail_msg('-'*24, 0, success)
+        self.print_passfail_msg(msg, 0, success)
+        self.print_passfail_msg('-'*24, 0, success)
