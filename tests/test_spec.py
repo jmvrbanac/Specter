@@ -34,6 +34,9 @@ class TestTimedObject(TestCase):
 
 class TestCaseWrapper(TestCase):
 
+    def bad_handler(self, context):
+        print(self.object_that_doesnt_exist)
+
     def example_handler(self, context):
         """Test Doc String"""
         self.called = True
@@ -46,6 +49,13 @@ class TestCaseWrapper(TestCase):
     def test_execute(self):
         self.wrapper.execute()
         self.assertTrue(self.called)
+
+    def test_raised_exception(self):
+        self.wrapper = CaseWrapper(case_func=self.bad_handler, parent=None)
+        self.wrapper.execute()
+
+        self.assertIsNotNone(self.wrapper.error)
+        self.assertIs(type(self.wrapper.error), AttributeError)
 
     def test_name_property(self):
         self.assertEqual(self.wrapper.name, 'example_handler')
