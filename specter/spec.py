@@ -30,12 +30,15 @@ class CaseWrapper(TimedObject):
         self.case_func = case_func
         self.expects = []
         self.parent = parent
+        self.error = None
 
     def execute(self, context=None):
         self.start()
-        result = self.case_func(context or self)
+        try:
+            self.case_func(context or self)
+        except Exception as e:
+            self.error = e
         self.stop()
-        return result
 
     @property
     def name(self):
@@ -51,7 +54,8 @@ class CaseWrapper(TimedObject):
 
     @property
     def success(self):
-        return len([exp for exp in self.expects if not exp.success]) == 0
+        return (not self.error and
+                len([exp for exp in self.expects if not exp.success]) == 0)
 
 
 class Describe(EventDispatcher):

@@ -66,6 +66,11 @@ class ConsoleReporter(object):
         if test_case.doc and self.output_docstrings:
             self.print_indent_msg(test_case.doc, level+1, test_case.success)
 
+        # Print error if it exists
+        if test_case.error:
+            msg = 'Exception thrown: {0}'.format(test_case.error)
+            self.print_passfail_msg(msg, level+1, False)
+
         # Print expects
         for expect in test_case.expects:
             expect_msg = u'\u2022 {0}'.format(expect)
