@@ -36,6 +36,8 @@ class CaseWrapper(TimedObject):
         self.start()
         try:
             self.case_func(context or self)
+        except FailedRequireException:
+            pass
         except Exception as e:
             self.error = e
         self.stop()
@@ -158,3 +160,7 @@ class TestEvent(Event):
 
     def __init__(self, payload):
         super(TestEvent, self).__init__(TestEvent.COMPLETE, payload=payload)
+
+
+class FailedRequireException(Exception):
+    pass
