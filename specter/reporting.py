@@ -44,7 +44,7 @@ class ConsoleReporter(object):
         self.print_colored(msg=msg, color=color)
 
     def print_colored(self, msg, color=ConsoleColors.WHITE):
-        print u'\033[{color}m{msg}\033[0m'.format(color=color, msg=msg)
+        print(u'\033[{color}m{msg}\033[0m'.format(color=color, msg=msg))
 
     def get_item_level(self, item):
         levels = 0

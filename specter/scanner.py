@@ -6,19 +6,19 @@ from specter.spec import Describe
 
 class SuiteScanner(object):
 
-    def __init__(self, module='spec', base_path='./'):
+    def __init__(self, search_path='spec'):
         super(SuiteScanner, self).__init__()
-        self.base_path = base_path
-        self.module = module
+        self.search_path = search_path
 
-    def scan(self, module=None, base_path=None):
-        base_path = base_path or self.base_path
-        module = module or self.module
+    def scan(self, search_path=None):
+        search_path = search_path or self.search_path
+        search_path = path.abspath(search_path)
+        module = path.split(search_path)[1]
 
-        if not path.exists(path.join(base_path, module)):
+        if not path.exists(path.join(search_path)):
             return []
 
         plugin_manager = PluginManager()
-        plugin_manager.plug_into(path.abspath(base_path))
+        plugin_manager.plug_into(path.split(search_path)[0])
 
         return rlist_classes(module, cls_filter=Describe.plugin_filter)

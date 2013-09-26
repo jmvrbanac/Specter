@@ -1,5 +1,7 @@
+import sys
 from random import shuffle
 from argparse import ArgumentParser
+
 from specter import _
 from specter.scanner import SuiteScanner
 from specter.reporting import ConsoleReporter
@@ -18,12 +20,12 @@ class SpecterRunner(object):
 
     def setup_argparse(self):
         self.arg_parser.add_argument('--search', type=str, dest='search',
-                                     help=_('The spec suite search path.'))
+                                     help=_('The spec suite folder path.'))
         self.arg_parser.add_argument('--no-art',
                                      dest='no_art', action='store_true',
                                      help=_('Disables ASCII art'))
 
-    def ascii_art(self):
+    def generate_ascii_art(self):
         tag_line = _('Keeping the boogy man away from your code!')
         ascii_art = """
           ___
@@ -34,13 +36,13 @@ class SpecterRunner(object):
     ~- /      _\\
        ~~~~~~~~~
     """.format(tag=tag_line)
-        print ascii_art
+        return ascii_art
 
-    def run(self):
-        self.arguments = self.arg_parser.parse_args()
+    def run(self, args):
+        self.arguments = self.arg_parser.parse_args(args)
 
         if not self.arguments.no_art:
-            self.ascii_art()
+            print(self.generate_ascii_art())
 
         self.suite_types = self.suite_scanner.scan(self.arguments.search)
         shuffle(self.suite_types)
@@ -54,5 +56,6 @@ class SpecterRunner(object):
 
 
 def activate():
+    args = sys.argv[1:]
     runner = SpecterRunner()
-    runner.run()
+    runner.run(args)
