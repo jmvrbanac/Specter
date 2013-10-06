@@ -1,6 +1,12 @@
 from specter.spec import TestEvent, DescribeEvent
 
 
+class TestStatus():
+    PASS = 'passed'
+    FAIL = 'failed'
+    SKIP = 'skipped'
+
+
 class ConsoleColors():
     BLACK = 30
     RED = 31
@@ -23,6 +29,7 @@ class ConsoleReporter(object):
         self.test_total = 0
         self.test_expects = 0
         self.passed_tests = 0
+        self.skipped_tests = 0
         self.failed_tests = 0
         self.output_docstrings = output_docstrings
 
@@ -30,13 +37,14 @@ class ConsoleReporter(object):
         describe.add_listener(TestEvent.COMPLETE, self.event_received)
         describe.add_listener(DescribeEvent.START, self.start_describe)
 
-    def print_passfail_msg(self, msg, level, success=True):
-        if success:
-            self.print_indent_msg(
-                msg=msg, level=level, color=ConsoleColors.GREEN)
-        else:
-            self.print_indent_msg(
-                msg=msg, level=level, color=ConsoleColors.RED)
+    def print_test_msg(self, msg, level, status=TestStatus.PASS):
+        color = ConsoleColors.RED
+        if status == TestStatus.PASS:
+            color = ConsoleColors.GREEN
+        elif status == TestStatus.SKIP:
+            color = ConsoleColors.YELLOW
+
+        self.print_indent_msg(msg=msg, level=level, color=color)
 
     def print_indent_msg(self, msg, level=0, color=ConsoleColors.WHITE):
         indent = u' ' * self.INDENT
@@ -61,7 +69,15 @@ class ConsoleReporter(object):
         if level > 0:
             name = u'\u221F {0}'.format(name)
 
-        self.print_passfail_msg(name, level, test_case.success)
+        status = TestStatus.FAIL
+        if test_case.success and not test_case.skipped:
+            status = TestStatus.PASS
+        elif test_case.skipped:
+            status = TestStatus.SKIP
+            name = u'{name} (skipped): {reason}'.format(
+                name=name, reason=test_case.skip_reason)
+
+        self.print_test_msg(name, level, status)
 
         if test_case.doc and self.output_docstrings:
             self.print_indent_msg(test_case.doc, level+1, test_case.success)
@@ -69,18 +85,24 @@ class ConsoleReporter(object):
         # Print error if it exists
         if test_case.error:
             msg = 'Exception thrown: {0}'.format(test_case.error)
-            self.print_passfail_msg(msg, level+1, False)
+            self.print_test_msg(msg, level+1, TestStatus.FAIL)
 
         # Print expects
         for expect in test_case.expects:
             expect_msg = u'\u2022 {0}'.format(expect)
-            self.print_passfail_msg(expect_msg, level+1,
-                                    success=expect.success)
+
+            status = TestStatus.FAIL
+            if expect.success:
+                status = TestStatus.PASS
+
+            self.print_test_msg(expect_msg, level+1, status=status)
 
         # Add test to totals
         self.test_total += 1
-        if test_case.success:
+        if test_case.success and not test_case.skipped:
             self.passed_tests += 1
+        elif test_case.skipped:
+            self.skipped_tests += 1
         else:
             self.failed_tests += 1
         self.test_expects += len(test_case.expects)
@@ -96,17 +118,19 @@ class ConsoleReporter(object):
 
     def print_summary(self):
         msg = """------- Summary --------
-Passed       | {passed}
-Failed       | {failed}
-Expectations | {expects}
-Test Total   | {total}
+Passed          | {passed}
+Skipped         | {skipped}
+Failed          | {failed}
+Test Total      | {total}
+ - Expectations | {expects}
 """.format(
             total=self.test_total, passed=self.passed_tests,
-            failed=self.failed_tests, expects=self.test_expects)
+            failed=self.failed_tests, expects=self.test_expects,
+            skipped=self.skipped_tests)
 
         success = self.failed_tests == 0
 
         self.print_colored('\n')
-        self.print_passfail_msg('-'*24, 0, success)
-        self.print_passfail_msg(msg, 0, success)
-        self.print_passfail_msg('-'*24, 0, success)
+        self.print_test_msg('-'*24, 0, success)
+        self.print_test_msg(msg, 0, success)
+        self.print_test_msg('-'*24, 0, success)

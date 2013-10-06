@@ -1,7 +1,10 @@
 import inspect
+import types
+import functools
 
 from specter import _
-from specter.spec import CaseWrapper, FailedRequireException
+from specter.spec import (CaseWrapper, FailedRequireException,
+                          TestSkippedException)
 
 
 class ExpectAssert(object):
@@ -82,3 +85,23 @@ def require(obj):
     require_obj = RequireAssert(obj)
     _add_expect_to_wrapper(require_obj)
     return require_obj
+
+
+def skip(reason):
+    def decorator(test_func):
+        if not isinstance(test_func, (type, types.ClassType)):
+            @functools.wraps(test_func)
+            def skip_wrapper(*args, **kwargs):
+                raise TestSkippedException(test_func, reason)
+            test_func = skip_wrapper
+        return test_func
+    return decorator
+
+
+def skip_if(condition, reason=None):
+    if condition:
+        return skip(reason)
+
+    def wrapper(func):
+        return func
+    return wrapper

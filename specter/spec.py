@@ -31,15 +31,20 @@ class CaseWrapper(TimedObject):
         self.expects = []
         self.parent = parent
         self.error = None
+        self.skipped = False
+        self.skip_reason = None
 
     def execute(self, context=None):
         self.start()
         try:
             self.case_func(context or self)
-        except FailedRequireException:
-            pass
+        except TestSkippedException as e:
+            self.skipped = True
+            self.skip_reason = e.reason if type(e.reason) is str else ''
         except Exception as e:
             self.error = e
+        except FailedRequireException:
+            pass
         self.stop()
 
     @property
@@ -164,3 +169,9 @@ class TestEvent(Event):
 
 class FailedRequireException(Exception):
     pass
+
+
+class TestSkippedException(Exception):
+    def __init__(self, func, reason=None):
+        self.func = func
+        self.reason = reason
