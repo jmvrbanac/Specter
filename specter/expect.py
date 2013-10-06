@@ -17,7 +17,7 @@ class ExpectAssert(object):
         super(ExpectAssert, self).__init__()
         self.prefix = _('expect')
         self.target = target
-        self.actions = [str(target)]
+        self.actions = ['"{target}"'.format(target=str(target))]
         self.success = False
         self.used_negative = False
         self.required = required
@@ -39,20 +39,30 @@ class ExpectAssert(object):
         self.actions.append(_('to'))
         return self
 
-    def equal(self, expected):
+    def _compare(self, action_name, expected, condition):
         self.expected = expected
-        self.actions.extend([_('equal'), str(expected)])
-        self._verify_condition(condition=self.target == expected)
+        self.actions.extend([action_name, '"{0}"'.format(str(expected))])
+        self._verify_condition(condition=condition)
+
+    def equal(self, expected):
+        self._compare(action_name=_('equal'), expected=expected,
+                      condition=self.target == expected)
 
     def be_greater_than(self, expected):
-        self.expected = expected
-        self.actions.extend([_('be greater than'), str(expected)])
-        self._verify_condition(condition=self.target > expected)
+        self._compare(action_name=_('be greater than'), expected=expected,
+                      condition=self.target > expected)
 
     def be_less_than(self, expected):
-        self.expected = expected
-        self.actions.extend([_('be less than'), str(expected)])
-        self._verify_condition(condition=self.target < expected)
+        self._compare(action_name=_('be less than'), expected=expected,
+                      condition=self.target < expected)
+
+    def be_none(self):
+        self._compare(action_name=_('be'), expected=None,
+                      condition=self.target == None)
+
+    def contain(self, expected):
+        self._compare(action_name=_('contain'), expected=expected,
+                      condition=expected in self.target)
 
     def __str__(self):
         action_str = ' '.join(self.actions)

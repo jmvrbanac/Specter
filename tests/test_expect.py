@@ -49,6 +49,30 @@ class TestExpectAssertion(TestCase):
         expect.not_to.be_less_than(99)
         self.assertTrue(expect.success)
 
+    def test_expect_none(self):
+        target = None
+        expect = self._create_assert(target)
+        expect.to.be_none()
+        self.assertTrue(expect.success)
+
+    def test_expect_not_none(self):
+        target = 'bam'
+        expect = self._create_assert(target)
+        expect.not_to.be_none()
+        self.assertTrue(expect.success)
+
+    def test_expect_contain(self):
+        target = 'this is a test'
+        expect = self._create_assert(target)
+        expect.to.contain('is')
+        self.assertTrue(expect.success)
+
+    def test_expect_not_contain(self):
+        target = 'this is a test'
+        expect = self._create_assert(target)
+        expect.not_to.contain('bam')
+        self.assertTrue(expect.success)
+
 
 class TestRequireAssertion(TestExpectAssertion):
 
