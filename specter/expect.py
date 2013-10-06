@@ -1,6 +1,10 @@
 import inspect
-import types
 import functools
+# Making sure we support 2.7 and 3+
+try:
+    from types import ClassType as ClassObjType
+except:
+    from types import ModuleType as ClassObjType
 
 from specter import _
 from specter.spec import (CaseWrapper, FailedRequireException,
@@ -89,7 +93,7 @@ def require(obj):
 
 def skip(reason):
     def decorator(test_func):
-        if not isinstance(test_func, (type, types.ClassType)):
+        if not isinstance(test_func, (type, ClassObjType)):
             @functools.wraps(test_func)
             def skip_wrapper(*args, **kwargs):
                 raise TestSkippedException(test_func, reason)

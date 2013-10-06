@@ -17,3 +17,5 @@ class TestSpecterRunner(TestCase):
     def test_run(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art'])
         self.assertEqual(len(self.runner.suite_types), 1)
+        self.assertEqual(self.runner.collector.skipped_tests, 1)
+        self.assertEqual(self.runner.collector.test_total, 2)
