@@ -6,3 +6,4 @@ build/*
 dist/*
 .tox/*
 .python-version
+docs/_build
