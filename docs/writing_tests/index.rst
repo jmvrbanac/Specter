@@ -94,6 +94,8 @@ Available Comparisons
     * be_greater_than(expected_object)
     * be_less_than(expected_object)
     * be_none()
+    * be_true()
+    * be_false()
     * contain(expected_object):
 
 Fast-fail expectations
