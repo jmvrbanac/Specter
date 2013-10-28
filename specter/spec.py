@@ -1,7 +1,9 @@
+import inspect
+import itertools
 import sys
 from random import shuffle
 from time import time
-from types import FunctionType
+from types import FunctionType, MethodType
 from pyevents.manager import EventDispatcher
 from pyevents.event import Event
 
@@ -25,7 +27,7 @@ class TimedObject(object):
 
 
 class CaseWrapper(TimedObject):
-    def __init__(self, case_func, parent):
+    def __init__(self, case_func, parent, execute_kwargs=None):
         super(CaseWrapper, self).__init__()
         self.case_func = case_func
         self.expects = []
@@ -33,11 +35,16 @@ class CaseWrapper(TimedObject):
         self.error = None
         self.skipped = False
         self.skip_reason = None
+        self.execute_kwargs = execute_kwargs
 
     def execute(self, context=None):
+        kwargs = {}
+        if self.execute_kwargs:
+            kwargs.update(self.execute_kwargs)
+
         self.start()
         try:
-            self.case_func(context or self)
+            MethodType(self.case_func, context or self)(**kwargs)
         except TestSkippedException as e:
             self.skipped = True
             self.skip_reason = e.reason if type(e.reason) is str else ''
@@ -137,7 +144,8 @@ class Describe(EventDispatcher):
 
         return (issubclass(other, Describe) and
                 other is not cls
-                and other is not Spec)
+                and other is not Spec
+                and other is not DataDescribe)
 
     @classmethod
     def case_filter(cls, obj):
@@ -154,6 +162,48 @@ class Describe(EventDispatcher):
 class Spec(Describe):
     pass
 
+
+class DataDescribe(Describe):
+    DATASET = {}
+
+    def __init__(self, parent=None):
+        super(DataDescribe, self).__init__(parent=parent)
+        self.cases = []
+
+        # Generate new functions and monkey-patch
+        for case_func in self.case_funcs:
+            for name, args in self.DATASET.items():
+                func_name = '{0}_{1}'.format(case_func.__name__, name)
+                new_func = copy_function(case_func, func_name)
+                kwargs = get_function_kwargs(case_func, args)
+
+                # Monkey-patch and add to cases list
+                setattr(self, func_name, new_func)
+                self.cases.append(CaseWrapper(new_func, parent=self,
+                                              execute_kwargs=kwargs))
+
+def copy_function(func, name):
+    py3 = (3, 0, 0)
+    code = (func.func_code
+            if sys.version_info < py3 else func.__code__)
+    globals = (func.func_globals
+               if sys.version_info < py3 else func.__globals__)
+
+    return FunctionType(code, globals, name)
+
+def get_function_kwargs(old_func, new_args):
+    args, _, _, defaults = inspect.getargspec(old_func)
+    if 'self' in args:
+        args.remove('self')
+
+    # Make sure we take into account required arguments
+    izip = (itertools.izip_longest
+            if sys.version_info < (3, 0, 0) else itertools.zip_longest)
+    kwargs = dict(
+        izip(args[::-1], list(defaults or ())[::-1], fillvalue=None))
+
+    kwargs.update(new_args)
+    return kwargs
 
 class DescribeEvent(Event):
     START = 'start'

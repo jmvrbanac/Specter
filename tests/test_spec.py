@@ -4,7 +4,8 @@ except ImportError:
     from unittest import TestCase
 from time import sleep
 
-from specter.spec import TimedObject, CaseWrapper, Spec, Describe
+from specter.spec import (TimedObject, CaseWrapper, Spec, Describe,
+                          copy_function, get_function_kwargs)
 
 
 class TestTimedObject(TestCase):
@@ -102,3 +103,22 @@ class TestSpecDescribe(TestCase):
 
     def test_doc_property(self):
         self.assertEqual(self.spec.doc, 'Example Doc String')
+
+class TestSpecHelpers(TestCase):
+
+    def test_copy_function(self):
+        def sample_func(arg, argv):
+            pass
+
+        new_func = copy_function(sample_func, 'new_func_name')
+        self.assertEqual(new_func.__name__, 'new_func_name')
+        self.assertNotEqual(sample_func, new_func)
+
+    def test_get_function_args_with_an_optional_arg(self):
+        def test_func(arg, argv=None):
+            pass
+
+        args = {'arg': 'temp'}
+        kwargs = get_function_kwargs(test_func, args)
+        self.assertEqual(kwargs.get('arg'), 'temp')
+        self.assertIsNone(kwargs.get('argv'))
