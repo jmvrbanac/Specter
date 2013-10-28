@@ -111,3 +111,33 @@ Lets say you are writing a test that checks for valid content within a request b
     # ... continue processing content
 
 Utilizing this concept can allow for better visibility into an issue when a test fails. For example, if in the given example, the request status code was 202, but the rest of the test passes, you will instantly can see the problem is with the response code and not the body of the message. This has the ability to save you quite a bit of time; especially if you are testing web APIs.
+
+
+Data-Driven Tests
+~~~~~~~~~~~~~~~~~~
+Often times you find that you need to run numerous types of data through a given test case. Rather than having to duplicate your tests a large number of times, you can utilize the concept of Data-Driven Tests. This will allow for you to subject your test cases to specified dataset.
+
+:raw-html:`<i>Example:</i>`
+
+.. code-block:: python
+
+    class ExampleDataDescribe(DataDescribe):
+        DATASET = {
+            'test': {'data_val': 'sample_text'},
+            'second_test': {'data_val': 'sample_text'}
+        }
+
+        def sample_data(self, data_val):
+            expect(arg).to.equal('sample_text')
+
+This dataset will produce a Describe with two tests: "sample_data_test" and "sample_data_second_test" each passed in "sample_text" under the data_val parameter.
+
+:raw-html:`<i>This would produce a console output similar to:</i>`
+
+.. code-block:: bash
+
+    ExampleDataDescribe
+      ∟ sample data test
+        ∟ expect "sample_text" to equal "sample_text"
+      ∟ sample data second test
+        ∟ expect "sample_text" to equal "sample_text"  
