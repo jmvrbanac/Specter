@@ -77,4 +77,5 @@ Argument        Description
 -h, --help      Show console help
 --search PATH   Specifies the search path for spec files
 --no-art        Disables the ASCII art on the runner
+--coverage      Enables coverage.py integration. Configure using .coveragerc
 ==============  ============
