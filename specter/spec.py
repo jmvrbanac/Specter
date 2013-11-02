@@ -125,11 +125,13 @@ class Describe(EventDispatcher):
 
     def execute(self):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
+
         # Execute Cases
         for case in self.cases:
             self.before_each()
             case.execute(context=self)
             self.after_each()
+
             self.top_parent.dispatch(TestEvent(case))
 
         # Execute Suites
