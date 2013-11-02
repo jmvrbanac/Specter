@@ -117,6 +117,12 @@ class Describe(EventDispatcher):
 
         return last_parent
 
+    def before_all(self):
+        pass
+
+    def after_all(self):
+        pass
+
     def before_each(self):
         pass
 
@@ -125,6 +131,8 @@ class Describe(EventDispatcher):
 
     def execute(self):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
+
+        self.before_all()
 
         # Execute Cases
         for case in self.cases:
@@ -137,6 +145,8 @@ class Describe(EventDispatcher):
         # Execute Suites
         for describe in self.describes:
             describe.execute()
+
+        self.after_all()
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.COMPLETE, self))
 
     @classmethod

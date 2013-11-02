@@ -43,10 +43,20 @@ Test Setup / Teardown
 
     class SampleSpec(Spec):
         """Docstring describing the specification"""
-
-        def before_each(self):
+        
+        # Called once before any tests or child Specs/Describes are called
+        def before_all(self):
+            pass
+        
+        # Called after all tests and child Specs/Describes have been called
+        def after_all(self):
             pass
 
+        # Called before each test
+        def before_each(self):
+            pass
+            
+        # Called after each test
         def after_each(self):
             pass
 
@@ -128,7 +138,7 @@ Often times you find that you need to run numerous types of data through a given
         }
 
         def sample_data(self, data_val):
-            expect(arg).to.equal('sample_text')
+            expect(data_val).to.equal('sample_text')
 
 This dataset will produce a Describe with two tests: "sample_data_test" and "sample_data_second_test" each passed in "sample_text" under the data_val parameter.
 
