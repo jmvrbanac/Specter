@@ -1,12 +1,29 @@
+import types
 from unittest import TestCase
 
-from specter.expect import ExpectAssert, RequireAssert
+from specter.expect import (ExpectAssert, RequireAssert, TestSkippedException,
+                            FailedRequireException)
 
 
 class TestExpectAssertion(TestCase):
 
     def _create_assert(self, target):
         return ExpectAssert(target)
+
+    def test_verify_true_condition(self):
+        target = 'test'
+        expect = self._create_assert(target)
+        self.assertTrue(expect._verify_condition(True))
+
+    def test_verify_false_condition(self):
+        target = 'test'
+        expect = self._create_assert(target)
+        try:
+            success = expect._verify_condition(False)
+        except FailedRequireException as e:
+            self.assertIsNotNone(e)
+        else:
+           self.assertFalse(success)
 
     def test_creating_a_blank_reference(self):
         target = 'test'
@@ -102,3 +119,13 @@ class TestRequireAssertion(TestExpectAssertion):
 
     def _create_assert(self, target):
         return RequireAssert(target)
+
+
+class TestExceptions(TestCase):
+
+    def test_create_instance_test_skipped_exception(self):
+        inst = TestSkippedException(lambda: None, reason='boom')
+
+        self.assertIsNotNone(inst)
+        self.assertIs(type(inst.func), types.FunctionType)
+        self.assertEqual(inst.reason, 'boom')

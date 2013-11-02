@@ -83,7 +83,7 @@ class SpecterRunner(object):
         self.collector.print_summary()
 
 
-def activate():
+def activate(): #pragma: no cover
     args = sys.argv[1:]
     runner = SpecterRunner()
     runner.run(args)
