@@ -168,7 +168,9 @@ class Describe(EventDispatcher):
         return (not func_name.startswith('_') and
                 not func_name == 'execute' and
                 not func_name == 'before_each' and
-                not func_name == 'after_each')
+                not func_name == 'after_each' and
+                not func_name == 'before_all' and
+                not func_name == 'after_all')
 
 
 class Spec(Describe):
