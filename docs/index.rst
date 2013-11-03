@@ -8,7 +8,11 @@ Welcome
 =======
 Specter is a Python testing framework inspired from RSpec and Jasmine. The library was created out of a desire to have a relatively flexible Python testing framework that adopted a more code-centric approach to BDD. 
 
-	Specter is open source and is available on `GitHub`_. We would love contributions.
+Specter is open-source and is available on `GitHub`_. We love contributions!
+
+.. note::
+
+	Questions? Join us on Freenode on the #specterframework channel
 
 Documentation
 -----------------
