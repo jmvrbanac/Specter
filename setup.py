@@ -21,9 +21,10 @@ setup(
     license='MIT License',
     author='John Vrbanac',
     author_email='john.vrbanac@linux.com',
-    description='Specter is a spec-based testing library to help facilitate BDD in Python.',
+    description='Specter is a spec-based testing library to help facilitate BDD-testing in Python.',
+    long_description=open('README.md').read(),
     classifiers=(
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
