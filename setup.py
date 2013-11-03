@@ -15,7 +15,7 @@ def read_requires(relative):
 
 setup(
     name='Specter',
-    version='0.1.1',
+    version='0.1.2',
     packages=['specter'],
     url='https://github.com/jmvrbanac/Specter',
     license='MIT License',
@@ -33,7 +33,7 @@ setup(
         'Programming Language :: Python :: 3.3',
     ),
     tests_require=read_requires('./tools/test-requires'),
-    install_requires=read_requires('./tools/pip-requires'),
+    install_requires=['pynsive', 'pyevents', 'coverage'],
     entry_points = {
         'console_scripts':
         ['specter = specter.runner:activate']}
