@@ -15,14 +15,13 @@ def read_requires(relative):
 
 setup(
     name='Specter',
-    version='0.1.0',
+    version='0.1.1',
     packages=['specter'],
     url='https://github.com/jmvrbanac/Specter',
     license='MIT License',
     author='John Vrbanac',
     author_email='john.vrbanac@linux.com',
     description='Specter is a spec-based testing library to help facilitate BDD-testing in Python.',
-    long_description=open('README.md').read(),
     classifiers=(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
