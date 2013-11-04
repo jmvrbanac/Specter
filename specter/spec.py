@@ -130,6 +130,10 @@ class Describe(EventDispatcher):
         pass
 
     def execute(self):
+        # If it doesn't have tests or describes, assume it's a fixture
+        if len(self.cases) <= 0 and len(self.describes) <= 0:
+            return
+
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
 
         self.before_all()

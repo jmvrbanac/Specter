@@ -104,6 +104,7 @@ class TestSpecDescribe(TestCase):
     def test_doc_property(self):
         self.assertEqual(self.spec.doc, 'Example Doc String')
 
+
 class TestSpecHelpers(TestCase):
 
     def test_copy_function(self):

@@ -22,3 +22,12 @@ class ExampleSpec(Spec):
 
         def sample_data(self, arg):
             expect(arg).to.equal([1])
+
+
+class ExampleFixture(Spec):
+    pass
+
+
+class ExampleSpecUsingAFixture(ExampleFixture):
+    def this_should_work(self):
+        pass
