@@ -13,6 +13,10 @@ def read_requires(relative):
         return []
     return [l for l in contents.split('\n') if l != '']
 
+long_desc = None
+if os.path.exists('pypi_description.rst'):
+    long_desc = open('pypi_description.rst').read()
+
 setup(
     name='Specter',
     version='0.1.2',
@@ -22,6 +26,7 @@ setup(
     author='John Vrbanac',
     author_email='john.vrbanac@linux.com',
     description='Specter is a spec-based testing library to help facilitate BDD-testing in Python.',
+    long_description=long_desc,
     classifiers=(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
