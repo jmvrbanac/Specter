@@ -73,6 +73,8 @@ class CaseWrapper(TimedObject):
 
 
 class Describe(EventDispatcher):
+    __FIXTURE__ = False
+
     def __init__(self, parent=None):
         super(Describe, self).__init__()
         self.parent = parent
@@ -94,8 +96,14 @@ class Describe(EventDispatcher):
 
     @property
     def __members__(self):
-        # Using the dict constructor instead of comp for 2.6 compatibility
-        return dict((key, val) for key, val in vars(type(self)).items())
+        all_members = {}
+        classes = list(type(self).__bases__) + [type(self)]
+
+        for klass in classes:
+            pairs = dict((key, val) for key, val in vars(klass).items())
+            all_members.update(pairs)
+
+        return all_members
 
     @property
     def describe_types(self):
@@ -117,6 +125,10 @@ class Describe(EventDispatcher):
 
         return last_parent
 
+    @classmethod
+    def is_fixture(cls):
+        return vars(cls).get('__FIXTURE__') is True
+
     def before_all(self):
         pass
 
@@ -130,7 +142,7 @@ class Describe(EventDispatcher):
         pass
 
     def execute(self):
-        # If it doesn't have tests or describes, assume it's a fixture
+        # If it doesn't have tests or describes don't run it
         if len(self.cases) <= 0 and len(self.describes) <= 0:
             return
 
@@ -156,6 +168,9 @@ class Describe(EventDispatcher):
     @classmethod
     def plugin_filter(cls, other):
         if not isinstance(other, type):
+            return False
+
+        if hasattr(other, 'is_fixture') and other.is_fixture():
             return False
 
         return (issubclass(other, Describe) and
@@ -199,6 +214,12 @@ class DataDescribe(Describe):
                 setattr(self, func_name, new_func)
                 self.cases.append(CaseWrapper(new_func, parent=self,
                                               execute_kwargs=kwargs))
+
+
+def fixture(cls):
+    """ A simple decorator to set the fixture flag on the class."""
+    setattr(cls, '__FIXTURE__', True)
+    return cls
 
 def copy_function(func, name):
     py3 = (3, 0, 0)

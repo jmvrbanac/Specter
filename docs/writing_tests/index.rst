@@ -16,6 +16,7 @@ Most frameworks require you to start your test with a given prefix such as :raw-
 Writing Tests
 ~~~~~~~~~~~~~~
 Writing a test in Specter is simple.
+
 1. Create a class which extends Spec or Describe
 2. Create a function in that class that calls expect or require once
 
@@ -86,6 +87,44 @@ Within Specter you can create a nested test description (suite) in the form of a
             def it_should_do_something(self):
                 """ Test Docstring """
                 expect('trace').to.equal('trace')
+
+
+Test Fixtures
+~~~~~~~~~~~~~~
+In Specter, a test fixture is defined as a test base class that is not treated as a runnable test specification. This allows for you to build reusable test suites through inheritance. To facilitate this, there is a decorator named "fixture" available in the spec module.
+
+:raw-html:`<i>Example:</i>`
+
+.. code-block:: python
+
+    from specter.spec import Spec, fixture
+    from specter.expect import expect
+    
+    @fixture
+    class ExampleTestFixture(Spec):
+    
+        def _random_helper_func(self):
+            pass
+    
+        def sample_test(self):
+            """This test will be on every Spec that inherits this fixture"""
+            expect('something').to.equal('something')
+    
+    
+    class UsingFixture(ExampleTestFixture):
+    
+        def another_test(self):
+            expect('this').not_to.equal('that')
+            
+:raw-html:`<i>Expected Output:</i>`
+
+.. code-block:: bash
+
+    UsingFixture
+      ∟ sample test
+        • expect "something" to equal "something"
+      ∟ another test
+        • expect "this" not to equal "that"
 
 
 Assertions / Expectations

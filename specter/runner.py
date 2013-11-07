@@ -87,3 +87,6 @@ def activate(): #pragma: no cover
     args = sys.argv[1:]
     runner = SpecterRunner()
     runner.run(args)
+
+if __name__ == "__main__":
+    activate()
