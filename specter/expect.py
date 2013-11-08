@@ -114,9 +114,11 @@ def get_called_src_line():
         pass
     return src_line
 
+
 def get_expect_param_strs(src_line):
     matches = re.search('\((.*?)\)\..*\((.*?)\)', src_line)
     return (matches.group(1), matches.group(2)) if matches else None
+
 
 def expect(obj):
     src_params = get_expect_param_strs(get_called_src_line())
