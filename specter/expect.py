@@ -1,5 +1,6 @@
 import inspect
 import functools
+import re
 # Making sure we support 2.7 and 3+
 try:
     from types import ClassType as ClassObjType
@@ -13,11 +14,14 @@ from specter.spec import (CaseWrapper, FailedRequireException,
 
 class ExpectAssert(object):
 
-    def __init__(self, target, required=False):
+    def __init__(self, target, required=False, src_params=None):
         super(ExpectAssert, self).__init__()
         self.prefix = _('expect')
         self.target = target
-        self.actions = ['"{target}"'.format(target=str(target))]
+        self.target_src_param = src_params[0] if src_params else None
+        self.expected_src_param = src_params[1] if src_params else None
+        self.actions = ['{target}'.format(
+            target=self.target_src_param or str(target))]
         self.success = False
         self.used_negative = False
         self.required = required
@@ -41,7 +45,8 @@ class ExpectAssert(object):
 
     def _compare(self, action_name, expected, condition):
         self.expected = expected
-        self.actions.extend([action_name, '"{0}"'.format(str(expected))])
+        self.actions.extend([action_name, '{0}'.format(
+            self.expected_src_param or str(expected))])
         self._verify_condition(condition=condition)
 
     def equal(self, expected):
@@ -80,8 +85,9 @@ class ExpectAssert(object):
 
 class RequireAssert(ExpectAssert):
 
-    def __init__(self, target):
-        super(RequireAssert, self).__init__(target=target, required=True)
+    def __init__(self, target, src_params=None):
+        super(RequireAssert, self).__init__(target=target, required=True,
+                                            src_params=src_params)
         self.prefix = _('require')
 
 
@@ -97,14 +103,31 @@ def _add_expect_to_wrapper(obj_to_add):
                         'wrapper: {err}').format(err=error))
 
 
+def get_called_src_line():
+    src_line = None
+    try:
+        last_frame = inspect.currentframe().f_back.f_back
+        last_module = inspect.getmodule(type(last_frame.f_locals['self']))
+        line = last_frame.f_lineno - 1
+        src_line = inspect.getsourcelines(last_module)[0][line]
+    except:
+        pass
+    return src_line
+
+def get_expect_param_strs(src_line):
+    matches = re.search('\((.*?)\)\..*\((.*?)\)', src_line)
+    return (matches.group(1), matches.group(2)) if matches else None
+
 def expect(obj):
-    expect_obj = ExpectAssert(obj)
+    src_params = get_expect_param_strs(get_called_src_line())
+    expect_obj = ExpectAssert(obj, src_params=src_params)
     _add_expect_to_wrapper(expect_obj)
     return expect_obj
 
 
 def require(obj):
-    require_obj = RequireAssert(obj)
+    src_params = get_expect_param_strs(get_called_src_line())
+    require_obj = RequireAssert(obj, src_params=src_params)
     _add_expect_to_wrapper(require_obj)
     return require_obj
 
