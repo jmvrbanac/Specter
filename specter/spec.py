@@ -48,10 +48,10 @@ class CaseWrapper(TimedObject):
         except TestSkippedException as e:
             self.skipped = True
             self.skip_reason = e.reason if type(e.reason) is str else ''
-        except Exception as e:
-            self.error = e
         except FailedRequireException:
             pass
+        except Exception as e:
+            self.error = e
         self.stop()
 
     @property
