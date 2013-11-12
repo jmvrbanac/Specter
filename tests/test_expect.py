@@ -90,6 +90,18 @@ class TestExpectAssertion(TestCase):
         expect.not_to.contain('bam')
         self.assertTrue(expect.success)
 
+    def test_expect_be_in(self):
+        target = 'this is a test'
+        expect = self._create_assert(target)
+        expect.to.be_in('is')
+        self.assertTrue(expect.success)
+
+    def test_expect_not_be_in(self):
+        target = 'this is a test'
+        expect = self._create_assert(target)
+        expect.not_to.be_in('bam')
+        self.assertTrue(expect.success)
+
     def test_expect_true(self):
         target = True
         expect = self._create_assert(target)

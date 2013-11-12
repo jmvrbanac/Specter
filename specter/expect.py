@@ -77,6 +77,10 @@ class ExpectAssert(object):
         self._compare(action_name=_('contain'), expected=expected,
                       condition=expected in self.target)
 
+    def be_in(self, expected):
+        self._compare(action_name=_('be in'), expected=expected,
+                      condition=expected in self.target)
+
     def __str__(self):
         action_str = ' '.join(self.actions)
         return _('{prefix} {action}').format(prefix=self.prefix,

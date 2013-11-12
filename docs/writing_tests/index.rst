@@ -145,7 +145,8 @@ Available Comparisons
     * be_none()
     * be_true()
     * be_false()
-    * contain(expected_object):
+    * contain(expected_object)
+    * be_in(expected_object)
 
 Fast-fail expectations
 ^^^^^^^^^^^^^^^^^^^^^^^
