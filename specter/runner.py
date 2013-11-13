@@ -81,6 +81,7 @@ class SpecterRunner(object):
             self.coverage.save()
 
         self.collector.print_summary()
+        self.suite_scanner.destroy()
 
 
 def activate(): #pragma: no cover
