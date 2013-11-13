@@ -34,6 +34,7 @@ class CaseWrapper(TimedObject):
         self.parent = parent
         self.error = None
         self.skipped = False
+        self.incomplete = False
         self.skip_reason = None
         self.execute_kwargs = execute_kwargs
 
@@ -45,6 +46,8 @@ class CaseWrapper(TimedObject):
         self.start()
         try:
             MethodType(self.case_func, context or self)(**kwargs)
+        except TestIncompleteException:
+            self.incomplete = True
         except TestSkippedException as e:
             self.skipped = True
             self.skip_reason = e.reason if type(e.reason) is str else ''
@@ -261,6 +264,12 @@ class FailedRequireException(Exception):
 
 
 class TestSkippedException(Exception):
+    def __init__(self, func, reason=None):
+        self.func = func
+        self.reason = reason
+
+
+class TestIncompleteException(Exception):
     def __init__(self, func, reason=None):
         self.func = func
         self.reason = reason

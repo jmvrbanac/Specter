@@ -9,7 +9,7 @@ except:
 
 from specter import _
 from specter.spec import (CaseWrapper, FailedRequireException,
-                          TestSkippedException)
+                          TestSkippedException, TestIncompleteException)
 
 
 class ExpectAssert(object):
@@ -139,6 +139,10 @@ def require(obj):
 
 
 def skip(reason):
+    """ The skip decorator allows for you to always bypass a test.
+
+    :param reason: Expects a string
+    """
     def decorator(test_func):
         if not isinstance(test_func, (type, ClassObjType)):
             @functools.wraps(test_func)
@@ -150,9 +154,36 @@ def skip(reason):
 
 
 def skip_if(condition, reason=None):
+    """ The skip_if decorator allows for you to bypass a test given that a
+    specific condition is met.
+
+    :param condition: Expects a boolean
+    :param reason: Expects a string
+    """
     if condition:
         return skip(reason)
 
     def wrapper(func):
         return func
     return wrapper
+
+
+def incomplete(test_func):
+    """ The incomplete decorator behaves much like a normal skip; however,
+    tests that are marked as incomplete get tracked under a different metric.
+    This allows for you to create a skeleton around all of your features and
+    specifications, and track what tests have been written and what
+    tests are left outstanding.
+
+    .. code-block:: python
+
+        # Example of using the incomplete decorator
+        @incomplete
+        def it_should_do_something(self):
+            pass
+    """
+    if not isinstance(test_func, (type, ClassObjType)):
+        @functools.wraps(test_func)
+        def skip_wrapper(*args, **kwargs):
+            raise TestIncompleteException(test_func, _('Test is incomplete'))
+        return skip_wrapper

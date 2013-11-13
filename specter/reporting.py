@@ -5,6 +5,7 @@ class TestStatus():
     PASS = 'passed'
     FAIL = 'failed'
     SKIP = 'skipped'
+    INCOMPLETE = 'incomplete'
 
 
 class ConsoleColors():
@@ -31,6 +32,7 @@ class ConsoleReporter(object):
         self.passed_tests = 0
         self.skipped_tests = 0
         self.failed_tests = 0
+        self.incomplete_tests = 0
         self.output_docstrings = output_docstrings
 
     def add_describe(self, describe):
@@ -43,6 +45,8 @@ class ConsoleReporter(object):
             color = ConsoleColors.GREEN
         elif status == TestStatus.SKIP:
             color = ConsoleColors.YELLOW
+        elif status == TestStatus.INCOMPLETE:
+            color = ConsoleColors.MAGENTA
 
         self.print_indent_msg(msg=msg, level=level, color=color)
 
@@ -70,8 +74,12 @@ class ConsoleReporter(object):
             name = u'\u221F {0}'.format(name)
 
         status = TestStatus.FAIL
-        if test_case.success and not test_case.skipped:
+        if (test_case.success and not test_case.skipped
+            and not test_case.incomplete):
             status = TestStatus.PASS
+        elif test_case.incomplete:
+            status = TestStatus.INCOMPLETE
+            name = u'{name} (incomplete)'.format(name=name)
         elif test_case.skipped:
             status = TestStatus.SKIP
             name = u'{name} (skipped): {reason}'.format(
@@ -80,7 +88,7 @@ class ConsoleReporter(object):
         self.print_test_msg(name, level, status)
 
         if test_case.doc and self.output_docstrings:
-            self.print_indent_msg(test_case.doc, level+1, test_case.success)
+            self.print_indent_msg(test_case.doc, level+1, status)
 
         # Print error if it exists
         if test_case.error:
@@ -99,10 +107,13 @@ class ConsoleReporter(object):
 
         # Add test to totals
         self.test_total += 1
-        if test_case.success and not test_case.skipped:
+        if (test_case.success and not test_case.skipped
+            and not test_case.incomplete):
             self.passed_tests += 1
         elif test_case.skipped:
             self.skipped_tests += 1
+        elif test_case.incomplete:
+            self.incomplete_tests += 1
         else:
             self.failed_tests += 1
         self.test_expects += len(test_case.expects)
@@ -121,12 +132,13 @@ class ConsoleReporter(object):
 Passed          | {passed}
 Skipped         | {skipped}
 Failed          | {failed}
+Incomplete      | {incomplete}
 Test Total      | {total}
  - Expectations | {expects}
 """.format(
             total=self.test_total, passed=self.passed_tests,
             failed=self.failed_tests, expects=self.test_expects,
-            skipped=self.skipped_tests)
+            skipped=self.skipped_tests, incomplete=self.incomplete_tests)
 
         success = self.failed_tests == 0
 

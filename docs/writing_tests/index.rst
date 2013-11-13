@@ -190,4 +190,16 @@ This dataset will produce a Describe with two tests: "sample_data_test" and "sam
       ∟ sample data test
         ∟ expect "sample_text" to equal "sample_text"
       ∟ sample data second test
-        ∟ expect "sample_text" to equal "sample_text"  
+        ∟ expect "sample_text" to equal "sample_text"
+
+
+
+Skipping Tests
+~~~~~~~~~~~~~~~~~~
+Specter provided a few different ways of skipping tests.
+
+.. autofunction:: specter.expect.skip
+.. autofunction:: specter.expect.skip_if
+.. autofunction:: specter.expect.incomplete()
+    
+
