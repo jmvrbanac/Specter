@@ -6,6 +6,7 @@ from time import time
 from types import FunctionType, MethodType
 from pyevents.manager import EventDispatcher
 from pyevents.event import Event
+from specter.util import get_real_last_traceback
 
 
 class TimedObject(object):
@@ -54,7 +55,7 @@ class CaseWrapper(TimedObject):
         except FailedRequireException:
             pass
         except Exception as e:
-            self.error = e
+            self.error = get_real_last_traceback(e)
         self.stop()
 
     @property

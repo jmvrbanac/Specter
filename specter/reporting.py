@@ -92,8 +92,8 @@ class ConsoleReporter(object):
 
         # Print error if it exists
         if test_case.error:
-            msg = 'Exception thrown: {0}'.format(test_case.error)
-            self.print_test_msg(msg, level+1, TestStatus.FAIL)
+            for line in test_case.error:
+                self.print_test_msg(line, level+2, TestStatus.FAIL)
 
         # Print expects
         for expect in test_case.expects:

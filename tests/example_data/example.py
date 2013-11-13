@@ -18,10 +18,13 @@ class ExampleSpec(Spec):
     def an_incomplete_test(self):
         expect('this should never be called').to.equal(None)
 
+    def causing_a_traceback(self):
+        expect(Nope).to.be_none()  # NOQA
+
     class ExampleDataDescribe(DataDescribe):
         DATASET = {
-            'test': {'arg':[1]},
-            'test2': {'arg':[1]}
+            'test': {'arg': [1]},
+            'test2': {'arg': [1]}
         }
 
         def sample_data(self, arg):

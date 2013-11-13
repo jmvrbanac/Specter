@@ -56,7 +56,7 @@ class TestCaseWrapper(TestCase):
         self.wrapper.execute()
 
         self.assertIsNotNone(self.wrapper.error)
-        self.assertIs(type(self.wrapper.error), AttributeError)
+        self.assertIs(type(self.wrapper.error), list)
 
     def test_name_property(self):
         self.assertEqual(self.wrapper.name, 'example_handler')

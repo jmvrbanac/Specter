@@ -1,6 +1,5 @@
 import inspect
 import functools
-import re
 # Making sure we support 2.7 and 3+
 try:
     from types import ClassType as ClassObjType
@@ -10,6 +9,7 @@ except:
 from specter import _
 from specter.spec import (CaseWrapper, FailedRequireException,
                           TestSkippedException, TestIncompleteException)
+from specter.util import get_called_src_line, get_expect_param_strs
 
 
 class ExpectAssert(object):
@@ -105,23 +105,6 @@ def _add_expect_to_wrapper(obj_to_add):
     except Exception as error:
         raise Exception(_('Error attempting to add expect to parent '
                         'wrapper: {err}').format(err=error))
-
-
-def get_called_src_line():
-    src_line = None
-    try:
-        last_frame = inspect.currentframe().f_back.f_back
-        last_module = inspect.getmodule(type(last_frame.f_locals['self']))
-        line = last_frame.f_lineno - 1
-        src_line = inspect.getsourcelines(last_module)[0][line]
-    except:
-        pass
-    return src_line
-
-
-def get_expect_param_strs(src_line):
-    matches = re.search('\((.*?)\)\..*\((.*?)\)', src_line)
-    return (matches.group(1), matches.group(2)) if matches else None
 
 
 def expect(obj):
