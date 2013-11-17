@@ -4,6 +4,14 @@ import itertools
 import sys
 
 
+def convert_camelcase(input_str):
+    if input_str is None:
+        return ''
+
+    camelcase_tags = '((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))'
+    return re.sub(camelcase_tags, r' \1', input_str)
+
+
 def get_called_src_line():
     src_line = None
     try:

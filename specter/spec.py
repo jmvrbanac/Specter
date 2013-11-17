@@ -6,7 +6,7 @@ from time import time
 from types import FunctionType, MethodType
 from pyevents.manager import EventDispatcher
 from pyevents.event import Event
-from specter.util import get_real_last_traceback
+from specter.util import get_real_last_traceback, convert_camelcase
 
 
 class TimedObject(object):
@@ -60,7 +60,7 @@ class CaseWrapper(TimedObject):
 
     @property
     def name(self):
-        return self.case_func.__name__
+        return convert_camelcase(self.case_func.__name__)
 
     @property
     def pretty_name(self):
@@ -92,7 +92,7 @@ class Describe(EventDispatcher):
 
     @property
     def name(self):
-        return self.__class__.__name__
+        return convert_camelcase(self.__class__.__name__)
 
     @property
     def doc(self):

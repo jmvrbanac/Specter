@@ -99,7 +99,7 @@ class TestSpecDescribe(TestCase):
         self.spec = ExampleSpec()
 
     def test_name_property(self):
-        self.assertEqual(self.spec.name, 'ExampleSpec')
+        self.assertEqual(self.spec.name, 'Example Spec')
 
     def test_doc_property(self):
         self.assertEqual(self.spec.doc, 'Example Doc String')
