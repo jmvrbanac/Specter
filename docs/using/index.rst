@@ -78,4 +78,5 @@ Argument        Description
 --search PATH   Specifies the search path for spec files
 --no-art        Disables the ASCII art on the runner
 --coverage      Enables coverage.py integration. Configure using .coveragerc
+--select-module Selects a module path to run. Ex: spec.sample.TestClass
 ==============  ============

@@ -28,5 +28,13 @@ class TestSpecterRunner(TestCase):
         self.assertEqual(self.runner.collector.test_total, 10)
 
     def test_run_w_bad_path(self):
-        self.runner.run(args=['--search', './cobble', '--no-art'])
+        self.runner.run(args=['--search', './cobble'])
         self.assertEqual(len(self.runner.suite_types), 0)
+
+    def test_run_w_select_module(self):
+        self.runner.run(args=['--search', './tests/example_data', '--no-art',
+                              '--select-module',
+                              'example.ExampleDataDescribe'])
+        self.assertEqual(len(self.runner.suite_types), 1)
+        self.assertEqual(self.runner.collector.skipped_tests, 0)
+        self.assertEqual(self.runner.collector.test_total, 2)

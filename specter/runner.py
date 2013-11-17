@@ -30,6 +30,11 @@ class SpecterRunner(object):
         self.arg_parser.add_argument(
             '--no-art', dest='no_art', action='store_true',
             help=_('Disables ASCII art'))
+        self.arg_parser.add_argument(
+            '--select-module', dest='select_module',
+            help=_('Selects a module path to run. '
+                   'Ex: spec.sample.TestClass'),
+            default=None)
 
     def generate_ascii_art(self):
         tag_line = _('Keeping the boogy man away from your code!')
@@ -57,10 +62,12 @@ class SpecterRunner(object):
                                            '*/specter/spec.py',
                                            '*/specter/expect.py',
                                            '*/specter/reporting.py',
-                                           '*/specter/__init__.py',])
+                                           '*/specter/__init__.py'])
             self.coverage._warn_no_data = False
 
-        self.suite_types = self.suite_scanner.scan(self.arguments.search)
+        self.suite_types = self.suite_scanner.scan(
+            search_path=self.arguments.search,
+            module_name=self.arguments.select_module)
 
         for suite_type in self.suite_types:
             # Start Coverage Capture

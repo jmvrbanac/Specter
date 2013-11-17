@@ -95,16 +95,31 @@ class Describe(EventDispatcher):
     def doc(self):
         return type(self).__doc__
 
-    @property
-    def __members__(self):
+    @classmethod
+    def __cls_members__(cls):
         all_members = {}
-        classes = list(type(self).__bases__) + [type(self)]
+        classes = list(cls.__bases__) + [cls]
 
         for klass in classes:
             pairs = dict((key, val) for key, val in vars(klass).items())
             all_members.update(pairs)
 
         return all_members
+
+    @classmethod
+    def __get_all_child_describes__(cls):
+        members = cls.__cls_members__()
+        child_describes = [val for key, val in members.items()
+                           if Describe.plugin_filter(val)]
+        all_children = child_describes + [cls]
+
+        for child in child_describes:
+            all_children.extend(child.__get_all_child_describes__())
+        return set(all_children)
+
+    @property
+    def __members__(self):
+        return type(self).__cls_members__()
 
     @property
     def describe_types(self):
