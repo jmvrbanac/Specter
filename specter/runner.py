@@ -61,7 +61,6 @@ class SpecterRunner(object):
             self.coverage._warn_no_data = False
 
         self.suite_types = self.suite_scanner.scan(self.arguments.search)
-        shuffle(self.suite_types)
 
         for suite_type in self.suite_types:
             # Start Coverage Capture

@@ -87,9 +87,6 @@ class Describe(EventDispatcher):
         self.describes = [desc_type(parent=self)
                           for desc_type in self.describe_types]
 
-        shuffle(self.cases)
-        shuffle(self.describes)
-
     @property
     def name(self):
         return convert_camelcase(self.__class__.__name__)
