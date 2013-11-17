@@ -2,6 +2,11 @@ from specter.spec import Spec, DataDescribe
 from specter.expect import expect, require, skip_if, incomplete
 
 
+class TestObj(object):
+    def __str__(self):
+        return '<object>\nbam\ntest'
+
+
 class ExampleSpec(Spec):
     """Basic File to test scanner and runner"""
 
@@ -13,13 +18,16 @@ class ExampleSpec(Spec):
     @skip_if(True, 'Not needed')
     def a_skipped_test(self):
         expect('trace').not_to.equal('boom')
-    
+
     @incomplete
     def an_incomplete_test(self):
         expect('this should never be called').to.equal(None)
 
     def causing_a_traceback(self):
         expect(Nope).to.be_none()  # NOQA
+
+    def causes_multi_line_error(self):
+        expect(TestObj()).to.be_none()
 
     class ExampleDataDescribe(DataDescribe):
         DATASET = {

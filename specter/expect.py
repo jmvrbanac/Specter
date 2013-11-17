@@ -20,8 +20,7 @@ class ExpectAssert(object):
         self.target = target
         self.target_src_param = src_params[0] if src_params else None
         self.expected_src_param = src_params[1] if src_params else None
-        self.actions = ['{target}'.format(
-            target=self.target_src_param or str(target))]
+        self.actions = [target]
         self.success = False
         self.used_negative = False
         self.required = required
@@ -45,8 +44,7 @@ class ExpectAssert(object):
 
     def _compare(self, action_name, expected, condition):
         self.expected = expected
-        self.actions.extend([action_name, '{0}'.format(
-            self.expected_src_param or str(expected))])
+        self.actions.extend([action_name, expected])
         self._verify_condition(condition=condition)
 
     def equal(self, expected):
@@ -82,9 +80,12 @@ class ExpectAssert(object):
                       condition=expected in self.target)
 
     def __str__(self):
-        action_str = ' '.join(self.actions)
-        return _('{prefix} {action}').format(prefix=self.prefix,
-                                             action=action_str)
+        action_list = []
+        action_list.extend(self.actions)
+        action_list[0] = self.target_src_param or str(self.target)
+        action_list[-1] = self.expected_src_param or str(self.expected)
+
+        return ' '.join([str(action) for action in action_list])
 
 
 class RequireAssert(ExpectAssert):

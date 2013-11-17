@@ -18,14 +18,14 @@ class TestSpecterRunner(TestCase):
         self.runner.run(args=['--search', './tests/example_data', '--no-art'])
         self.assertEqual(len(self.runner.suite_types), 4)
         self.assertEqual(self.runner.collector.skipped_tests, 1)
-        self.assertEqual(self.runner.collector.test_total, 9)
+        self.assertEqual(self.runner.collector.test_total, 10)
 
     def test_run_w_coverage(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
                               '--coverage'])
         self.assertEqual(len(self.runner.suite_types), 4)
         self.assertEqual(self.runner.collector.skipped_tests, 1)
-        self.assertEqual(self.runner.collector.test_total, 9)
+        self.assertEqual(self.runner.collector.test_total, 10)
 
     def test_run_w_bad_path(self):
         self.runner.run(args=['--search', './cobble', '--no-art'])

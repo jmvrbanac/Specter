@@ -1,4 +1,6 @@
+import re
 from specter.spec import TestEvent, DescribeEvent
+from specter import _
 
 
 class TestStatus():
@@ -49,6 +51,10 @@ class ConsoleReporter(object):
             color = ConsoleColors.MAGENTA
 
         self.print_indent_msg(msg=msg, level=level, color=color)
+
+    def print_msg_list(self, msg_list, level, color=ConsoleColors.WHITE):
+        for msg in msg_list:
+            self.print_indent_msg(msg=msg, level=level, color=color)
 
     def print_indent_msg(self, msg, level=0, color=ConsoleColors.WHITE):
         indent = u' ' * self.INDENT
@@ -104,6 +110,23 @@ class ConsoleReporter(object):
                 status = TestStatus.PASS
 
             self.print_test_msg(expect_msg, level+1, status=status)
+
+            def hardcoded(param):
+                result = re.match('^(\'|"|\d)', str(param)) is not None
+                return result
+
+            def print_param(value, param, indent, prefix):
+                if not expect.success and not hardcoded(param):
+                    msg_list = str(value).splitlines() or ['']
+                    prefix = _('{0}: {1}').format(param or prefix, msg_list[0])
+                    self.print_indent_msg(prefix, indent)
+                    if len(msg_list) > 1:
+                        self.print_msg_list(msg_list[1:], indent)
+
+            print_param(expect.target, expect.target_src_param,
+                        level + 3, 'Target')
+            print_param(expect.expected, expect.expected_src_param,
+                        level + 3, 'Expected')
 
         # Add test to totals
         self.test_total += 1
