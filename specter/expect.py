@@ -63,7 +63,7 @@ class ExpectAssert(object):
 
     def be_none(self):
         self._compare(action_name=_('be'), expected=None,
-                      condition=self.target == None)
+                      condition=self.target is None)
 
     def be_true(self):
         self._compare(action_name=_('be'), expected=True,
