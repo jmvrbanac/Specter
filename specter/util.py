@@ -80,8 +80,8 @@ def get_real_last_traceback(exception):
         traceback_lines.append('------------------')
         traceback_blocks.append(traceback_lines)
 
-    traceback_blocks[-1].append(' - Error: {0}'.format(exception))
     traced_lines = ['Error Traceback:']
     traced_lines.extend(itertools.chain.from_iterable(traceback_blocks))
+    traced_lines.append(' - Error: {0}'.format(exception))
 
     return traced_lines
