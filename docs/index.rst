@@ -26,10 +26,18 @@ Documentation
 Continuous Integration
 -----------------------
 
-:raw-html:`<a href="https://travis-ci.org/jmvrbanac/Specter">Travis CI : <img src="https://travis-ci.org/jmvrbanac/Specter.png?branch=master" alt='Build Status'/></a>`
+.. only:: latex
 
-:raw-html:`<a href='https://coveralls.io/r/jmvrbanac/Specter?branch=master'>Coveralls : <img src='https://coveralls.io/repos/jmvrbanac/Specter/badge.png?branch=master' alt='Coverage Status' /></a>`
+    Travis CI builds - https://travis-ci.org/jmvrbanac/Specter
+    
+    Coveralls Coverage - https://coveralls.io/r/jmvrbanac/Specter?branch=master  
 
+.. only:: html
+    
+    :raw-html:`<a href="https://travis-ci.org/jmvrbanac/Specter">Travis CI : <img src="https://travis-ci.org/jmvrbanac/Specter.png?branch=master" alt='Build Status'/></a>`
+    
+    :raw-html:`<a href='https://coveralls.io/r/jmvrbanac/Specter?branch=master'>Coveralls : <img src='https://coveralls.io/repos/jmvrbanac/Specter/badge.png?branch=master' alt='Coverage Status' /></a>`
+    
 
 
 Tested Python Versions
