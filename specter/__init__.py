@@ -12,3 +12,8 @@ gettext.install('specter', **gettext_kwargs)
 def _(msg):
     """ Dealing with pylint problems"""
     return gettext.gettext(msg)
+
+# Aliasing commonly used classes
+from specter.spec import Describe, DataDescribe, Spec, fixture  # NOQA
+from specter.expect import (expect, require, skip, skip_if,  # NOQA
+                            incomplete, metadata)  # NOQA
