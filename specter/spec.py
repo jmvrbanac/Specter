@@ -98,6 +98,18 @@ class Describe(EventDispatcher):
         return type(self).__doc__
 
     @property
+    def success(self):
+        ok = True
+        case_successes = [case.success for case in self.cases]
+        spec_successes = [spec.success for spec in self.describes]
+        if case_successes and False in case_successes:
+            ok = False
+
+        if spec_successes and False in spec_successes:
+            ok = False
+        return ok
+
+    @property
     def __wrappers__(self):
         wrappers = []
         for case_func in self.case_funcs:

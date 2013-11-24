@@ -19,6 +19,7 @@ class SpecterRunner(object):
         self.collector = ConsoleReporter()
         self.arg_parser = ArgumentParser(description=self.DESCRIPTION)
         self.setup_argparse()
+        self.suites = []
 
     def setup_argparse(self):
         self.arg_parser.add_argument(
@@ -85,6 +86,7 @@ class SpecterRunner(object):
                 self.coverage.start()
 
             suite = suite_type()
+            self.suites.append(suite)
             self.collector.add_describe(suite)
             suite.execute(select_metadata=select_meta)
 
@@ -104,6 +106,10 @@ def activate(): #pragma: no cover
     args = sys.argv[1:]
     runner = SpecterRunner()
     runner.run(args)
+    # Return error code if tests fail
+    for suite in runner.suites:
+        if not suite.success:
+            exit(1)
 
 if __name__ == "__main__":
     activate()
