@@ -24,8 +24,7 @@ Writing a test in Specter is simple.
 
 .. code-block:: python
 
-    from specter.spec import Spec
-    from specter.expect import expect
+    from specter import Spec, expect
 
     class SampleSpec(Spec):
         """Docstring describing the specification"""
@@ -39,8 +38,7 @@ Test Setup / Teardown
 
 .. code-block:: python
 
-    from specter.spec import Spec
-    from specter.expect import expect
+    from specter import Spec, expect
 
     class SampleSpec(Spec):
         """Docstring describing the specification"""
@@ -76,8 +74,7 @@ Within Specter you can create a nested test description (suite) in the form of a
 
 .. code-block:: python
 
-    from specter.spec import Describe, Spec
-    from specter.expect import expect
+    from specter import Describe, Spec, 
 
     class SampleSpec(Spec):
 
@@ -97,8 +94,7 @@ In Specter, a test fixture is defined as a test base class that is not treated a
 
 .. code-block:: python
 
-    from specter.spec import Spec, fixture
-    from specter.expect import expect
+    from specter import Spec, fixture, expect
     
     @fixture
     class ExampleTestFixture(Spec):
@@ -198,13 +194,13 @@ Skipping Tests
 ~~~~~~~~~~~~~~~~~~
 Specter provided a few different ways of skipping tests.
 
-.. autofunction:: specter.expect.skip
-.. autofunction:: specter.expect.skip_if
-.. autofunction:: specter.expect.incomplete()
+.. autofunction:: specter.skip
+.. autofunction:: specter.skip_if
+.. autofunction:: specter.incomplete()
     
 
 Adding Metadata to Tests (coming soon)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Specter allows for you to tag tests with metadata. The primary purpose of this is to be able to carry misc information along with your test. At some point in the future, Specter will be able to output this information for consumption and processing. However, currently, metadata information can be used to select which tests you want to run.
 
-.. autofunction:: specter.expect.metadata
+.. autofunction:: specter.metadata
