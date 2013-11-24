@@ -203,8 +203,8 @@ Specter provided a few different ways of skipping tests.
 .. autofunction:: specter.expect.incomplete()
     
 
-Adding Metadata to Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding Metadata to Tests (coming soon)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Specter allows for you to tag tests with metadata. The primary purpose of this is to be able to carry misc information along with your test. At some point in the future, Specter will be able to output this information for consumption and processing. However, currently, metadata information can be used to select which tests you want to run.
 
 .. autofunction:: specter.expect.metadata
