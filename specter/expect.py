@@ -171,3 +171,22 @@ def incomplete(test_func):
         def skip_wrapper(*args, **kwargs):
             raise TestIncompleteException(test_func, _('Test is incomplete'))
         return skip_wrapper
+
+
+def metadata(**key_value_pairs):
+    """ The metadata decorator allows for you to tag specific tests with
+    key/value data for run-time processing or reporting. The common use case
+    is to use metadata to tag a test as a positive or negative test type.
+
+    .. code-block:: python
+
+        # Example of using the metadata decorator
+        @metadata(type='negative')
+        def it_shouldnt_do_something(self):
+            pass
+    """
+    def onTestFunc(func):
+        def onCall(*args, **kwargs):
+            return (func, key_value_pairs)
+        return onCall
+    return onTestFunc

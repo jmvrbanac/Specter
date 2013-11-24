@@ -18,14 +18,14 @@ class TestSpecterRunner(TestCase):
         self.runner.run(args=['--search', './tests/example_data', '--no-art'])
         self.assertEqual(len(self.runner.suite_types), 4)
         self.assertEqual(self.runner.collector.skipped_tests, 1)
-        self.assertEqual(self.runner.collector.test_total, 10)
+        self.assertEqual(self.runner.collector.test_total, 11)
 
     def test_run_w_coverage(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
                               '--coverage'])
         self.assertEqual(len(self.runner.suite_types), 4)
         self.assertEqual(self.runner.collector.skipped_tests, 1)
-        self.assertEqual(self.runner.collector.test_total, 10)
+        self.assertEqual(self.runner.collector.test_total, 11)
 
     def test_run_w_bad_path(self):
         self.runner.run(args=['--search', './cobble'])
@@ -38,3 +38,9 @@ class TestSpecterRunner(TestCase):
         self.assertEqual(len(self.runner.suite_types), 1)
         self.assertEqual(self.runner.collector.skipped_tests, 0)
         self.assertEqual(self.runner.collector.test_total, 2)
+
+    def test_run_w_select_by_metadata(self):
+        self.runner.run(args=['--search', './tests/example_data', '--no-art',
+                              '--select-by-metadata', 'test="smoke"'])
+        self.assertEqual(len(self.runner.suite_types), 4)
+        self.assertEqual(self.runner.collector.test_total, 1)

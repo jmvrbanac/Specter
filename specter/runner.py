@@ -35,6 +35,11 @@ class SpecterRunner(object):
             help=_('Selects a module path to run. '
                    'Ex: spec.sample.TestClass'),
             default=None)
+        self.arg_parser.add_argument(
+            '--select-by-metadata', dest='select_meta',
+            help=_('Selects tests to run by specifying a list of '
+                   'key=value pairs you wish to run'),
+            default=[], nargs='*')
 
     def generate_ascii_art(self):
         tag_line = _('Keeping the boogy man away from your code!')
@@ -50,7 +55,12 @@ class SpecterRunner(object):
         return ascii_art
 
     def run(self, args):
+        select_meta = None
         self.arguments = self.arg_parser.parse_args(args)
+
+        if self.arguments.select_meta:
+            metas = [meta.split('=') for meta in self.arguments.select_meta]
+            select_meta = {meta[0]: meta[1].strip('"\'') for meta in metas}
 
         if not self.arguments.no_art:
             print(self.generate_ascii_art())
@@ -76,7 +86,7 @@ class SpecterRunner(object):
 
             suite = suite_type()
             self.collector.add_describe(suite)
-            suite.execute()
+            suite.execute(select_metadata=select_meta)
 
             # Start Coverage Capture
             if self.coverage:

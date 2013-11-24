@@ -1,5 +1,5 @@
 from specter.spec import Spec, DataDescribe
-from specter.expect import expect, require, skip_if, incomplete
+from specter.expect import expect, require, skip_if, incomplete, metadata
 
 
 class TestObj(object):
@@ -22,6 +22,10 @@ class ExampleSpec(Spec):
     @incomplete
     def an_incomplete_test(self):
         expect('this should never be called').to.equal(None)
+
+    @metadata(test='smoke')
+    def a_test_with_metadata(self):
+        expect(True).to.be_true()
 
     def causing_a_traceback(self):
         expect(Nope).to.be_none()  # NOQA

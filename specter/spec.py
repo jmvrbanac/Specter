@@ -1,12 +1,14 @@
 import inspect
 import itertools
 import sys
-from random import shuffle
+
 from time import time
 from types import FunctionType, MethodType
 from pyevents.manager import EventDispatcher
 from pyevents.event import Event
-from specter.util import get_real_last_traceback, convert_camelcase
+from specter.util import (get_real_last_traceback, convert_camelcase,
+                          find_by_metadata, extract_metadata,
+                          children_with_tests_with_metadata)
 
 
 class TimedObject(object):
@@ -28,7 +30,7 @@ class TimedObject(object):
 
 
 class CaseWrapper(TimedObject):
-    def __init__(self, case_func, parent, execute_kwargs=None):
+    def __init__(self, case_func, parent, execute_kwargs=None, metadata={}):
         super(CaseWrapper, self).__init__()
         self.case_func = case_func
         self.expects = []
@@ -38,6 +40,7 @@ class CaseWrapper(TimedObject):
         self.incomplete = False
         self.skip_reason = None
         self.execute_kwargs = execute_kwargs
+        self.metadata = metadata
 
     def execute(self, context=None):
         kwargs = {}
@@ -82,8 +85,7 @@ class Describe(EventDispatcher):
     def __init__(self, parent=None):
         super(Describe, self).__init__()
         self.parent = parent
-        self.cases = [CaseWrapper(case_func, parent=self)
-                      for case_func in self.case_funcs]
+        self.cases = self.__wrappers__
         self.describes = [desc_type(parent=self)
                           for desc_type in self.describe_types]
 
@@ -94,6 +96,15 @@ class Describe(EventDispatcher):
     @property
     def doc(self):
         return type(self).__doc__
+
+    @property
+    def __wrappers__(self):
+        wrappers = []
+        for case_func in self.case_funcs:
+            case_func, metadata = extract_metadata(case_func)
+            wrappers.append(CaseWrapper(case_func, parent=self,
+                                        metadata=metadata))
+        return wrappers
 
     @classmethod
     def __cls_members__(cls):
@@ -157,7 +168,13 @@ class Describe(EventDispatcher):
     def after_each(self):
         pass
 
-    def execute(self):
+    def execute(self, select_metadata=None):
+
+        if select_metadata:
+            self.cases = find_by_metadata(select_metadata, self.cases)
+            self.describes = children_with_tests_with_metadata(
+                select_metadata, self)
+
         # If it doesn't have tests or describes don't run it
         if len(self.cases) <= 0 and len(self.describes) <= 0:
             return
@@ -176,7 +193,7 @@ class Describe(EventDispatcher):
 
         # Execute Suites
         for describe in self.describes:
-            describe.execute()
+            describe.execute(select_metadata=select_metadata)
 
         self.after_all()
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.COMPLETE, self))
@@ -222,20 +239,24 @@ class DataDescribe(Describe):
         # Generate new functions and monkey-patch
         for case_func in self.case_funcs:
             for name, args in self.DATASET.items():
-                func_name = '{0}_{1}'.format(case_func.__name__, name)
-                new_func = copy_function(case_func, func_name)
-                kwargs = get_function_kwargs(case_func, args)
+                extracted_func, metadata = extract_metadata(case_func)
+
+                func_name = '{0}_{1}'.format(extracted_func.__name__, name)
+                new_func = copy_function(extracted_func, func_name)
+                kwargs = get_function_kwargs(extracted_func, args)
 
                 # Monkey-patch and add to cases list
                 setattr(self, func_name, new_func)
                 self.cases.append(CaseWrapper(new_func, parent=self,
-                                              execute_kwargs=kwargs))
+                                              execute_kwargs=kwargs,
+                                              metadata=metadata))
 
 
 def fixture(cls):
     """ A simple decorator to set the fixture flag on the class."""
     setattr(cls, '__FIXTURE__', True)
     return cls
+
 
 def copy_function(func, name):
     py3 = (3, 0, 0)

@@ -85,3 +85,35 @@ def get_real_last_traceback(exception):
     traced_lines.append(' - Error: {0}'.format(exception))
 
     return traced_lines
+
+
+def find_by_metadata(meta, cases):
+    selected_cases = []
+    for case in cases:
+        matched_keys = set(meta.keys()) & set(case.metadata.keys())
+
+        for key in matched_keys:
+            if meta.get(key) == case.metadata.get(key):
+                selected_cases.append(case)
+
+    return selected_cases
+
+
+def children_with_tests_with_metadata(meta, describe):
+    children = []
+    for child in describe.describes:
+        found = find_by_metadata(meta, child.cases)
+        if len(found) > 0:
+            children.append(child)
+        children.extend(children_with_tests_with_metadata(meta, child))
+    return children
+
+
+def extract_metadata(case_func):
+    # Handle metadata decorator
+    metadata = {}
+    if 'onCall' in case_func.__name__:
+        decorator_data = case_func()
+        case_func = decorator_data[0]
+        metadata = decorator_data[1]
+    return case_func, metadata
