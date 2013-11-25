@@ -8,6 +8,7 @@ class TestStatus():
     FAIL = 'failed'
     SKIP = 'skipped'
     INCOMPLETE = 'incomplete'
+    ERROR = 'error'
 
 
 class ConsoleColors():
@@ -33,6 +34,7 @@ class ConsoleReporter(object):
         self.test_expects = 0
         self.passed_tests = 0
         self.skipped_tests = 0
+        self.errored_tests = 0
         self.failed_tests = 0
         self.incomplete_tests = 0
         self.output_docstrings = output_docstrings
@@ -90,6 +92,8 @@ class ConsoleReporter(object):
             status = TestStatus.SKIP
             name = u'{name} (skipped): {reason}'.format(
                 name=name, reason=test_case.skip_reason)
+        elif test_case.error:
+            status = TestStatus.ERROR
 
         self.print_test_msg(name, level, status)
 
@@ -137,6 +141,8 @@ class ConsoleReporter(object):
             self.skipped_tests += 1
         elif test_case.incomplete:
             self.incomplete_tests += 1
+        elif test_case.error:
+            self.errored_tests += 1
         else:
             self.failed_tests += 1
         self.test_expects += len(test_case.expects)
@@ -152,16 +158,18 @@ class ConsoleReporter(object):
 
     def print_summary(self):
         msg = """------- Summary --------
-Passed          | {passed}
-Skipped         | {skipped}
-Failed          | {failed}
+Pass            | {passed}
+Skip            | {skipped}
+Fail            | {failed}
+Error           | {errored}
 Incomplete      | {incomplete}
 Test Total      | {total}
  - Expectations | {expects}
 """.format(
             total=self.test_total, passed=self.passed_tests,
             failed=self.failed_tests, expects=self.test_expects,
-            skipped=self.skipped_tests, incomplete=self.incomplete_tests)
+            skipped=self.skipped_tests, incomplete=self.incomplete_tests,
+            errored=self.errored_tests)
 
         success = self.failed_tests == 0
 

@@ -35,6 +35,7 @@ class CaseWrapper(TimedObject):
         self.case_func = case_func
         self.expects = []
         self.parent = parent
+        self.failed = None
         self.error = None
         self.skipped = False
         self.incomplete = False
@@ -75,7 +76,7 @@ class CaseWrapper(TimedObject):
 
     @property
     def success(self):
-        return (not self.error and
+        return (not self.failed and not self.error and
                 len([exp for exp in self.expects if not exp.success]) == 0)
 
 
