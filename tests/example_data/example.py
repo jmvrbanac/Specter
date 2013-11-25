@@ -35,12 +35,12 @@ class ExampleSpec(Spec):
 
     class ExampleDataDescribe(DataDescribe):
         DATASET = {
-            'test': {'arg': [1]},
-            'test2': {'arg': [1]}
+            'test': {'sample': [1]},
+            'test2': {'args': {'sample': [1]}, 'meta': {'test': 'sample'}}
         }
 
-        def sample_data(self, arg):
-            expect(arg).to.equal([1])
+        def sample_data(self, sample):
+            expect(sample).to.equal([1])
 
 
 class ExampleFixture(Spec):

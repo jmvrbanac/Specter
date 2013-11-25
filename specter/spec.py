@@ -251,9 +251,17 @@ class DataDescribe(Describe):
 
         # Generate new functions and monkey-patch
         for case_func in self.case_funcs:
-            for name, args in self.DATASET.items():
-                extracted_func, metadata = extract_metadata(case_func)
+            extracted_func, base_metadata = extract_metadata(case_func)
 
+            for name, data in self.DATASET.items():
+                args, meta = data, dict(base_metadata)
+
+                # Handle complex dataset item
+                if 'args' in data and 'meta' in data:
+                    args = data.get('args', {})
+                    meta.update(data.get('meta', {}))
+
+                # Extract name, args and duplicate function
                 func_name = '{0}_{1}'.format(extracted_func.__name__, name)
                 new_func = copy_function(extracted_func, func_name)
                 kwargs = get_function_kwargs(extracted_func, args)
@@ -262,7 +270,7 @@ class DataDescribe(Describe):
                 setattr(self, func_name, new_func)
                 self.cases.append(CaseWrapper(new_func, parent=self,
                                               execute_kwargs=kwargs,
-                                              metadata=metadata))
+                                              metadata=meta))
 
 
 def fixture(cls):

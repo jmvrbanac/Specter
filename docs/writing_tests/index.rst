@@ -190,6 +190,37 @@ This dataset will produce a Describe with two tests: "sample_data_test" and "sam
       ∟ sample data second test
         ∟ expect "sample_text" to equal "sample_text"
 
+Metadata in Data-Driven
+^^^^^^^^^^^^^^^^^^^^^^^^^
+There are two different methods of adding metadata to your data-driven tests. The first method is to assign metadata to the entire set of data-driven tests.
+
+.. code-block:: python
+    
+    class ExampleDataDescribe(DataDescribe):
+        DATASET = {
+            'test': {'data_val': 'sample_text'},
+            'second_test': {'data_val': 'sample_text'}
+        }
+        
+        @metadata(test='smoke')
+        def sample_data(self, data_val):
+            expect(data_val).to.equal('sample_text')
+
+This will assign the metadata attributes to all tests that are generated from the decoratored instance method.
+The second way of assigning metadata is by creating a more complex dataset item. A complex dataset item contains two keys; args and meta.
+
+.. code-block:: python
+    
+    class ExampleDataDescribe(DataDescribe):
+        DATASET = {
+            'test': {'data_val': 'sample_text'},
+            'second_test': {'args': {'data_val': 'sample_text'}, 'meta': {'network': 'yes'}
+        }
+        
+        def sample_data(self, data_val):
+            expect(data_val).to.equal('sample_text')
+
+By doing this, only the 'second_test' will contain metadata. It is important to remember that you can use this format in conjunction with standard metadata tags as mentioned above.
 
 
 Skipping Tests
