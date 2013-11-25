@@ -14,5 +14,5 @@ Specter is open-source and is available on `GitHub`_. We love contributions!
 Getting Started
 ~~~~~~~~~~~~~~~~
 
-- Specter Documentation on `ReadTheDocs <http://specter.readthedocs.org/en/latest/>`_
+- Specter 0.1.10 `Documentation <http://docs.specterframework.com/en/0.1.10/>`_
 - Problems or Questions? Ask us on Freenode on the #specterframework channel
