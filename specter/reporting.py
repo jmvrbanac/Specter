@@ -28,8 +28,9 @@ class ConsoleReporter(object):
     """
     INDENT = 2
 
-    def __init__(self, output_docstrings=False):
+    def __init__(self, output_docstrings=False, use_color=True):
         super(ConsoleReporter, self).__init__()
+        self.use_color = use_color
         self.test_total = 0
         self.test_expects = 0
         self.passed_tests = 0
@@ -64,7 +65,10 @@ class ConsoleReporter(object):
         self.print_colored(msg=msg, color=color)
 
     def print_colored(self, msg, color=ConsoleColors.WHITE):
-        print(u'\033[{color}m{msg}\033[0m'.format(color=color, msg=msg))
+        if self.use_color:
+            print(u'\033[{color}m{msg}\033[0m'.format(color=color, msg=msg))
+        else:
+            print(msg)
 
     def get_item_level(self, item):
         levels = 0
@@ -107,11 +111,14 @@ class ConsoleReporter(object):
 
         # Print expects
         for expect in test_case.expects:
-            expect_msg = u'\u2022 {0}'.format(expect)
+            mark = u'\u2718'
 
             status = TestStatus.FAIL
             if expect.success:
                 status = TestStatus.PASS
+                mark = u'\u2714'
+
+            expect_msg = u'{mark} {msg}'.format(mark=mark, msg=expect)
 
             self.print_test_msg(expect_msg, level+1, status=status)
 

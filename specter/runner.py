@@ -41,6 +41,9 @@ class SpecterRunner(object):
             help=_('Selects tests to run by specifying a list of '
                    'key=value pairs you wish to run'),
             default=[], nargs='*')
+        self.arg_parser.add_argument(
+            '--no-color', dest='no_color', action='store_true',
+            help=_('Disables all ASCII color codes.'))
 
     def generate_ascii_art(self):
         tag_line = _('Keeping the boogy man away from your code!')
@@ -58,6 +61,9 @@ class SpecterRunner(object):
     def run(self, args):
         select_meta = None
         self.arguments = self.arg_parser.parse_args(args)
+
+        if self.arguments.no_color:
+            self.collector.use_color = False
 
         if self.arguments.select_meta:
             metas = [meta.split('=') for meta in self.arguments.select_meta]
