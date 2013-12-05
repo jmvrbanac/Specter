@@ -1,11 +1,10 @@
 import sys
-from random import shuffle
 from argparse import ArgumentParser
 
 from coverage import coverage
 from specter import _
 from specter.scanner import SuiteScanner
-from specter.reporting import ConsoleReporter
+from specter.reporting.console import ConsoleReporter
 
 
 class SpecterRunner(object):
@@ -78,7 +77,8 @@ class SpecterRunner(object):
                                            '*/pyevents/manager.py',
                                            '*/specter/spec.py',
                                            '*/specter/expect.py',
-                                           '*/specter/reporting.py',
+                                           '*/specter/reporting/__init__.py',
+                                           '*/specter/reporting/console.py',
                                            '*/specter/__init__.py'])
             self.coverage._warn_no_data = False
 
