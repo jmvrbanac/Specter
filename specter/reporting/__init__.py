@@ -9,6 +9,9 @@ class AbstractReporterPlugin(object):
     def process_arguments(self, args):
         pass  # pragma: no cover
 
+    def finished(self):
+        pass  # pragma: no cover
+
     @abstractmethod
     def get_name(self):
         pass  # pragma: no cover
@@ -42,6 +45,9 @@ class ReporterPluginManager(object):
     def subscribe_all_to_describe(self, describe):
         for reporter in self.reporters:
             reporter.subscribe_to_describe(describe)
+
+    def finish_all(self):
+        [reporter.finished() for reporter in self.reporters]
 
     def reporter_filter(self, class_type):
         return (issubclass(class_type, AbstractReporterPlugin) and

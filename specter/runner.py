@@ -108,6 +108,7 @@ class SpecterRunner(object):
         for reporter in self.reporter_manager.get_console_reporters():
             reporter.print_summary()
 
+        self.reporter_manager.finish_all()
         self.suite_scanner.destroy()
 
 
