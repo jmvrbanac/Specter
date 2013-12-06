@@ -1,6 +1,7 @@
 import inspect
 import itertools
 import sys
+import six
 
 from time import time
 from types import FunctionType, MethodType
@@ -266,7 +267,7 @@ class DataDescribe(Describe):
 
                 # Skip duplicates
                 if args:
-                    key_args = tuple([(k, v) for k, v in args.iteritems()])
+                    key_args = convert_to_hashable(args)
                     if key_args in self.dups:
                         self.dup_count += 1
                         continue
@@ -283,6 +284,15 @@ class DataDescribe(Describe):
                 self.cases.append(CaseWrapper(new_func, parent=self,
                                               execute_kwargs=kwargs,
                                               metadata=meta))
+
+
+def convert_to_hashable(obj):
+    hashed = obj
+    if isinstance(obj, dict):
+        hashed = tuple([(k, convert_to_hashable(v)) for k, v in six.iteritems(obj)])
+    elif isinstance(obj, list):
+        hashed = tuple(list)
+    return hashed
 
 
 def fixture(cls):
