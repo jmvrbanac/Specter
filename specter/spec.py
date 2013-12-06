@@ -253,6 +253,8 @@ class DataDescribe(Describe):
         for case_func in self.case_funcs:
             extracted_func, base_metadata = extract_metadata(case_func)
 
+            dup_count = 0
+            dups = set()
             for name, data in self.DATASET.items():
                 args, meta = data, dict(base_metadata)
 
@@ -260,6 +262,15 @@ class DataDescribe(Describe):
                 if 'args' in data and 'meta' in data:
                     args = data.get('args', {})
                     meta.update(data.get('meta', {}))
+
+                # Skip duplicates
+                if args:
+                    key_args = tuple([(k, v) for k, v in args.iteritems()])
+                    if key_args in dups:
+                        dup_count += 1
+                        continue
+                    else:
+                        dups.add(key_args)
 
                 # Extract name, args and duplicate function
                 func_name = '{0}_{1}'.format(extracted_func.__name__, name)
