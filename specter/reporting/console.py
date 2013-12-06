@@ -63,6 +63,24 @@ class ConsoleReporter(AbstractConsoleReporterPlugin):
 
         self.print_indent_msg(msg=msg, level=level, color=color)
 
+    def print_test_args(self, kwargs, level, status=TestStatus.PASS):
+        if kwargs and (status == TestStatus.ERROR or status == TestStatus.FAIL):
+            msg = u''.join([u'  Parameters: ', self.pretty_print_args(kwargs)])
+            self.print_test_msg(msg, level, status)
+
+    def pretty_print_args(self, kwargs):
+        if kwargs is None:
+            return u'None'
+        first_seen = False
+        parts = []
+        for k, v in kwargs.iteritems():
+            if not first_seen:
+                first_seen = True
+            else:
+                parts.append(', ')
+            parts.append('{name} = {value}'.format(name=k, value=v))
+        return u''.join(parts)
+
     def print_msg_list(self, msg_list, level, color=ConsoleColors.WHITE):
         for msg in msg_list:
             self.print_indent_msg(msg=msg, level=level, color=color)
@@ -108,6 +126,8 @@ class ConsoleReporter(AbstractConsoleReporterPlugin):
             status = TestStatus.ERROR
 
         self.print_test_msg(name, level, status)
+
+        self.print_test_args(test_case.execute_kwargs, level, status)
 
         if test_case.doc and self.output_docstrings:
             self.print_indent_msg(test_case.doc, level+1, status)
