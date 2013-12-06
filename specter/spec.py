@@ -249,12 +249,13 @@ class DataDescribe(Describe):
         super(DataDescribe, self).__init__(parent=parent)
         self.cases = []
 
+        self.dup_count = 0
+        self.dups = set()
+
         # Generate new functions and monkey-patch
         for case_func in self.case_funcs:
             extracted_func, base_metadata = extract_metadata(case_func)
 
-            dup_count = 0
-            dups = set()
             for name, data in self.DATASET.items():
                 args, meta = data, dict(base_metadata)
 
@@ -266,11 +267,11 @@ class DataDescribe(Describe):
                 # Skip duplicates
                 if args:
                     key_args = tuple([(k, v) for k, v in args.iteritems()])
-                    if key_args in dups:
-                        dup_count += 1
+                    if key_args in self.dups:
+                        self.dup_count += 1
                         continue
                     else:
-                        dups.add(key_args)
+                        self.dups.add(key_args)
 
                 # Extract name, args and duplicate function
                 func_name = '{0}_{1}'.format(extracted_func.__name__, name)
