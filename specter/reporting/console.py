@@ -1,6 +1,7 @@
 import re
 from specter.spec import TestEvent, DescribeEvent
 from specter import _
+from specter.reporting import AbstractConsoleReporterPlugin
 
 
 class TestStatus():
@@ -22,7 +23,7 @@ class ConsoleColors():
     WHITE = 37
 
 
-class ConsoleReporter(object):
+class ConsoleReporter(AbstractConsoleReporterPlugin):
     """ Temporary console reporter.
     At least until I can get a real one written.
     """
@@ -40,7 +41,14 @@ class ConsoleReporter(object):
         self.incomplete_tests = 0
         self.output_docstrings = output_docstrings
 
-    def add_describe(self, describe):
+    def get_name(self):
+        return 'Temporary console reporter'
+
+    def process_arguments(self, args):
+        if args.no_color:
+            self.use_color = False
+
+    def subscribe_to_describe(self, describe):
         describe.add_listener(TestEvent.COMPLETE, self.event_received)
         describe.add_listener(DescribeEvent.START, self.start_describe)
 

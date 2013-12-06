@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from coverage import coverage
 from specter import _
 from specter.scanner import SuiteScanner
-from specter.reporting.console import ConsoleReporter
+from specter.reporting import ReporterPluginManager
 
 
 class SpecterRunner(object):
@@ -15,10 +15,10 @@ class SpecterRunner(object):
         super(SpecterRunner, self).__init__()
         self.coverage = None
         self.suite_scanner = SuiteScanner()
-        self.collector = ConsoleReporter()
         self.arg_parser = ArgumentParser(description=self.DESCRIPTION)
         self.setup_argparse()
         self.suites = []
+        self.reporter_manager = ReporterPluginManager()
 
     def setup_argparse(self):
         self.arg_parser.add_argument(
@@ -61,8 +61,8 @@ class SpecterRunner(object):
         select_meta = None
         self.arguments = self.arg_parser.parse_args(args)
 
-        if self.arguments.no_color:
-            self.collector.use_color = False
+        # Let each reporter parse cli arguments
+        self.reporter_manager.process_arguments(self.arguments)
 
         if self.arguments.select_meta:
             metas = [meta.split('=') for meta in self.arguments.select_meta]
@@ -93,7 +93,7 @@ class SpecterRunner(object):
 
             suite = suite_type()
             self.suites.append(suite)
-            self.collector.add_describe(suite)
+            self.reporter_manager.subscribe_all_to_describe(suite)
             suite.execute(select_metadata=select_meta)
 
             # Start Coverage Capture
@@ -104,7 +104,10 @@ class SpecterRunner(object):
         if self.coverage:
             self.coverage.save()
 
-        self.collector.print_summary()
+        # Print all console summaries
+        for reporter in self.reporter_manager.get_console_reporters():
+            reporter.print_summary()
+
         self.suite_scanner.destroy()
 
 
