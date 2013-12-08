@@ -133,11 +133,11 @@ class XUnitTestCase(object):
         self.case_wrapper = wrapper
 
     def convert_to_xml(self):
-        failure_msg = """<![CDATA[
-            Target: {target}: {target_param}
-            Expected: {expected}: {expected_param}
-            ]]>
-            """
+        failure_msg = """
+<![CDATA[
+Target: {target}: {target_param}
+Expected: {expected}: {expected_param}
+]]>"""
 
         element = Element('testcase', {'classname': self.module,
                                        'name': self.name,
