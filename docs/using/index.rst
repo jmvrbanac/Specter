@@ -56,14 +56,16 @@ Specter allows for quick and easy execution of your tests by just calling 'spect
 	    
 	ExampleSpec
 	  ∟ this is a test spec
-	    • expect "test" to equal "test"
+	    • expect 'test' to equal 'test'
 
 
 	------------------------
 	------- Summary --------
-	Passed          | 1
-	Skipped         | 0
-	Failed          | 0
+	Pass            | 1
+	Skip            | 0
+	Fail            | 0
+	Error           | 0
+	Incomplete      | 0
 	Test Total      | 1
 	 - Expectations | 1
 
@@ -82,4 +84,6 @@ Argument               Description
 --coverage             Enables coverage.py integration. Configure using .coveragerc
 --select-module        Selects a module path to run. Ex: spec.sample.TestClass
 --select-by-metadata   Selects tests to run by specifying a list of key=value pairs (coming soon)
+--xunit-results        Output xUnit XML results into a specified file
+--no-color             Disables ASCII color codes
 =====================  ============
