@@ -93,9 +93,9 @@ class ConsoleReporter(AbstractConsoleReporterPlugin):
 
     def print_colored(self, msg, color=ConsoleColors.WHITE):
         if self.use_color:
-            print(u'\033[{color}m{msg}\033[0m'.format(color=color, msg=msg))
-        else:
-            print(msg)
+            msg = u'\033[{color}m{msg}\033[0m'.format(color=color, msg=msg)
+
+        print(msg.encode('utf-8'))
 
     def get_item_level(self, item):
         levels = 0
