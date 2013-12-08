@@ -99,6 +99,17 @@ class Describe(EventDispatcher):
         return type(self).__doc__
 
     @property
+    def total_time(self):
+        total = 0.0
+        for case in self.cases:
+            total += case.elapsed_time
+
+        for describe in self.describes:
+            total += describe.total_time
+
+        return total
+
+    @property
     def success(self):
         ok = True
         case_successes = [case.success for case in self.cases]

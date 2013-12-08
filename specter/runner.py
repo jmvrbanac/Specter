@@ -43,6 +43,9 @@ class SpecterRunner(object):
         self.arg_parser.add_argument(
             '--no-color', dest='no_color', action='store_true',
             help=_('Disables all ASCII color codes.'))
+        self.arg_parser.add_argument(
+            '--xunit-results', dest='xunit_results', metavar='',
+            help=_('Saves out xUnit compatible results to a specifed file'))
 
     def generate_ascii_art(self):
         tag_line = _('Keeping the boogy man away from your code!')

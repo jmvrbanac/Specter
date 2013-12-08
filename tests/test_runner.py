@@ -1,12 +1,18 @@
 from unittest import TestCase
 
 from specter.runner import SpecterRunner
+from specter.reporting.console import ConsoleReporter
 
 
 class TestSpecterRunner(TestCase):
 
     def setUp(self):
         self.runner = SpecterRunner()
+
+    def get_console_reporter(self, reporters):
+        for r in reporters:
+            if type(r) is ConsoleReporter:
+                return r
 
     def test_ascii_art_generation(self):
         """ We just want to know if it creates something"""
@@ -16,7 +22,9 @@ class TestSpecterRunner(TestCase):
 
     def test_run(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art'])
-        reporter = self.runner.reporter_manager.reporters[0]
+        reporter = self.get_console_reporter(
+            self.runner.reporter_manager.reporters)
+
         self.assertEqual(len(self.runner.suite_types), 4)
         self.assertEqual(reporter.skipped_tests, 1)
         self.assertEqual(reporter.test_total, 11)
@@ -24,7 +32,9 @@ class TestSpecterRunner(TestCase):
     def test_run_w_coverage(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
                               '--coverage'])
-        reporter = self.runner.reporter_manager.reporters[0]
+        reporter = self.get_console_reporter(
+            self.runner.reporter_manager.reporters)
+
         self.assertEqual(len(self.runner.suite_types), 4)
         self.assertEqual(reporter.skipped_tests, 1)
         self.assertEqual(reporter.test_total, 11)
@@ -37,7 +47,9 @@ class TestSpecterRunner(TestCase):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
                               '--select-module',
                               'example.ExampleDataDescribe'])
-        reporter = self.runner.reporter_manager.reporters[0]
+        reporter = self.get_console_reporter(
+            self.runner.reporter_manager.reporters)
+
         self.assertEqual(len(self.runner.suite_types), 1)
         self.assertEqual(reporter.skipped_tests, 0)
         self.assertEqual(reporter.test_total, 2)
@@ -45,6 +57,13 @@ class TestSpecterRunner(TestCase):
     def test_run_w_select_by_metadata(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
                               '--select-by-metadata', 'test="smoke"'])
-        reporter = self.runner.reporter_manager.reporters[0]
+        reporter = self.get_console_reporter(
+            self.runner.reporter_manager.reporters)
+
         self.assertEqual(len(self.runner.suite_types), 4)
         self.assertEqual(reporter.test_total, 1)
+
+    def test_run_w_xunit(self):
+        self.runner.run(args=['--search', './tests/example_data', '--no-art',
+                              '--xunit-result', './sample_xunit.xml'])
+        self.assertEqual(len(self.runner.reporter_manager.reporters), 2)
