@@ -56,8 +56,11 @@ def get_numbered_source(lines, line_num):
         line_range = range(start+1, end+1)
         nums_and_source = zip(line_range, orig_src_lines)
 
-        traceback_lines = ['{0}: {1}'.format(num, line)
-                           for num, line in nums_and_source]
+        traceback_lines = []
+        for num, line in nums_and_source:
+            prefix = '--> ' if num == line_num else '    '
+            traceback_lines.append('{0}{1}: {2}'.format(prefix, num, line))
+
         return traceback_lines
     except Exception as e:
         return ['Error finding traceback!', e]
@@ -75,14 +78,14 @@ def get_real_last_traceback(exception):
         lines, last_module_path = get_source_from_frame(traceback.tb_frame)
         traceback_lines = get_numbered_source(lines, traceback.tb_lineno)
 
-        traceback_lines.insert(0, ' - {0}'.format(last_module_path))
-        traceback_lines.insert(1, '------------------')
-        traceback_lines.append('------------------')
+        traceback_lines.insert(0, '  - {0}'.format(last_module_path))
+        traceback_lines.insert(1, '  ------------------')
+        traceback_lines.append('  ------------------')
         traceback_blocks.append(traceback_lines)
 
     traced_lines = ['Error Traceback:']
     traced_lines.extend(itertools.chain.from_iterable(traceback_blocks))
-    traced_lines.append(' - Error: {0}'.format(exception))
+    traced_lines.append('  - Error: {0}'.format(exception))
 
     return traced_lines
 
