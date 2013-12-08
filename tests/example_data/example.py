@@ -36,7 +36,7 @@ class ExampleSpec(Spec):
     class ExampleDataDescribe(DataDescribe):
         DATASET = {
             'test': {'sample': [1]},
-            'test2': {'args': {'sample': [1]}, 'meta': {'test': 'sample'}}
+            'test2': {'args': {'sample': [2]}, 'meta': {'test': 'sample'}}
         }
 
         def sample_data(self, sample):

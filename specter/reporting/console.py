@@ -1,4 +1,5 @@
 import re
+import six
 from specter.spec import TestEvent, DescribeEvent, DataDescribe
 from specter import _
 from specter.reporting import AbstractConsoleReporterPlugin
@@ -73,7 +74,7 @@ class ConsoleReporter(AbstractConsoleReporterPlugin):
             return u'None'
         first_seen = False
         parts = []
-        for k, v in kwargs.iteritems():
+        for k, v in six.iteritems(kwargs):
             if not first_seen:
                 first_seen = True
             else:
