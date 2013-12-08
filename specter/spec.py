@@ -1,6 +1,7 @@
 import inspect
 import itertools
 import sys
+import six
 
 from time import time
 from types import FunctionType, MethodType
@@ -249,6 +250,9 @@ class DataDescribe(Describe):
         super(DataDescribe, self).__init__(parent=parent)
         self.cases = []
 
+        self.dup_count = 0
+        self.dups = set()
+
         # Generate new functions and monkey-patch
         for case_func in self.case_funcs:
             extracted_func, base_metadata = extract_metadata(case_func)
@@ -261,6 +265,15 @@ class DataDescribe(Describe):
                     args = data.get('args', {})
                     meta.update(data.get('meta', {}))
 
+                # Skip duplicates
+                if args:
+                    key_args = convert_to_hashable(args)
+                    if key_args in self.dups:
+                        self.dup_count += 1
+                        continue
+                    else:
+                        self.dups.add(key_args)
+
                 # Extract name, args and duplicate function
                 func_name = '{0}_{1}'.format(extracted_func.__name__, name)
                 new_func = copy_function(extracted_func, func_name)
@@ -271,6 +284,15 @@ class DataDescribe(Describe):
                 self.cases.append(CaseWrapper(new_func, parent=self,
                                               execute_kwargs=kwargs,
                                               metadata=meta))
+
+
+def convert_to_hashable(obj):
+    hashed = obj
+    if isinstance(obj, dict):
+        hashed = tuple([(k, convert_to_hashable(v)) for k, v in six.iteritems(obj)])
+    elif isinstance(obj, list):
+        hashed = tuple(obj)
+    return hashed
 
 
 def fixture(cls):

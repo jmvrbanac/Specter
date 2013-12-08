@@ -1,5 +1,5 @@
 import re
-from specter.spec import TestEvent, DescribeEvent
+from specter.spec import TestEvent, DescribeEvent, DataDescribe
 from specter import _
 from specter.reporting import AbstractConsoleReporterPlugin
 
@@ -190,6 +190,11 @@ class ConsoleReporter(AbstractConsoleReporterPlugin):
         self.print_indent_msg(name, level, color=ConsoleColors.GREEN)
         if evt.payload.doc and self.output_docstrings:
             self.print_indent_msg(evt.payload.doc, level+1)
+
+        if isinstance(evt.payload, DataDescribe) and evt.payload.dup_count:
+            self.print_indent_msg('Warning: Noticed {0} duplicate data '
+                                  'set(s)'.format(evt.payload.dup_count),
+                                  level+1, color=ConsoleColors.YELLOW)
 
     def print_summary(self):
         msg = """------- Summary --------
