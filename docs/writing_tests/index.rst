@@ -12,7 +12,7 @@ Most frameworks require you to start your test with a given prefix such as :raw-
 
 * All helper functions should start with an underscore (_). Just as Python treats a single underscore as "protected", so does Specter.
 * The name "execute" is restricted. This name is used by internally by Specter, so do not use it in your test function names.
-* "before_each" and "after_each" are reserved for setup functions on your test suites (Specs or Decribes).
+* "before_each", "after_each", "before_all", and "after_all" are reserved for setup functions on your test suites (Specs or Decribes).
 
 
 Writing Tests
@@ -120,9 +120,9 @@ In Specter, a test fixture is defined as a test base class that is not treated a
 
     UsingFixture
       ∟ sample test
-        • expect "something" to equal "something"
+        ✔ 'something' to equal 'something'
       ∟ another test
-        • expect "this" not to equal "that"
+        ✔ 'this' not to equal 'that'
 
 
 Assertions / Expectations
@@ -172,7 +172,7 @@ Often times you find that you need to run numerous types of data through a given
     class ExampleDataDescribe(DataDescribe):
         DATASET = {
             'test': {'data_val': 'sample_text'},
-            'second_test': {'data_val': 'sample_text'}
+            'second_test': {'data_val': 'sample_text2'}
         }
 
         def sample_data(self, data_val):
@@ -186,9 +186,14 @@ This dataset will produce a Describe with two tests: "sample_data_test" and "sam
 
     ExampleDataDescribe
       ∟ sample data test
-        ∟ expect "sample_text" to equal "sample_text"
+        ✔ "sample_text" to equal "sample_text"
       ∟ sample data second test
-        ∟ expect "sample_text" to equal "sample_text"
+        ✘ "sample_text2" to equal "sample_text"
+
+
+.. note::
+
+    Specter will automatically remove duplicated tests within a dataset and will inform you about how many duplications were found.
 
 Metadata in Data-Driven
 ^^^^^^^^^^^^^^^^^^^^^^^^^

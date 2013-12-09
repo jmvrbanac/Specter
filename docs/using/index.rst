@@ -83,7 +83,7 @@ Argument               Description
 --no-art               Disables the ASCII art on the runner
 --coverage             Enables coverage.py integration. Configure using .coveragerc
 --select-module        Selects a module path to run. Ex: spec.sample.TestClass
---select-by-metadata   Selects tests to run by specifying a list of key=value pairs (coming soon)
+--select-by-metadata   Selects tests to run by specifying a list of key=value pairs
 --xunit-results        Output xUnit XML results into a specified file
 --no-color             Disables ASCII color codes
 =====================  ============
