@@ -4,6 +4,15 @@
 Release Notes
 =================
 
+Release: 0.1.12
+----------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Fixing packaging issue where it wasn't including the specter.reporting package.
+ 
+
 Release: 0.1.11
 ----------------
 

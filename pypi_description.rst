@@ -15,7 +15,7 @@ Specter is open-source and is available on `GitHub`_. We love contributions!
 Getting Started
 ~~~~~~~~~~~~~~~~
 
-- Specter 0.1.11 `Documentation <http://docs.specterframework.com/en/0.1.11/>`_
+- Specter 0.1.12 `Documentation <http://docs.specterframework.com/en/0.1.12/>`_
 - Problems or Questions? Ask us on Freenode on the #specterframework channel
 
 Continuous Integration
@@ -34,7 +34,6 @@ Continuous Integration
     :target: http://badge.fury.io/py/Specter
     :alt: Specter PyPi Package Page
     
-|
 
 Release Notes
 ~~~~~~~~~~~~~~

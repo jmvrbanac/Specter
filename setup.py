@@ -20,7 +20,7 @@ if os.path.exists('pypi_description.rst'):
 setup(
     name='Specter',
     version='0.1.12',
-    packages=['specter'],
+    packages=['specter', 'specter.reporting'],
     url='https://github.com/jmvrbanac/Specter',
     license='MIT License',
     author='John Vrbanac',
