@@ -17,9 +17,13 @@ long_desc = None
 if os.path.exists('pypi_description.rst'):
     long_desc = open('pypi_description.rst').read()
 
+version = ''
+if os.path.exists('.package-version'):
+    version = open('.package-version', 'r').readline()
+
 setup(
     name='Specter',
-    version='0.1.12',
+    version=version,
     packages=['specter', 'specter.reporting'],
     url='https://github.com/jmvrbanac/Specter',
     license='MIT License',
