@@ -5,6 +5,7 @@ from coverage import coverage
 from specter import _
 from specter.scanner import SuiteScanner
 from specter.reporting import ReporterPluginManager
+from specter.manager import TestManager
 
 
 class SpecterRunner(object):
@@ -19,6 +20,7 @@ class SpecterRunner(object):
         self.setup_argparse()
         self.suites = []
         self.reporter_manager = ReporterPluginManager()
+        self.test_manager = TestManager()
 
     def setup_argparse(self):
         self.arg_parser.add_argument(
@@ -97,11 +99,14 @@ class SpecterRunner(object):
             suite = suite_type()
             self.suites.append(suite)
             self.reporter_manager.subscribe_all_to_describe(suite)
-            suite.execute(select_metadata=select_meta)
+            suite.add_tests_to_queue(self.test_manager)
+            #suite.execute(select_metadata=select_meta)
 
             # Start Coverage Capture
             if self.coverage:
                 self.coverage.stop()
+
+        self.test_manager.execute_all()
 
         # Save coverage data if enabled
         if self.coverage:
@@ -120,9 +125,9 @@ def activate(): #pragma: no cover
     runner = SpecterRunner()
     runner.run(args)
     # Return error code if tests fail
-    for suite in runner.suites:
-        if not suite.success:
-            exit(1)
+    # for suite in runner.suites:
+    #     if not suite.success:
+    #         exit(1)
 
 if __name__ == "__main__":
     activate()

@@ -24,7 +24,7 @@ class ConsoleColors():
     WHITE = 37
 
 
-class ConsoleReporter(AbstractConsoleReporterPlugin):
+class ConsoleReporter(object):
     """ Temporary console reporter.
     At least until I can get a real one written.
     """

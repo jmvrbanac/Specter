@@ -2,14 +2,20 @@ import inspect
 import itertools
 import sys
 import six
+import marshal
 
 from time import time
-from types import FunctionType, MethodType
+from types import FunctionType, MethodType, DictType
 from pyevents.manager import EventDispatcher
 from pyevents.event import Event
 from specter.util import (get_real_last_traceback, convert_camelcase,
                           find_by_metadata, extract_metadata,
                           children_with_tests_with_metadata)
+
+import ctypes
+cellnew = ctypes.pythonapi.PyCell_New
+cellnew.restype = ctypes.py_object
+cellnew.argtypes = (ctypes.py_object,)
 
 
 class TimedObject(object):
@@ -80,6 +86,18 @@ class CaseWrapper(TimedObject):
         return (not self.failed and not self.error and
                 len([exp for exp in self.expects if not exp.success]) == 0)
 
+    @property
+    def complete(self):
+        return self.end_time > 0.0
+
+    def __getstate__(self):
+        altered = dict(self.__dict__)
+        if 'case_func' in altered:
+            altered['case_func'] = hash(self.case_func)
+        if 'parent' in altered:
+            altered['parent'] = hash(self.parent)
+        return altered
+
 
 class Describe(EventDispatcher):
     __FIXTURE__ = False
@@ -94,6 +112,24 @@ class Describe(EventDispatcher):
     @property
     def name(self):
         return convert_camelcase(self.__class__.__name__)
+
+    @property
+    def complete(self):
+        cases_completed = [case for case in self.cases if case.complete]
+        descs_completed = [desc for desc in self.describes if desc.complete]
+        return len(cases_completed) + len(descs_completed) == 0
+
+    @property
+    def real_class_path(self):
+        ancestors = [self.__class__.__name__]
+        parent = self.parent
+        while parent:
+            ancestors.insert(0, parent.__class__.__name__)
+            parent = parent.parent
+
+        real_path = '.'.join(ancestors)
+
+        return '{base}.{path}'.format(base=self.__module__, path=real_path)
 
     @property
     def doc(self):
@@ -192,6 +228,13 @@ class Describe(EventDispatcher):
 
     def after_each(self):
         pass
+
+    def add_tests_to_queue(self, manager):
+        for case in self.cases:
+            manager.add_to_queue(case)
+
+        for describe in self.describes:
+            describe.add_tests_to_queue(manager)
 
     def execute(self, select_metadata=None):
 
