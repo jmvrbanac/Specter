@@ -2,10 +2,10 @@ import inspect
 import itertools
 import sys
 import six
-import marshal
+from uuid import uuid4
 
 from time import time
-from types import FunctionType, MethodType, DictType
+from types import FunctionType, MethodType
 from pyevents.manager import EventDispatcher
 from pyevents.event import Event
 from specter.util import (get_real_last_traceback, convert_camelcase,
@@ -39,6 +39,7 @@ class TimedObject(object):
 class CaseWrapper(TimedObject):
     def __init__(self, case_func, parent, execute_kwargs=None, metadata={}):
         super(CaseWrapper, self).__init__()
+        self.id = str(uuid4())
         self.case_func = case_func
         self.expects = []
         self.parent = parent
@@ -93,10 +94,18 @@ class CaseWrapper(TimedObject):
     def __getstate__(self):
         altered = dict(self.__dict__)
         if 'case_func' in altered:
-            altered['case_func'] = hash(self.case_func)
+            altered['case_func'] = self.id
         if 'parent' in altered:
-            altered['parent'] = hash(self.parent)
+            altered['parent'] = self.parent.id
         return altered
+
+    def __eq__(self, other):
+        if isinstance(other, CaseWrapper):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self == other
 
 
 class Describe(EventDispatcher):
@@ -104,8 +113,11 @@ class Describe(EventDispatcher):
 
     def __init__(self, parent=None):
         super(Describe, self).__init__()
+        self.id = str(uuid4())
+        wrappers = self.__wrappers__
         self.parent = parent
-        self.cases = self.__wrappers__
+        self.cases = wrappers
+        self.case_ids = [case.id for case in wrappers]
         self.describes = [desc_type(parent=self)
                           for desc_type in self.describe_types]
 
@@ -163,8 +175,8 @@ class Describe(EventDispatcher):
         wrappers = []
         for case_func in self.case_funcs:
             case_func, metadata = extract_metadata(case_func)
-            wrappers.append(CaseWrapper(case_func, parent=self,
-                                        metadata=metadata))
+            wrapper = CaseWrapper(case_func, parent=self, metadata=metadata)
+            wrappers.append(wrapper)
         return wrappers
 
     @classmethod
@@ -338,6 +350,7 @@ class DataDescribe(Describe):
                 self.cases.append(CaseWrapper(new_func, parent=self,
                                               execute_kwargs=kwargs,
                                               metadata=meta))
+        self.case_ids = [case.id for case in self.cases]
 
 
 def convert_to_hashable(obj):
