@@ -66,6 +66,8 @@ class TestManager(object):
     def __init__(self, num_processes=6):
         self.processes = []
         self.num_processes = num_processes
+        self.stops_hit = 0
+        self.thead_lock = threading.Lock()
         self.work_queue = mp.JoinableQueue()
         self.completed = mp.JoinableQueue()
         self.case_functions = {}
@@ -78,7 +80,7 @@ class TestManager(object):
         self.case_functions[case_wrapper.id] = case_wrapper.case_func
         self.case_parents[case_wrapper.parent.id] = case_wrapper.parent
 
-    def sync_wrappers(self, wrapper_list):
+    def sync_wrappers(self, wrapper_list, lock):
         for wrapper in wrapper_list:
             parent_id = wrapper.parent
             wrapper_id = wrapper.case_func
@@ -87,32 +89,41 @@ class TestManager(object):
             wrapper.case_func = self.case_functions[wrapper_id]
 
             index = list(wrapper.parent.case_ids).index(wrapper_id)
+
+            lock.acquire()
             wrapper.parent.cases[index] = wrapper
-
             wrapper.parent.top_parent.dispatch(TestEvent(wrapper))
+            lock.release()
 
-    def sync_wrappers_from_queue(self):
-        num_stops = 0
+    def sync_wrappers_from_queue(self, lock):
         while True:
-            wrapper = self.completed.get()
-            if wrapper is None:
-                num_stops += 1
-            if num_stops == self.num_processes:
-                break
+            try:
+                wrapper = self.completed.get(timeout=0.1)
+            except:
+                pass
+            else:
+                if wrapper is None:
+                    lock.acquire()
+                    self.stops_hit += 1
+                    lock.release()
 
-            if wrapper is not None:
-                self.sync_wrappers(wrapper)
+                if wrapper is not None:
+                    self.sync_wrappers(wrapper, lock)
+
+            if self.stops_hit >= self.num_processes:
+                break
 
     def execute_all(self):
         # Create monitor threads
         self.monitors = []
-        # for i in range(0, 2):
-        #     args = (self.completed,
-        #             self.case_functions,
-        #             self.case_parents)
-        #     monitor = threading.Thread(target=watch_completed, args=args)
-        #     self.monitors.append(monitor)
-        #     monitor.start()
+        for i in range(0, self.num_processes):
+            # args = (self.completed,
+            #         self.case_functions,
+            #         self.case_parents)
+            monitor = threading.Thread(target=self.sync_wrappers_from_queue,
+                                       args=(self.thead_lock,))
+            self.monitors.append(monitor)
+            monitor.start()
 
         for i in range(0, self.num_processes):
             test_process = ExecuteTestProcess(
@@ -122,8 +133,6 @@ class TestManager(object):
             self.work_queue.put('STOP')
             test_process.start()
 
-        self.sync_wrappers_from_queue()
-
         # Join already completed processes for good measure
         total_tests = 0
         for test_process in list(self.processes):
@@ -132,7 +141,6 @@ class TestManager(object):
             self.processes.remove(test_process)
 
         print 'Total Tests Processed:', total_tests
-
-        # Join monitor thread
-        # for monitor in self.monitors:
-        #     monitor.join()
+        # Join monitor threads
+        for monitor in self.monitors:
+            monitor.join()
