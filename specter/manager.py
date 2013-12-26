@@ -1,18 +1,18 @@
 import multiprocessing as mp
 import threading
-import Queue
-from time import time, sleep
+from time import time
 from specter.spec import TestEvent
 
 
 class ExecuteTestProcess(mp.Process):
-    def __init__(self, work_queue, completed_queue, all_cases, all_parents):
+    def __init__(self, work_queue, all_cases, all_parents,
+                 pipe):
         super(ExecuteTestProcess, self).__init__()
         self.work_queue = work_queue
-        self.completed_queue = completed_queue
         self.all_cases = all_cases
         self.all_parents = all_parents
         self.worked = mp.Value('i', 0)
+        self.pipe = pipe
 
     def run(self):
         last_time = time()
@@ -23,8 +23,10 @@ class ExecuteTestProcess(mp.Process):
             if case_wrapper == 'STOP':
                 # Make sure buffer is cleared
                 if len(completed) > 0:
+                    self.pipe.send(completed)
                     #self.completed_queue.put(completed)
                     self.completed = []
+                self.pipe.send(None)
                 #self.completed_queue.put(None)
                 return
 
@@ -36,6 +38,7 @@ class ExecuteTestProcess(mp.Process):
 
             # Flush completed buffer to queue
             if completed and time() >= (last_time + 0.01):
+                self.pipe.send(completed)
                 #self.completed_queue.put(completed)
                 completed = []
                 last_time = time()
@@ -43,13 +46,13 @@ class ExecuteTestProcess(mp.Process):
 
 class TestManager(object):
 
-    def __init__(self, num_processes=6):
+    def __init__(self, num_processes=4):
         self.processes = []
         self.num_processes = num_processes
         self.stops_hit = 0
         self.thead_lock = threading.Lock()
         self.work_queue = mp.Queue()
-        self.completed = mp.Queue()
+        self.active_pipes = []
         self.case_functions = {}
         self.case_parents = {}
 
@@ -60,7 +63,7 @@ class TestManager(object):
         self.case_functions[case_wrapper.id] = case_wrapper.case_func
         self.case_parents[case_wrapper.parent.id] = case_wrapper.parent
 
-    def sync_wrappers(self, wrapper_list, ):
+    def sync_wrappers(self, wrapper_list):
         for wrapper in wrapper_list:
             parent_id = wrapper.parent
             wrapper_id = wrapper.case_func
@@ -73,32 +76,31 @@ class TestManager(object):
             wrapper.parent.cases[index] = wrapper
             wrapper.parent.top_parent.dispatch(TestEvent(wrapper))
 
-    def sync_wrappers_from_queue(self):
-        while True:
-            try:
-                wrapper = self.completed.get(timeout=0.1)
-            except:
-                pass
-            else:
-                if wrapper is None:
-                    self.stops_hit += 1
-
-                if wrapper is not None:
-                    self.sync_wrappers(wrapper)
-
-            if self.stops_hit >= self.num_processes:
-                break
+    def sync_wrappers_from_pipes(self):
+        stops = 0
+        while stops < self.num_processes:
+            for pipe in self.active_pipes:
+                if pipe.poll(0.01):
+                    received = pipe.recv()
+                    if received is None:
+                        stops += 1
+                    else:
+                        self.sync_wrappers(received)
+                    if stops >= self.num_processes:
+                        break
 
     def execute_all(self):
         for i in range(0, self.num_processes):
+            parent_pipe, child_pipe = mp.Pipe(duplex=False)
             test_process = ExecuteTestProcess(
-                self.work_queue, self.completed, self.case_functions,
-                self.case_parents)
+                self.work_queue, self.case_functions,
+                self.case_parents, child_pipe)
+            self.active_pipes.append(parent_pipe)
             self.processes.append(test_process)
             self.work_queue.put('STOP')
             test_process.start()
 
-        #self.sync_wrappers_from_queue()
+        self.sync_wrappers_from_pipes()
 
         # Join already completed processes for good measure
         total_tests = 0
@@ -108,3 +110,6 @@ class TestManager(object):
             self.processes.remove(test_process)
 
         print 'Total Tests Processed:', total_tests
+
+        for pipe in self.active_pipes:
+            pipe.close()
