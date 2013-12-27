@@ -46,7 +46,7 @@ class ExecuteTestProcess(mp.Process):
 
 class TestManager(object):
 
-    def __init__(self, num_processes=4):
+    def __init__(self, num_processes=6):
         self.processes = []
         self.num_processes = num_processes
         self.stops_hit = 0
@@ -70,10 +70,7 @@ class TestManager(object):
 
             wrapper.parent = self.case_parents[parent_id]
             wrapper.case_func = self.case_functions[wrapper_id]
-
-            index = list(wrapper.parent.case_ids).index(wrapper_id)
-
-            wrapper.parent.cases[index] = wrapper
+            wrapper.parent.cases[wrapper_id] = wrapper
             wrapper.parent.top_parent.dispatch(TestEvent(wrapper))
 
     def sync_wrappers_from_pipes(self):

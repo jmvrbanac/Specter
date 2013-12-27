@@ -117,7 +117,7 @@ class Describe(EventDispatcher):
         wrappers = self.__wrappers__
         self.parent = parent
         self.cases = wrappers
-        self.case_ids = [case.id for case in wrappers]
+        self.case_ids = wrappers.keys()
         self.describes = [desc_type(parent=self)
                           for desc_type in self.describe_types]
 
@@ -127,7 +127,8 @@ class Describe(EventDispatcher):
 
     @property
     def complete(self):
-        cases_completed = [case for case in self.cases if case.complete]
+        cases_completed = [case for id, case in six.iteritems(self.cases)
+                           if case.complete]
         descs_completed = [desc for desc in self.describes if desc.complete]
         return len(cases_completed) + len(descs_completed) == 0
 
@@ -172,11 +173,11 @@ class Describe(EventDispatcher):
 
     @property
     def __wrappers__(self):
-        wrappers = []
+        wrappers = {}
         for case_func in self.case_funcs:
             case_func, metadata = extract_metadata(case_func)
             wrapper = CaseWrapper(case_func, parent=self, metadata=metadata)
-            wrappers.append(wrapper)
+            wrappers[wrapper.id] = wrapper
         return wrappers
 
     @classmethod
@@ -242,7 +243,7 @@ class Describe(EventDispatcher):
         pass
 
     def add_tests_to_queue(self, manager):
-        for case in self.cases:
+        for key, case in six.iteritems(self.cases):
             manager.add_to_queue(case)
 
         for describe in self.describes:
@@ -314,7 +315,7 @@ class DataDescribe(Describe):
 
     def __init__(self, parent=None):
         super(DataDescribe, self).__init__(parent=parent)
-        self.cases = []
+        self.cases = {}
 
         self.dup_count = 0
         self.dups = set()
@@ -347,10 +348,10 @@ class DataDescribe(Describe):
 
                 # Monkey-patch and add to cases list
                 setattr(self, func_name, new_func)
-                self.cases.append(CaseWrapper(new_func, parent=self,
-                                              execute_kwargs=kwargs,
-                                              metadata=meta))
-        self.case_ids = [case.id for case in self.cases]
+                wrapper = CaseWrapper(new_func, parent=self,
+                                      execute_kwargs=kwargs, metadata=meta)
+                self.cases[wrapper.id] = wrapper
+        self.case_ids = self.cases.keys()
 
 
 def convert_to_hashable(obj):
