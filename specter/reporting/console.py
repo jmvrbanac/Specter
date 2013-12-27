@@ -2,7 +2,7 @@ import re
 import six
 from specter.spec import TestEvent, DescribeEvent, DataDescribe
 from specter import _
-from specter.reporting import AbstractConsoleReporterPlugin
+from specter.reporting import AbstractConsoleReporter, AbstractSerialReporter
 
 
 class TestStatus():
@@ -24,7 +24,7 @@ class ConsoleColors():
     WHITE = 37
 
 
-class ConsoleReporter(object):
+class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
     """ Temporary console reporter.
     At least until I can get a real one written.
     """

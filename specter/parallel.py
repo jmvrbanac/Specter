@@ -1,6 +1,9 @@
 import multiprocessing as mp
 import threading
+import six
 from time import time
+
+from coverage import coverage
 from specter.spec import TestEvent
 
 
@@ -13,10 +16,15 @@ class ExecuteTestProcess(mp.Process):
         self.all_parents = all_parents
         self.worked = mp.Value('i', 0)
         self.pipe = pipe
+        self.coverage = coverage(data_suffix=True)
+        self.coverage._warn_no_data = False
 
     def run(self):
         last_time = time()
         completed = []
+
+        self.coverage.start()
+
         while True:
             # Get item and get real function to execute
             case_wrapper = self.work_queue.get()
@@ -24,10 +32,11 @@ class ExecuteTestProcess(mp.Process):
                 # Make sure buffer is cleared
                 if len(completed) > 0:
                     self.pipe.send(completed)
-                    #self.completed_queue.put(completed)
                     self.completed = []
                 self.pipe.send(None)
-                #self.completed_queue.put(None)
+
+                self.coverage.stop()
+                self.coverage.save()
                 return
 
             case_wrapper.case_func = self.all_cases[case_wrapper.case_func]
@@ -39,12 +48,11 @@ class ExecuteTestProcess(mp.Process):
             # Flush completed buffer to queue
             if completed and time() >= (last_time + 0.01):
                 self.pipe.send(completed)
-                #self.completed_queue.put(completed)
                 completed = []
                 last_time = time()
 
 
-class TestManager(object):
+class ParallelManager(object):
 
     def __init__(self, num_processes=6):
         self.processes = []
@@ -63,7 +71,20 @@ class TestManager(object):
         self.case_functions[case_wrapper.id] = case_wrapper.case_func
         self.case_parents[case_wrapper.parent.id] = case_wrapper.parent
 
-    def sync_wrappers(self, wrapper_list):
+    def collect_parent_data(self):
+        ids_and_count = {}
+
+        def get_data(parent):
+            for desc in parent.describes:
+                if not desc.id in ids_and_count:
+                    ids_and_count[desc.id] = len(desc.cases)
+                    get_data(desc)
+
+        for key, parent in six.iteritems(self.case_parents):
+            get_data(parent)
+        return ids_and_count
+
+    def sync_wrappers(self, wrapper_list, completed_per_describe):
         for wrapper in wrapper_list:
             parent_id = wrapper.parent
             wrapper_id = wrapper.case_func
@@ -73,8 +94,16 @@ class TestManager(object):
             wrapper.parent.cases[wrapper_id] = wrapper
             wrapper.parent.top_parent.dispatch(TestEvent(wrapper))
 
+            # completed_per_describe[parent_id] += 1
+            # if completed_per_describe[parent_id] == len(wrapper.parent.cases):
+
+            #     print 'finished describe'
+
     def sync_wrappers_from_pipes(self):
         stops = 0
+        finished = {key: 0 for key, val in six.iteritems(self.case_parents)}
+        # parent_data = self.collect_parent_data()
+        # print parent_data
         while stops < self.num_processes:
             for pipe in self.active_pipes:
                 if pipe.poll(0.01):
@@ -82,7 +111,7 @@ class TestManager(object):
                     if received is None:
                         stops += 1
                     else:
-                        self.sync_wrappers(received)
+                        self.sync_wrappers(received, finished)
                     if stops >= self.num_processes:
                         break
 
@@ -99,14 +128,12 @@ class TestManager(object):
 
         self.sync_wrappers_from_pipes()
 
-        # Join already completed processes for good measure
+        # Join processes for good measure
         total_tests = 0
         for test_process in list(self.processes):
             test_process.join()
             total_tests += test_process.worked.value
             self.processes.remove(test_process)
-
-        print 'Total Tests Processed:', total_tests
 
         for pipe in self.active_pipes:
             pipe.close()

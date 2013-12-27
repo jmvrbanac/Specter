@@ -5,7 +5,7 @@ from coverage import coverage
 from specter import _
 from specter.scanner import SuiteScanner
 from specter.reporting import ReporterPluginManager
-from specter.manager import TestManager
+from specter.parallel import ParallelManager
 
 
 class SpecterRunner(object):
@@ -19,8 +19,8 @@ class SpecterRunner(object):
         self.arg_parser = ArgumentParser(description=self.DESCRIPTION)
         self.setup_argparse()
         self.suites = []
-        self.reporter_manager = ReporterPluginManager()
-        self.test_manager = TestManager()
+        self.reporter_manager = None
+        self.parallel_manager = None
 
     def setup_argparse(self):
         self.arg_parser.add_argument(
@@ -48,6 +48,9 @@ class SpecterRunner(object):
         self.arg_parser.add_argument(
             '--xunit-results', dest='xunit_results', metavar='',
             help=_('Saves out xUnit compatible results to a specifed file'))
+        self.arg_parser.add_argument(
+            '--parallel', dest='parallel', action='store_true',
+            help=_('Activate parallel testing mode'))
 
     def generate_ascii_art(self):
         tag_line = _('Keeping the boogy man away from your code!')
@@ -66,8 +69,13 @@ class SpecterRunner(object):
         select_meta = None
         self.arguments = self.arg_parser.parse_args(args)
 
+        self.reporter_manager = ReporterPluginManager()
+
         # Let each reporter parse cli arguments
         self.reporter_manager.process_arguments(self.arguments)
+
+        if self.arguments.parallel:
+            self.parallel_manager = ParallelManager()
 
         if self.arguments.select_meta:
             metas = [meta.split('=') for meta in self.arguments.select_meta]
@@ -78,39 +86,42 @@ class SpecterRunner(object):
 
         if self.arguments.coverage:
             print(_(' - Running with coverage enabled - '))
-            self.coverage = coverage(omit=['*/pyevents/event.py',
-                                           '*/pyevents/manager.py',
-                                           '*/specter/spec.py',
-                                           '*/specter/expect.py',
-                                           '*/specter/reporting/__init__.py',
-                                           '*/specter/reporting/console.py',
-                                           '*/specter/__init__.py'])
-            self.coverage._warn_no_data = False
+            omit_list = ['*/pyevents/event.py',
+                         '*/pyevents/manager.py',
+                         '*/specter/spec.py',
+                         '*/specter/expect.py',
+                         '*/specter/reporting/__init__.py',
+                         '*/specter/reporting/console.py',
+                         '*/specter/__init__.py']
+            self.coverage = coverage(data_suffix=self.arguments.parallel)
+            #self.coverage._warn_no_data = False
 
         self.suite_types = self.suite_scanner.scan(
             search_path=self.arguments.search,
             module_name=self.arguments.select_module)
 
-        for suite_type in self.suite_types:
-            # Start Coverage Capture
-            if self.coverage:
-                self.coverage.start()
+        # Start Coverage Captures
+        if self.coverage:
+            self.coverage.start()
 
+        # Serial: Add and Execute | Parallel: Collect all with the add process
+        for suite_type in self.suite_types:
             suite = suite_type()
             self.suites.append(suite)
             self.reporter_manager.subscribe_all_to_describe(suite)
-            suite.add_tests_to_queue(self.test_manager)
-            #suite.execute(select_metadata=select_meta)
+            suite.execute(select_metadata=select_meta,
+                          parallel_manager=self.parallel_manager)
 
-            # Start Coverage Capture
-            if self.coverage:
-                self.coverage.stop()
-
-        self.test_manager.execute_all()
+        # Actually execute the tests for parallel now
+        if self.arguments.parallel:
+            self.parallel_manager.execute_all()
 
         # Save coverage data if enabled
         if self.coverage:
+            self.coverage.stop()
             self.coverage.save()
+            if self.arguments.parallel:
+                self.coverage.combine()
 
         # Print all console summaries
         for reporter in self.reporter_manager.get_console_reporters():
@@ -125,9 +136,10 @@ def activate(): #pragma: no cover
     runner = SpecterRunner()
     runner.run(args)
     # Return error code if tests fail
-    # for suite in runner.suites:
-    #     if not suite.success:
-    #         exit(1)
+    for suite in runner.suites:
+        if not suite.success:
+            pass
+            #exit(1)
 
 if __name__ == "__main__":
     activate()

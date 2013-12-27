@@ -21,7 +21,7 @@ class TestSpecterUtil(TestCase):
         wrap1 = spec.CaseWrapper(None, None, metadata={'test': 'smoke'})
         wrap2 = spec.CaseWrapper(None, None, metadata={'test': 'bam'})
 
-        test_list = [wrap1, wrap2]
+        test_list = {wrap1.id: wrap1, wrap2.id: wrap2}
         found = util.find_by_metadata({'test': 'smoke'}, test_list)
         self.assertEqual(len(found), 1)
-        self.assertIn(wrap1, found)
+        self.assertIn(wrap1.id, found)

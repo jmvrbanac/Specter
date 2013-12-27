@@ -128,8 +128,9 @@ class Describe(EventDispatcher):
     @property
     def complete(self):
         cases_completed = [case for id, case in six.iteritems(self.cases)
-                           if case.complete]
-        descs_completed = [desc for desc in self.describes if desc.complete]
+                           if not case.complete]
+        descs_completed = [desc for desc in self.describes
+                           if not desc.complete]
         return len(cases_completed) + len(descs_completed) == 0
 
     @property
@@ -151,7 +152,7 @@ class Describe(EventDispatcher):
     @property
     def total_time(self):
         total = 0.0
-        for case in self.cases:
+        for key, case in six.iteritems(self.cases):
             total += case.elapsed_time
 
         for describe in self.describes:
@@ -162,7 +163,8 @@ class Describe(EventDispatcher):
     @property
     def success(self):
         ok = True
-        case_successes = [case.success for case in self.cases]
+        case_successes = [case.success
+                          for key, case in six.iteritems(self.cases)]
         spec_successes = [spec.success for spec in self.describes]
         if case_successes and False in case_successes:
             ok = False
@@ -242,30 +244,22 @@ class Describe(EventDispatcher):
     def after_each(self):
         pass
 
-    def add_tests_to_queue(self, manager):
+    def parallel_execution(self, manager, select_metadata=None):
         for key, case in six.iteritems(self.cases):
             manager.add_to_queue(case)
 
         for describe in self.describes:
-            describe.add_tests_to_queue(manager)
+            describe.execute(select_metadata, manager)
 
-    def execute(self, select_metadata=None):
+        #We need to wait until the tests are done...
+        #self.after_all()
 
-        if select_metadata:
-            self.cases = find_by_metadata(select_metadata, self.cases)
-            self.describes = children_with_tests_with_metadata(
-                select_metadata, self)
-
-        # If it doesn't have tests or describes don't run it
-        if len(self.cases) <= 0 and len(self.describes) <= 0:
-            return
-
+    def standard_execution(self, select_metadata=None):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
-
         self.before_all()
 
         # Execute Cases
-        for case in self.cases:
+        for key, case in six.iteritems(self.cases):
             self.before_each()
             case.execute(context=self)
             self.after_each()
@@ -274,10 +268,24 @@ class Describe(EventDispatcher):
 
         # Execute Suites
         for describe in self.describes:
-            describe.execute(select_metadata=select_metadata)
+            describe.standard_execution(select_metadata=select_metadata)
 
         self.after_all()
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.COMPLETE, self))
+
+    def execute(self, select_metadata=None, parallel_manager=None):
+        if select_metadata:
+            self.cases = find_by_metadata(select_metadata, self.cases)
+            self.describes = children_with_tests_with_metadata(
+                select_metadata, self)
+
+        # If it doesn't have tests or describes don't run it
+        if len(self.cases) <= 0 and len(self.describes) <= 0:
+            return
+        if parallel_manager:
+            self.parallel_execution(parallel_manager, select_metadata)
+        else:
+            self.standard_execution(select_metadata)
 
     @classmethod
     def plugin_filter(cls, other):
@@ -297,13 +305,12 @@ class Describe(EventDispatcher):
         if type(obj) is not FunctionType:
             return False
 
+        reserved = ['execute', 'standard_execution', 'parallel_execution',
+                    'before_each', 'after_each', 'before_all', 'after_all']
+
         func_name = obj.__name__
         return (not func_name.startswith('_') and
-                not func_name == 'execute' and
-                not func_name == 'before_each' and
-                not func_name == 'after_each' and
-                not func_name == 'before_all' and
-                not func_name == 'after_all')
+                not func_name in reserved)
 
 
 class Spec(Describe):

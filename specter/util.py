@@ -2,6 +2,7 @@ import inspect
 import re
 import itertools
 import sys
+import six
 
 
 def convert_camelcase(input_str):
@@ -91,13 +92,13 @@ def get_real_last_traceback(exception):
 
 
 def find_by_metadata(meta, cases):
-    selected_cases = []
-    for case in cases:
+    selected_cases = {}
+    for case_id, case in six.iteritems(cases):
         matched_keys = set(meta.keys()) & set(case.metadata.keys())
 
         for key in matched_keys:
             if meta.get(key) == case.metadata.get(key):
-                selected_cases.append(case)
+                selected_cases[case_id] = case
 
     return selected_cases
 

@@ -2,10 +2,11 @@ from sys import stdout
 
 from specter import _
 from specter.spec import TestEvent
-from specter.reporting import AbstractConsoleReporterPlugin
+from specter.reporting import AbstractConsoleReporter
+from specter.reporting import AbstractParallelReporter
 
 
-class DotsReporter(AbstractConsoleReporterPlugin):
+class DotsReporter(AbstractConsoleReporter, AbstractParallelReporter):
 
     def __init__(self):
         super(DotsReporter, self).__init__()
