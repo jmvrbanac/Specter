@@ -65,6 +65,21 @@ class SpecterRunner(object):
     """.format(tag=tag_line)
         return ascii_art
 
+    def get_coverage_omit_list(self):
+        omit_list = ['*/pyevents/event.py',
+                     '*/pyevents/manager.py',
+                     '*/specter/spec.py',
+                     '*/specter/expect.py',
+                     '*/specter/parallel.py',
+                     '*/specter/runner.py',
+                     '*/specter/util.py',
+                     '*/specter/reporting/__init__.py',
+                     '*/specter/reporting/console.py',
+                     '*/specter/reporting/dots.py',
+                     '*/specter/reporting/xunit.py',
+                     '*/specter/__init__.py']
+        return omit_list
+
     def run(self, args):
         select_meta = None
         self.arguments = self.arg_parser.parse_args(args)
@@ -75,7 +90,9 @@ class SpecterRunner(object):
         self.reporter_manager.process_arguments(self.arguments)
 
         if self.arguments.parallel:
-            self.parallel_manager = ParallelManager()
+            self.parallel_manager = ParallelManager(
+                track_coverage=self.arguments.coverage,
+                coverage_omit=self.get_coverage_omit_list())
 
         if self.arguments.select_meta:
             metas = [meta.split('=') for meta in self.arguments.select_meta]
@@ -86,26 +103,18 @@ class SpecterRunner(object):
 
         if self.arguments.coverage:
             print(_(' - Running with coverage enabled - '))
-            omit_list = ['*/pyevents/event.py',
-                         '*/pyevents/manager.py',
-                         '*/specter/spec.py',
-                         '*/specter/expect.py',
-                         '*/specter/reporting/__init__.py',
-                         '*/specter/reporting/console.py',
-                         '*/specter/__init__.py']
-            self.coverage = coverage(data_suffix=self.arguments.parallel)
-            #self.coverage._warn_no_data = False
+            self.coverage = coverage(omit=self.get_coverage_omit_list(),
+                                     data_suffix=self.arguments.parallel)
+            self.coverage._warn_no_data = False
+            self.coverage.start()
 
         self.suite_types = self.suite_scanner.scan(
             search_path=self.arguments.search,
             module_name=self.arguments.select_module)
 
-        # Start Coverage Captures
-        if self.coverage:
-            self.coverage.start()
-
         # Serial: Add and Execute | Parallel: Collect all with the add process
         for suite_type in self.suite_types:
+
             suite = suite_type()
             self.suites.append(suite)
             self.reporter_manager.subscribe_all_to_describe(suite)
@@ -138,8 +147,7 @@ def activate(): #pragma: no cover
     # Return error code if tests fail
     for suite in runner.suites:
         if not suite.success:
-            pass
-            #exit(1)
+            exit(1)
 
 if __name__ == "__main__":
     activate()

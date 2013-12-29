@@ -9,21 +9,25 @@ from specter.spec import TestEvent
 
 class ExecuteTestProcess(mp.Process):
     def __init__(self, work_queue, all_cases, all_parents,
-                 pipe):
+                 pipe, track_coverage=False, coverage_omit=None):
         super(ExecuteTestProcess, self).__init__()
         self.work_queue = work_queue
         self.all_cases = all_cases
         self.all_parents = all_parents
         self.worked = mp.Value('i', 0)
         self.pipe = pipe
-        self.coverage = coverage(data_suffix=True)
-        self.coverage._warn_no_data = False
+        self.coverage = None
+
+        if track_coverage:
+            self.coverage = coverage(omit=coverage_omit, data_suffix=True)
+            self.coverage._warn_no_data = False
 
     def run(self):
         last_time = time()
         completed = []
 
-        self.coverage.start()
+        if self.coverage:
+            self.coverage.start()
 
         while True:
             # Get item and get real function to execute
@@ -35,8 +39,9 @@ class ExecuteTestProcess(mp.Process):
                     self.completed = []
                 self.pipe.send(None)
 
-                self.coverage.stop()
-                self.coverage.save()
+                if self.coverage:
+                    self.coverage.stop()
+                    self.coverage.save()
                 return
 
             case_wrapper.case_func = self.all_cases[case_wrapper.case_func]
@@ -54,7 +59,8 @@ class ExecuteTestProcess(mp.Process):
 
 class ParallelManager(object):
 
-    def __init__(self, num_processes=6):
+    def __init__(self, num_processes=6, track_coverage=False,
+                 coverage_omit=None):
         self.processes = []
         self.num_processes = num_processes
         self.stops_hit = 0
@@ -63,6 +69,8 @@ class ParallelManager(object):
         self.active_pipes = []
         self.case_functions = {}
         self.case_parents = {}
+        self.track_coverage = track_coverage
+        self.coverage_omit = coverage_omit
 
     def add_to_queue(self, case_wrapper):
         self.work_queue.put(case_wrapper)
@@ -93,11 +101,6 @@ class ParallelManager(object):
             wrapper.case_func = self.case_functions[wrapper_id]
             wrapper.parent.cases[wrapper_id] = wrapper
             wrapper.parent.top_parent.dispatch(TestEvent(wrapper))
-
-            # completed_per_describe[parent_id] += 1
-            # if completed_per_describe[parent_id] == len(wrapper.parent.cases):
-
-            #     print 'finished describe'
 
     def sync_wrappers_from_pipes(self):
         stops = 0
