@@ -12,11 +12,6 @@ from specter.util import (get_real_last_traceback, convert_camelcase,
                           find_by_metadata, extract_metadata,
                           children_with_tests_with_metadata)
 
-import ctypes
-cellnew = ctypes.pythonapi.PyCell_New
-cellnew.restype = ctypes.py_object
-cellnew.argtypes = (ctypes.py_object,)
-
 
 class TimedObject(object):
     def __init__(self):
@@ -84,7 +79,7 @@ class CaseWrapper(TimedObject):
 
     @property
     def success(self):
-        return (not self.failed and not self.error and
+        return (self.complete and not self.failed and not self.error and
                 len([exp for exp in self.expects if not exp.success]) == 0)
 
     @property
@@ -141,7 +136,6 @@ class Describe(EventDispatcher):
             parent = parent.parent
 
         real_path = '.'.join(ancestors)
-
         return '{base}.{path}'.format(base=self.__module__, path=real_path)
 
     @property

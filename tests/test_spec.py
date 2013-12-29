@@ -70,7 +70,9 @@ class TestCaseWrapper(TestCase):
     def test_good_success(self):
         # Create a generic object we can use to test with
         obj = type('inline', (object,), {'success': True})
+        self.wrapper.start()
         self.wrapper.expects.append(obj)
+        self.wrapper.stop()
 
         self.assertTrue(self.wrapper.success)
 
@@ -103,6 +105,9 @@ class TestSpecDescribe(TestCase):
 
     def test_doc_property(self):
         self.assertEqual(self.spec.doc, 'Example Doc String')
+
+    def test_success_property(self):
+        self.assertFalse(self.spec.success)
 
 
 class TestSpecHelpers(TestCase):

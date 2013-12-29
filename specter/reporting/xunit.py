@@ -123,8 +123,7 @@ class XUnitTestCase(object):
 
     @property
     def module(self):
-        cls_name = type(self.case_wrapper.parent).__name__
-        return '{0}.{1}'.format(self.case_wrapper.__module__, cls_name)
+        return self.case_wrapper.parent.real_class_path
 
     @property
     def time(self):
