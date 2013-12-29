@@ -1,6 +1,5 @@
 import multiprocessing as mp
 import threading
-import six
 from time import time
 
 from coverage import coverage

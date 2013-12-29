@@ -65,11 +65,11 @@ class ExpectAssert(object):
 
     def be_true(self):
         self._compare(action_name=_('be'), expected=True,
-                      condition=self.target == True)
+                      condition=self.target)
 
     def be_false(self):
         self._compare(action_name=_('be'), expected=False,
-                      condition=self.target == False)
+                      condition=not self.target)
 
     def contain(self, expected):
         self._compare(action_name=_('contain'), expected=expected,

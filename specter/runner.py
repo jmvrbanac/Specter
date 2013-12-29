@@ -140,7 +140,7 @@ class SpecterRunner(object):
         self.suite_scanner.destroy()
 
 
-def activate(): #pragma: no cover
+def activate():  # pragma: no cover
     args = sys.argv[1:]
     runner = SpecterRunner()
     runner.run(args)

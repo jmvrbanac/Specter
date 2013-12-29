@@ -65,7 +65,8 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
         self.print_indent_msg(msg=msg, level=level, color=color)
 
     def print_test_args(self, kwargs, level, status=TestStatus.PASS):
-        if kwargs and (status == TestStatus.ERROR or status == TestStatus.FAIL):
+        if kwargs and (status == TestStatus.ERROR or
+                       status == TestStatus.FAIL):
             msg = u''.join([u'  Parameters: ', self.pretty_print_args(kwargs)])
             self.print_test_msg(msg, level, status)
 
@@ -113,8 +114,8 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
             name = u'\u221F {0}'.format(name)
 
         status = TestStatus.FAIL
-        if (test_case.success and not test_case.skipped
-            and not test_case.incomplete):
+        if (test_case.success
+                and not test_case.skipped and not test_case.incomplete):
             status = TestStatus.PASS
         elif test_case.incomplete:
             status = TestStatus.INCOMPLETE
@@ -170,8 +171,8 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
 
         # Add test to totals
         self.test_total += 1
-        if (test_case.success and not test_case.skipped
-            and not test_case.incomplete):
+        if (test_case.success
+                and not test_case.skipped and not test_case.incomplete):
             self.passed_tests += 1
         elif test_case.skipped:
             self.skipped_tests += 1

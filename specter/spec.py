@@ -363,7 +363,8 @@ class DataDescribe(Describe):
 def convert_to_hashable(obj):
     hashed = obj
     if isinstance(obj, dict):
-        hashed = tuple([(k, convert_to_hashable(v)) for k, v in six.iteritems(obj)])
+        hashed = tuple([(k, convert_to_hashable(v))
+                       for k, v in six.iteritems(obj)])
     elif isinstance(obj, list):
         hashed = tuple(obj)
     return hashed
@@ -384,6 +385,7 @@ def copy_function(func, name):
 
     return FunctionType(code, globals, name)
 
+
 def get_function_kwargs(old_func, new_args):
     args, _, _, defaults = inspect.getargspec(old_func)
     if 'self' in args:
@@ -397,6 +399,7 @@ def get_function_kwargs(old_func, new_args):
 
     kwargs.update(new_args)
     return kwargs
+
 
 class DescribeEvent(Event):
     START = 'start'
