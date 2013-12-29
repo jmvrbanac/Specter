@@ -9,7 +9,7 @@ class TestConsoleReporter(TestCase):
 
     def test_get_name(self):
         self.assertEqual(self.default_reporter.get_name(),
-                         'Temporary console reporter')
+                         'Temporary Serial console reporter')
 
     def test_process_args(self):
         class dotted_dict(object):
