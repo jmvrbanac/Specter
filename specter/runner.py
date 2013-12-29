@@ -27,18 +27,18 @@ class SpecterRunner(object):
             '--coverage', dest='coverage', action='store_true',
             help=_('Activates coverage.py integration'))
         self.arg_parser.add_argument(
-            '--search', type=str, dest='search',
+            '--search', type=str, dest='search', metavar='',
             help=_('The spec suite folder path.'))
         self.arg_parser.add_argument(
             '--no-art', dest='no_art', action='store_true',
             help=_('Disables ASCII art'))
         self.arg_parser.add_argument(
-            '--select-module', dest='select_module',
+            '--select-module', dest='select_module', metavar='',
             help=_('Selects a module path to run. '
                    'Ex: spec.sample.TestClass'),
             default=None)
         self.arg_parser.add_argument(
-            '--select-by-metadata', dest='select_meta',
+            '--select-by-metadata', dest='select_meta', metavar='',
             help=_('Selects tests to run by specifying a list of '
                    'key=value pairs you wish to run'),
             default=[], nargs='*')
@@ -51,6 +51,10 @@ class SpecterRunner(object):
         self.arg_parser.add_argument(
             '--parallel', dest='parallel', action='store_true',
             help=_('Activate parallel testing mode'))
+        self.arg_parser.add_argument(
+            '--num-processes', dest='num_processes', default=6, metavar='',
+            help=_('Specifies the number of processes to use under '
+                   'parallel mode (default: 6)'))
 
     def generate_ascii_art(self):
         tag_line = _('Keeping the boogy man away from your code!')
@@ -91,6 +95,7 @@ class SpecterRunner(object):
 
         if self.arguments.parallel:
             self.parallel_manager = ParallelManager(
+                num_processes=self.arguments.num_processes,
                 track_coverage=self.arguments.coverage,
                 coverage_omit=self.get_coverage_omit_list())
 
