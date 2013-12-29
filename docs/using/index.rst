@@ -86,4 +86,6 @@ Argument               Description
 --select-by-metadata   Selects tests to run by specifying a list of key=value pairs
 --xunit-results        Output xUnit XML results into a specified file
 --no-color             Disables ASCII color codes
+--parallel             Activates parallel testing mode
+--num-processes        Specifies the number of processes to use under parallel mode (default: 6)
 =====================  ============

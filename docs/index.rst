@@ -22,6 +22,7 @@ Documentation
 
     using/index
     writing_tests/index
+    parallel/index
     release_notes/index
 
 Continuous Integration
