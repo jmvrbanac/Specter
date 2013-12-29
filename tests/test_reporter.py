@@ -1,5 +1,5 @@
 from unittest import TestCase
-from specter.reporting.console import ConsoleReporter
+from specter.reporting.console import ConsoleReporter, print_colored
 
 
 class TestConsoleReporter(TestCase):
@@ -24,5 +24,5 @@ class TestConsoleReporter(TestCase):
 
     def test_no_color_print(self):
         self.default_reporter.use_color = False
-        self.default_reporter.print_colored('bam')
+        print_colored('bam')
         # When we unify the print to console, add a test here to cover this
