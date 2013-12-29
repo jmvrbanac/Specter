@@ -4,7 +4,7 @@ import six
 from time import time
 
 from coverage import coverage
-from specter.spec import TestEvent
+from specter.spec import TestEvent, DescribeEvent
 
 
 class ExecuteTestProcess(mp.Process):
@@ -79,34 +79,27 @@ class ParallelManager(object):
         self.case_functions[case_wrapper.id] = case_wrapper.case_func
         self.case_parents[case_wrapper.parent.id] = case_wrapper.parent
 
-    def collect_parent_data(self):
-        ids_and_count = {}
-
-        def get_data(parent):
-            for desc in parent.describes:
-                if not desc.id in ids_and_count:
-                    ids_and_count[desc.id] = len(desc.cases)
-                    get_data(desc)
-
-        for key, parent in six.iteritems(self.case_parents):
-            get_data(parent)
-        return ids_and_count
-
-    def sync_wrappers(self, wrapper_list, completed_per_describe):
+    def sync_wrappers(self, wrapper_list):
         for wrapper in wrapper_list:
             parent_id = wrapper.parent
             wrapper_id = wrapper.case_func
 
-            wrapper.parent = self.case_parents[parent_id]
+            parent = wrapper.parent = self.case_parents[parent_id]
             wrapper.case_func = self.case_functions[wrapper_id]
             wrapper.parent.cases[wrapper_id] = wrapper
             wrapper.parent.top_parent.dispatch(TestEvent(wrapper))
+            parent._num_completed_cases += 1
+
+            while parent:
+                if parent.complete:
+                    evt = DescribeEvent(DescribeEvent.COMPLETE, parent)
+                    parent.top_parent.dispatch(evt)
+                    parent = parent.parent
+                else:
+                    parent = None
 
     def sync_wrappers_from_pipes(self):
         stops = 0
-        finished = {key: 0 for key, val in six.iteritems(self.case_parents)}
-        # parent_data = self.collect_parent_data()
-        # print parent_data
         while stops < self.num_processes:
             for pipe in self.active_pipes:
                 if pipe.poll(0.01):
@@ -114,7 +107,7 @@ class ParallelManager(object):
                     if received is None:
                         stops += 1
                     else:
-                        self.sync_wrappers(received, finished)
+                        self.sync_wrappers(received)
                     if stops >= self.num_processes:
                         break
 

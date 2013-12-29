@@ -2,10 +2,10 @@ from xml.etree.ElementTree import Element, tostring as element_to_str
 
 import six
 from specter.spec import DescribeEvent
-from specter.reporting import AbstractReporterPlugin
+from specter.reporting import AbstractParallelReporter, AbstractSerialReporter
 
 
-class XUnitReporter(AbstractReporterPlugin):
+class XUnitReporter(AbstractSerialReporter, AbstractParallelReporter):
     """ A simple xUnit format report generator for the Specter framework. """
     # TODO: Make this more efficient!
 

@@ -117,9 +117,9 @@ class Describe(EventDispatcher):
         wrappers = self.__wrappers__
         self.parent = parent
         self.cases = wrappers
-        self.case_ids = wrappers.keys()
         self.describes = [desc_type(parent=self)
                           for desc_type in self.describe_types]
+        self._num_completed_cases = 0
 
     @property
     def name(self):
@@ -127,11 +127,10 @@ class Describe(EventDispatcher):
 
     @property
     def complete(self):
-        cases_completed = [case for id, case in six.iteritems(self.cases)
-                           if not case.complete]
-        descs_completed = [desc for desc in self.describes
-                           if not desc.complete]
-        return len(cases_completed) + len(descs_completed) == 0
+        cases_completed = self._num_completed_cases == len(self.cases)
+        descs_not_completed = [desc for desc in self.describes
+                               if not desc.complete]
+        return cases_completed and len(descs_not_completed) == 0
 
     @property
     def real_class_path(self):
@@ -263,12 +262,13 @@ class Describe(EventDispatcher):
             self.before_each()
             case.execute(context=self)
             self.after_each()
+            self._num_completed_cases += 1
 
             self.top_parent.dispatch(TestEvent(case))
 
         # Execute Suites
         for describe in self.describes:
-            describe.standard_execution(select_metadata=select_metadata)
+            describe.execute(select_metadata=select_metadata)
 
         self.after_all()
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.COMPLETE, self))
@@ -358,7 +358,6 @@ class DataDescribe(Describe):
                 wrapper = CaseWrapper(new_func, parent=self,
                                       execute_kwargs=kwargs, metadata=meta)
                 self.cases[wrapper.id] = wrapper
-        self.case_ids = self.cases.keys()
 
 
 def convert_to_hashable(obj):

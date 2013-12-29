@@ -5,6 +5,9 @@ from pynsive import rlist_classes
 
 @add_metaclass(ABCMeta)
 class AbstractReporterPlugin(object):
+    """ Do not use a plugin base. Use the appropriate parallel and/or
+    serial reporter abstracts depending on your use case.
+    """
 
     def process_arguments(self, args):
         pass  # pragma: no cover
@@ -61,7 +64,7 @@ class ReporterPluginManager(object):
             if isinstance(reporter, AbstractParallelReporter):
                 can_use = True
         else:
-            if not isinstance(reporter, AbstractParallelReporter):
+            if isinstance(reporter, AbstractSerialReporter):
                 can_use = True
         return can_use
 
