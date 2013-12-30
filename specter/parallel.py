@@ -46,7 +46,7 @@ class ExecuteTestProcess(mp.Process):
             case_wrapper.case_func = self.all_cases[case_wrapper.case_func]
             case_wrapper.parent = self.all_parents[case_wrapper.parent]
             case_wrapper.parent.before_each()
-            case_wrapper.execute()
+            case_wrapper.execute(case_wrapper.parent)
             case_wrapper.parent.after_each()
             self.worked.value += 1
             completed.append(case_wrapper)
