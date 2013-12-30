@@ -18,7 +18,6 @@ def _create_testing_spec():
 
 class BeforeAllStateSpec(Spec):
     def before_all(self):
-        print('HOLLLLAA')
         self.boom = True
 
     def should_be_able_to_access_boom(self):
