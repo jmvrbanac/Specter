@@ -238,14 +238,14 @@ class Describe(EventDispatcher):
         pass
 
     def parallel_execution(self, manager, select_metadata=None):
+        self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
+        self.before_all()
+
         for key, case in six.iteritems(self.cases):
             manager.add_to_queue(case)
 
         for describe in self.describes:
             describe.execute(select_metadata, manager)
-
-        #We need to wait until the tests are done...
-        #self.after_all()
 
     def standard_execution(self, select_metadata=None):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
