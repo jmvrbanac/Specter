@@ -4,6 +4,17 @@
 Release Notes
 =================
 
+Release: 0.1.13 (Not Released)
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Added basic parallel testing
+ #. Fixed xUnit test class path
+ #. Fixed standard reporter to not be red all the time - gh-#28
+
+
 Release: 0.1.12
 ----------------
 
