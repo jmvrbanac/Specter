@@ -136,12 +136,14 @@ Test Total      | {total}
             skipped=self.skipped_tests, incomplete=self.incomplete_tests,
             errored=self.errored_tests)
 
-        success = self.failed_tests == 0
+        status = TestStatus.FAIL
+        if self.failed_tests == 0:
+            status = TestStatus.PASS
 
         print_colored('\n')
-        print_test_msg('-'*24, 0, success)
-        print_test_msg(msg, 0, success)
-        print_test_msg('-'*24, 0, success)
+        print_test_msg('-'*24, 0, status)
+        print_test_msg(msg, 0, status)
+        print_test_msg('-'*24, 0, status)
 
 
 def print_test_msg(msg, level, status=TestStatus.PASS):
