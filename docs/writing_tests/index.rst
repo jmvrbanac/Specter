@@ -145,6 +145,14 @@ Available Comparisons
     * be_false()
     * contain(expected_object)
     * be_in(expected_object)
+    * raise_a(expected_exception_type)
+
+Asserting a raised exception
+-----------------------------
+.. code::
+
+    expect(example_func, ['args_here']).to.raise_a(Exception)
+
 
 Fast-fail expectations
 ^^^^^^^^^^^^^^^^^^^^^^^

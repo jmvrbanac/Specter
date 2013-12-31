@@ -7,8 +7,8 @@ from specter.expect import (ExpectAssert, RequireAssert, TestSkippedException,
 
 class TestExpectAssertion(TestCase):
 
-    def _create_assert(self, target):
-        return ExpectAssert(target)
+    def _create_assert(self, target, caller_args=[]):
+        return ExpectAssert(target, caller_args=caller_args)
 
     def test_verify_true_condition(self):
         target = 'test'
@@ -23,7 +23,7 @@ class TestExpectAssertion(TestCase):
         except FailedRequireException as e:
             self.assertIsNotNone(e)
         else:
-           self.assertFalse(success)
+            self.assertFalse(success)
 
     def test_creating_a_blank_reference(self):
         target = 'test'
@@ -125,6 +125,24 @@ class TestExpectAssertion(TestCase):
         expect = self._create_assert(target)
         expect.not_to.be_false()
         self.assertTrue(expect.success)
+
+    def test_expect_raise(self):
+        def sample_raise_func():
+            raise Exception('bam')
+
+        target = sample_raise_func
+        expect = self._create_assert(target)
+        expect.to.raise_a(Exception)
+        self.assertTrue(expect.success)
+
+    def test_expect_not_raise(self):
+        def sample_raise_func():
+            raise Exception('bam')
+
+        target = sample_raise_func
+        expect = self._create_assert(target)
+        expect.not_to.raise_a(Exception)
+        self.assertFalse(expect.success)
 
 
 class TestRequireAssertion(TestExpectAssertion):

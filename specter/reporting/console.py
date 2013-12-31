@@ -232,6 +232,9 @@ def print_expects(test_case, level):
                 if len(msg_list) > 1:
                     print_msg_list(msg_list[1:], indent)
 
+        if expect.custom_msg:
+            print_test_msg(expect.custom_msg, level + 3, status=status)
+
         print_param(expect.target, expect.target_src_param,
                     level + 3, 'Target')
         print_param(expect.expected, expect.expected_src_param,

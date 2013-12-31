@@ -14,7 +14,8 @@ from specter.util import get_called_src_line, get_expect_param_strs
 
 class ExpectAssert(object):
 
-    def __init__(self, target, required=False, src_params=None):
+    def __init__(self, target, required=False, src_params=None,
+                 caller_args=[]):
         super(ExpectAssert, self).__init__()
         self.prefix = _('expect')
         self.target = target
@@ -24,6 +25,8 @@ class ExpectAssert(object):
         self.success = False
         self.used_negative = False
         self.required = required
+        self.caller_args = caller_args
+        self.custom_msg = None
 
     def _verify_condition(self, condition):
         self.success = condition if not self.used_negative else not condition
@@ -79,6 +82,26 @@ class ExpectAssert(object):
         self._compare(action_name=_('be in'), expected=expected,
                       condition=expected in self.target)
 
+    def raise_a(self, exception):
+        self.expected = exception
+        self.actions.extend(['raise', exception])
+        condition = False
+
+        try:
+            self.target(*self.caller_args)
+        except Exception as e:
+            condition = True and type(e) is exception
+
+        self.success = condition if not self.used_negative else not condition
+
+        if not self.success:
+            was = 'wasn\'t' if self.used_negative else 'was'
+            msg = _('Function {func_name} {was} expected to raise "{excpt}"'
+                    ''.format(func_name=self.target_src_param,
+                              excpt=self.expected.__name__,
+                              was=was))
+            self.custom_msg = msg
+
     def __str__(self):
         action_list = []
         action_list.extend(self.actions)
@@ -90,9 +113,10 @@ class ExpectAssert(object):
 
 class RequireAssert(ExpectAssert):
 
-    def __init__(self, target, src_params=None):
+    def __init__(self, target, src_params=None, caller_args=[]):
         super(RequireAssert, self).__init__(target=target, required=True,
-                                            src_params=src_params)
+                                            src_params=src_params,
+                                            caller_args=caller_args)
         self.prefix = _('require')
 
 
@@ -108,16 +132,26 @@ def _add_expect_to_wrapper(obj_to_add):
                         'wrapper: {err}').format(err=error))
 
 
-def expect(obj):
+def expect(obj, caller_args=[]):
+    """ Primary method for test assertions in Specter
+    :param obj: The evaluated target object
+    :param caller_args: Is only used when using expecting a raised Exception
+    """
     src_params = get_expect_param_strs(get_called_src_line())
-    expect_obj = ExpectAssert(obj, src_params=src_params)
+    expect_obj = ExpectAssert(obj, src_params=src_params,
+                              caller_args=caller_args)
     _add_expect_to_wrapper(expect_obj)
     return expect_obj
 
 
-def require(obj):
+def require(obj, caller_args=[]):
+    """ Primary method for test assertions in Specter
+    :param obj: The evaluated target object
+    :param caller_args: Is only used when using expecting a raised Exception
+    """
     src_params = get_expect_param_strs(get_called_src_line())
-    require_obj = RequireAssert(obj, src_params=src_params)
+    require_obj = RequireAssert(obj, src_params=src_params,
+                                caller_args=caller_args)
     _add_expect_to_wrapper(require_obj)
     return require_obj
 
