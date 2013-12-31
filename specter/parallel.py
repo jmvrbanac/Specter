@@ -21,7 +21,10 @@ class ExecuteTestProcess(mp.Process):
             self.coverage = coverage(omit=coverage_omit, data_suffix=True)
             self.coverage._warn_no_data = False
 
-    def run(self):
+    def run(self):  # pragma: no cover
+        """ Note: CI Coverage is turned off due to it not showing covered
+        even with there being tests that run this function.
+        """
         last_time = time()
         completed = []
 
