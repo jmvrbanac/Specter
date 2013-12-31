@@ -6,6 +6,8 @@ env:
     - TOX_ENV=pypy
 
 install:
+    # Temp solution to multiprocessing travis issue #155
+    - sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
     - pip install tox coveralls
 
 script: 
