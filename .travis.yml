@@ -16,3 +16,9 @@ after_success: coveralls
 notifications:
   email:
     - john.vrbanac@linux.com
+  notifications:
+      irc:
+          channels:
+             - "irc.freenode.org#specterframework"
+          use_notice: true
+          skip_join: true
