@@ -14,6 +14,7 @@ Features and bug fixes
  #. Fixed xUnit test class path
  #. Fixed standard reporter to not be red all the time - gh-#28
  #. Fixed be_in() assertion - gh-#34
+ #. Fixed metadata decorator not re-raising assertions - gh-#35
 
 
 Release: 0.1.12

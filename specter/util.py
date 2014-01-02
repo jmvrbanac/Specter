@@ -34,6 +34,9 @@ def get_source_from_frame(frame):
     self = frame.f_locals.get('self', None)
     cls = frame.f_locals.get('cls', None)
     module = inspect.getmodule(type(self) if self else cls)
+    if not module:
+        return [], ''
+
     module_path = module.__file__
     lines = inspect.getsourcelines(module)[0]
     return lines, module_path
@@ -116,8 +119,17 @@ def children_with_tests_with_metadata(meta, describe):
 def extract_metadata(case_func):
     # Handle metadata decorator
     metadata = {}
-    if 'onCall' in case_func.__name__:
-        decorator_data = case_func()
-        case_func = decorator_data[0]
-        metadata = decorator_data[1]
+    if 'DECORATOR_ONCALL' in case_func.__name__:
+        try:
+            decorator_data = case_func()
+            case_func = decorator_data[0]
+            metadata = decorator_data[1]
+        except Exception as e:
+            # Doing this old school to avoid dependancy conflicts
+            handled = ['TestIncompleteException', 'TestSkippedException']
+            if type(e).__name__ in handled:
+                case_func = e.func
+                metadata = e.other_data.get('metadata')
+            else:
+                raise e
     return case_func, metadata

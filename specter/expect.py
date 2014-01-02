@@ -163,9 +163,18 @@ def skip(reason):
     """
     def decorator(test_func):
         if not isinstance(test_func, (type, ClassObjType)):
+            func_data = None
+            if test_func.__name__ == 'DECORATOR_ONCALL':
+                # Call down and save the results
+                func_data = test_func()
+
             @functools.wraps(test_func)
             def skip_wrapper(*args, **kwargs):
-                raise TestSkippedException(test_func, reason)
+                other_data = {
+                    'real_func': func_data[0] if func_data else test_func,
+                    'metadata': func_data[1] if func_data else None
+                }
+                raise TestSkippedException(test_func, reason, other_data)
             test_func = skip_wrapper
         return test_func
     return decorator
@@ -220,7 +229,7 @@ def metadata(**key_value_pairs):
             pass
     """
     def onTestFunc(func):
-        def onCall(*args, **kwargs):
+        def DECORATOR_ONCALL(*args, **kwargs):
             return (func, key_value_pairs)
-        return onCall
+        return DECORATOR_ONCALL
     return onTestFunc

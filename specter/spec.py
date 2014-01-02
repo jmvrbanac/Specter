@@ -54,11 +54,19 @@ class CaseWrapper(TimedObject):
         self.start()
         try:
             MethodType(self.case_func, context or self)(**kwargs)
-        except TestIncompleteException:
+        except TestIncompleteException as e:
             self.incomplete = True
+
+            # If thrown during decorators
+            if e.real_func:
+                self.case_func = e.real_func
         except TestSkippedException as e:
             self.skipped = True
             self.skip_reason = e.reason if type(e.reason) is str else ''
+
+            # If thrown during decorators
+            if e.real_func:
+                self.case_func = e.real_func
         except FailedRequireException:
             pass
         except Exception as e:
@@ -412,12 +420,16 @@ class FailedRequireException(Exception):
 
 
 class TestSkippedException(Exception):
-    def __init__(self, func, reason=None):
+    def __init__(self, func, reason=None, other_data={}):
         self.func = func
         self.reason = reason
+        self.other_data = other_data
+        self.real_func = other_data.get('real_func')
 
 
 class TestIncompleteException(Exception):
-    def __init__(self, func, reason=None):
+    def __init__(self, func, reason=None, other_data={}):
         self.func = func
         self.reason = reason
+        self.other_data = other_data
+        self.real_func = other_data.get('real_func')
