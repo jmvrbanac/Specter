@@ -13,6 +13,7 @@ Features and bug fixes
  #. Added basic parallel testing
  #. Fixed xUnit test class path
  #. Fixed standard reporter to not be red all the time - gh-#28
+ #. Fixed be_in() assertion - gh-#34
 
 
 Release: 0.1.12

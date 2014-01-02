@@ -91,15 +91,21 @@ class TestExpectAssertion(TestCase):
         self.assertTrue(expect.success)
 
     def test_expect_be_in(self):
-        target = 'this is a test'
+        target = 'is'
         expect = self._create_assert(target)
-        expect.to.be_in('is')
+        expect.to.be_in('this is a test')
+        self.assertTrue(expect.success)
+
+    def test_expect_be_in_list(self):
+        target = 'is'
+        expect = self._create_assert(target)
+        expect.to.be_in(['test', 'is', 'bam'])
         self.assertTrue(expect.success)
 
     def test_expect_not_be_in(self):
-        target = 'this is a test'
+        target = 'bam'
         expect = self._create_assert(target)
-        expect.not_to.be_in('bam')
+        expect.not_to.be_in('this is a test')
         self.assertTrue(expect.success)
 
     def test_expect_true(self):

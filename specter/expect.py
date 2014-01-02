@@ -80,7 +80,7 @@ class ExpectAssert(object):
 
     def be_in(self, expected):
         self._compare(action_name=_('be in'), expected=expected,
-                      condition=expected in self.target)
+                      condition=self.target in expected)
 
     def raise_a(self, exception):
         self.expected = exception
