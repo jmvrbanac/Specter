@@ -33,13 +33,15 @@ def get_expect_param_strs(src_line):
 def get_source_from_frame(frame):
     self = frame.f_locals.get('self', None)
     cls = frame.f_locals.get('cls', None)
-    module = inspect.getmodule(type(self) if self else cls)
-    if not module:
-        return [], ''
+    insp_obj = inspect.getmodule(type(self) if self else cls) or frame.f_code
 
-    module_path = module.__file__
-    lines = inspect.getsourcelines(module)[0]
-    return lines, module_path
+    line_num_modifier = 0
+    if inspect.iscode(insp_obj):
+        line_num_modifier -= 1
+
+    module_path = inspect.getfile(insp_obj)
+    source_lines = inspect.getsourcelines(insp_obj)
+    return source_lines[0], module_path, source_lines[1] + line_num_modifier
 
 
 def get_all_tracebacks(tb, tb_list=[]):
@@ -50,14 +52,14 @@ def get_all_tracebacks(tb, tb_list=[]):
     return tb_list
 
 
-def get_numbered_source(lines, line_num):
+def get_numbered_source(lines, line_num, starting_line=0):
     try:
-        center = line_num - 1
+        center = (line_num - starting_line) - 1
         start = center - 2 if center - 2 > 0 else 0
         end = center + 2 if center + 2 <= len(lines) else len(lines)
 
         orig_src_lines = [line.rstrip('\n') for line in lines[start:end]]
-        line_range = range(start+1, end+1)
+        line_range = range(start+1+starting_line, end+1+starting_line)
         nums_and_source = zip(line_range, orig_src_lines)
 
         traceback_lines = []
@@ -79,10 +81,11 @@ def get_real_last_traceback(exception):
     tb_list = get_all_tracebacks(exc_traceback)[1:]
 
     for traceback in tb_list:
-        lines, last_module_path = get_source_from_frame(traceback.tb_frame)
-        traceback_lines = get_numbered_source(lines, traceback.tb_lineno)
+        lines, path, line_num = get_source_from_frame(traceback.tb_frame)
+        traceback_lines = get_numbered_source(lines, traceback.tb_lineno,
+                                              line_num)
 
-        traceback_lines.insert(0, '  - {0}'.format(last_module_path))
+        traceback_lines.insert(0, '  - {0}'.format(path))
         traceback_lines.insert(1, '  ------------------')
         traceback_lines.append('  ------------------')
         traceback_blocks.append(traceback_lines)
