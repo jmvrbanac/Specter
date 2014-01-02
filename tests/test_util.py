@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from specter import util, spec
+from specter import util, spec, metadata, skip
 
 
 class TestSpecterUtil(TestCase):
@@ -25,3 +25,33 @@ class TestSpecterUtil(TestCase):
         found = util.find_by_metadata({'test': 'smoke'}, test_list)
         self.assertEqual(len(found), 1)
         self.assertIn(wrap1.id, found)
+
+    def test_extract_metadata(self):
+
+        @metadata(type='testing')
+        def sample_func():
+            pass
+
+        func, meta = util.extract_metadata(sample_func)
+        self.assertEqual(func.__name__, 'sample_func')
+        self.assertEqual(meta.get('type'), 'testing')
+
+    def test_extract_metadata_w_skip_before(self):
+
+        @skip('testing_skip')
+        @metadata(type='testing')
+        def sample_func():
+            pass
+
+        func, meta = util.extract_metadata(sample_func)
+        self.assertEqual(meta.get('type'), 'testing')
+
+    def test_extract_metadata_w_skip_after(self):
+
+        @metadata(type='testing')
+        @skip('testing_skip')
+        def sample_func():
+            pass
+
+        func, meta = util.extract_metadata(sample_func)
+        self.assertEqual(meta.get('type'), 'testing')
