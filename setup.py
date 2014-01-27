@@ -1,8 +1,8 @@
 import os
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup, find_packages
 
 def read_requires(relative):
     try:
@@ -24,7 +24,7 @@ if os.path.exists('.package-version'):
 setup(
     name='Specter',
     version=version,
-    packages=['specter', 'specter.reporting'],
+    packages=find_packages(exclude=('tests')),
     url='https://github.com/jmvrbanac/Specter',
     license='MIT License',
     author='John Vrbanac',
@@ -47,4 +47,3 @@ setup(
         'console_scripts':
         ['specter = specter.runner:activate']}
 )
-
