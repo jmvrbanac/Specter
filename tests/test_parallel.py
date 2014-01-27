@@ -43,7 +43,7 @@ class TestParallelManager(TestCase):
     def test_before_all_in_parallel(self):
         """ Make sures that the original state was sent to each process"""
         spec = BeforeAllStateSpec()
-        spec.before_all()
+        spec._state.before_all()
 
         for wrapper in six.itervalues(spec.cases):
             self.manager.add_to_queue(wrapper)

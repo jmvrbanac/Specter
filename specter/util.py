@@ -13,11 +13,19 @@ def convert_camelcase(input_str):
     return re.sub(camelcase_tags, r' \1', input_str)
 
 
-def get_called_src_line():
-    src_line = None
+def get_called_src_line(steps=2, use_child_attr=None):
+    src_line, last_frame = None, inspect.currentframe()
+
+    for i in range(steps):
+        last_frame = last_frame.f_back
+
+    self = module = last_frame.f_locals['self']
+    # Use an attr instead of self
+    if use_child_attr:
+        module = getattr(self, use_child_attr)
+
     try:
-        last_frame = inspect.currentframe().f_back.f_back
-        last_module = inspect.getmodule(type(last_frame.f_locals['self']))
+        last_module = inspect.getmodule(type(module))
         line = last_frame.f_lineno - 1
         src_line = inspect.getsourcelines(last_module)[0][line]
     except:

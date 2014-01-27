@@ -123,6 +123,7 @@ class Describe(EventDispatcher):
         self.describes = [desc_type(parent=self)
                           for desc_type in self.describe_types]
         self._num_completed_cases = 0
+        self._state = self.__create_state_obj__()
 
     @property
     def name(self):
@@ -233,21 +234,45 @@ class Describe(EventDispatcher):
     def is_fixture(cls):
         return vars(cls).get('__FIXTURE__') is True
 
-    def before_all(self):
-        pass
+    def __create_state_obj__(self):
+        """ Generates the clean state object magic. Here be dragons! """
+        stops = [Describe, Spec, DataDescribe, EventDispatcher]
 
-    def after_all(self):
-        pass
+        mros = [mro for mro in inspect.getmro(type(self)) if mro not in stops]
+        mros.reverse()
 
-    def before_each(self):
-        pass
+        # Create generic object
+        class GenericStateObj(object):
+            def before_all(self):
+                pass
 
-    def after_each(self):
-        pass
+            def after_all(self):
+                pass
+
+            def before_each(self):
+                pass
+
+            def after_each(self):
+                pass
+
+        # Duplicate inheritance chain
+        chain = [GenericStateObj]
+        for mro in mros:
+            cls_name = '{0}StateObj'.format(mro.__name__)
+            cls = type(cls_name, (chain[-1:][0],), dict(mro.__dict__))
+            cls.__spec__ = self
+
+            chain.append(cls)
+
+        # Removing fallback
+        chain.pop(0)
+
+        state_cls = chain[-1:][0]
+        return state_cls()
 
     def parallel_execution(self, manager, select_metadata=None):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
-        self.before_all()
+        self._state.before_all()
 
         for key, case in six.iteritems(self.cases):
             manager.add_to_queue(case)
@@ -257,13 +282,13 @@ class Describe(EventDispatcher):
 
     def standard_execution(self, select_metadata=None):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
-        self.before_all()
+        self._state.before_all()
 
         # Execute Cases
         for key, case in six.iteritems(self.cases):
-            self.before_each()
-            case.execute(context=self)
-            self.after_each()
+            self._state.before_each()
+            case.execute(context=self._state)
+            self._state.after_each()
             self._num_completed_cases += 1
 
             self.top_parent.dispatch(TestEvent(case))
@@ -272,7 +297,8 @@ class Describe(EventDispatcher):
         for describe in self.describes:
             describe.execute(select_metadata=select_metadata)
 
-        self.after_all()
+        self._state.after_all()
+
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.COMPLETE, self))
 
     def execute(self, select_metadata=None, parallel_manager=None):

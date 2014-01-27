@@ -137,7 +137,8 @@ def expect(obj, caller_args=[]):
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
     """
-    src_params = get_expect_param_strs(get_called_src_line())
+    src_line = get_called_src_line(use_child_attr='__spec__')
+    src_params = get_expect_param_strs(src_line)
     expect_obj = ExpectAssert(obj, src_params=src_params,
                               caller_args=caller_args)
     _add_expect_to_wrapper(expect_obj)
@@ -149,7 +150,8 @@ def require(obj, caller_args=[]):
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
     """
-    src_params = get_expect_param_strs(get_called_src_line())
+    src_line = get_called_src_line(use_child_attr='__spec__')
+    src_params = get_expect_param_strs(src_line)
     require_obj = RequireAssert(obj, src_params=src_params,
                                 caller_args=caller_args)
     _add_expect_to_wrapper(require_obj)
