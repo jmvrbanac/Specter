@@ -4,7 +4,7 @@
 Release Notes
 =================
 
-Release: 0.1.13 (Not Released)
+Release: 0.1.13
 --------------------------------
 
 Features and bug fixes
