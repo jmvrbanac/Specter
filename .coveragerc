@@ -1,4 +1,4 @@
 [run]
 branch = True
 source = coveralls,specter
-omit = tests/*, *pyevents*, *unittest*, *pynsive*, *argparse*, *importlib*, *six*, *etree*, *ctypes*, *uuid*, *multiprocessing*, *bisect*
+omit = tests/*, *pyevents*, *unittest*, *pynsive*, *six*, *python2*, *python3*, *pypy*
