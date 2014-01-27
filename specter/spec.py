@@ -326,6 +326,7 @@ class Describe(EventDispatcher):
         return (issubclass(other, Describe) and
                 other is not cls
                 and other is not Spec
+                and other is not DataSpec
                 and other is not DataDescribe)
 
     @classmethod
@@ -386,6 +387,10 @@ class DataDescribe(Describe):
                 wrapper = CaseWrapper(new_func, parent=self,
                                       execute_kwargs=kwargs, metadata=meta)
                 self.cases[wrapper.id] = wrapper
+
+
+class DataSpec(DataDescribe):
+    pass
 
 
 def convert_to_hashable(obj):
