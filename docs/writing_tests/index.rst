@@ -8,18 +8,17 @@ Writing Specter Tests
 
 Naming Rules
 ~~~~~~~~~~~~~~~~~
-Most frameworks require you to start your test with a given prefix such as :raw-html:`"test_"`. Specter does not impose any prefix rules on test functions. We believe that it is better to give the developer more flexibility in naming so that their test names better describe what they are actually testing. However, while Specter does have three rules that should be followed.
+Most frameworks require you to start your test with a given prefix such as :raw-html:`"test_"`. Specter does not impose any prefix rules on test functions. We believe that it is better to give the developer more flexibility in naming so that their test names better describe what they are actually testing. However, while Specter does have a couple rules that should be followed.
 
 * All helper functions should start with an underscore (_). Just as Python treats a single underscore as "protected", so does Specter.
-* The name "execute" is restricted. This name is used by internally by Specter, so do not use it in your test function names.
-* "before_each", "after_each", "before_all", and "after_all" are reserved for setup functions on your test suites (Specs or Decribes).
+* "before_each", "after_each", "before_all", and "after_all" are reserved for setup functions on your test suites (Specs).
 
 
 Writing Tests
 ~~~~~~~~~~~~~~
 Writing a test in Specter is simple.
 
-1. Create a class which extends Spec or Describe
+1. Create a class which extends Spec
 2. Create a function in that class that calls expect or require once
 
 :raw-html:`<i>Example:</i>`
@@ -44,12 +43,12 @@ Test Setup / Teardown
 
     class SampleSpec(Spec):
         """Docstring describing the specification"""
-        
-        # Called once before any tests or child Specs/Describes are called
+
+        # Called once before any tests or child Specs are called
         def before_all(self):
             pass
-        
-        # Called after all tests and child Specs/Describes have been called
+
+        # Called after all tests and child Specs have been called
         def after_all(self):
             pass
 
@@ -68,20 +67,20 @@ Test Setup / Teardown
 
 Nested Tests
 ~~~~~~~~~~~~~~
-Specter tests utilizes the concept of nested test suites. This allows for you to provide a clearer picture of what you are testing within your test suites. For those who have used Jasmine or RSpec should be relatively familiar with this concept from their implementation of Describe and Spec.
+Specter tests utilizes the concept of nested test suites. This allows for you to provide a clearer picture of what you are testing within your test suites. For those who have used Jasmine or RSpec should be relatively familiar with this concept from their implementation of Spec.
 
-Within Specter you can create a nested test description (suite) in the form of a class that inherits from the Describe class.
+Within Specter you can create a nested test description (suite) in the form of a class that inherits from the Spec class.
 
 :raw-html:`<i>Example:</i>`
 
 .. code-block:: python
 
-    from specter import Describe, Spec, 
+    from specter import Spec, expect
 
     class SampleSpec(Spec):
 
-        class OtherFunctionalityOfSample(Describe):
-            """ Describe Docstring """
+        class OtherFunctionalityOfSample(Spec):
+            """ Docstring goes here """
 
             def it_should_do_something(self):
                 """ Test Docstring """
@@ -123,6 +122,29 @@ In Specter, a test fixture is defined as a test base class that is not treated a
         ✔ 'something' to equal 'something'
       ∟ another test
         ✔ 'this' not to equal 'that'
+
+
+Test State and Inheritance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Each test spec executes its tests under a clean state that does not contain the attributes of the actual Spec class. This allows for users to not worry about conflicting with the Specter infrastructure. However, the drawback to this is that the instance of "self" within a test is not actually an instance of the type defined in your hardcoded tests. This makes calling super a little bit unconventional as you can see in the example below.
+
+.. code-block:: python
+
+    from specter import Spec
+
+    class FirstSpec(Spec):
+        def before_all(self):
+            # Do something
+            pass
+
+    class SecondSpec(FirstSpec):
+        def before_all(self):
+            # self is actually an instance of the state object and not an instance of SecondSpec
+            super(type(self), self).before_all()
+
+            # Do something else
+
+As you can see in the example, you still can inherit the attributes of your other spec classes. However, you just have to keep in mind, that "self" is actually the state object and not the actual instance of the spec.
 
 
 Assertions / Expectations
@@ -177,7 +199,9 @@ Often times you find that you need to run numerous types of data through a given
 
 .. code-block:: python
 
-    class ExampleDataDescribe(DataDescribe):
+    from specter import DataSpec
+
+    class ExampleData(DataSpec):
         DATASET = {
             'test': {'data_val': 'sample_text'},
             'second_test': {'data_val': 'sample_text2'}
@@ -186,13 +210,13 @@ Often times you find that you need to run numerous types of data through a given
         def sample_data(self, data_val):
             expect(data_val).to.equal('sample_text')
 
-This dataset will produce a Describe with two tests: "sample_data_test" and "sample_data_second_test" each passed in "sample_text" under the data_val parameter.
+This dataset will produce a Spec with two tests: "sample_data_test" and "sample_data_second_test" each passed in "sample_text" under the data_val parameter.
 
 :raw-html:`<i>This would produce a console output similar to:</i>`
 
 .. code-block:: bash
 
-    ExampleDataDescribe
+    Example Data
       ∟ sample data test
         ✔ "sample_text" to equal "sample_text"
       ∟ sample data second test
@@ -208,13 +232,15 @@ Metadata in Data-Driven
 There are two different methods of adding metadata to your data-driven tests. The first method is to assign metadata to the entire set of data-driven tests.
 
 .. code-block:: python
-    
-    class ExampleDataDescribe(DataDescribe):
+
+    from specter import DataSpec
+
+    class ExampleData(DataSpec):
         DATASET = {
             'test': {'data_val': 'sample_text'},
             'second_test': {'data_val': 'sample_text'}
         }
-        
+
         @metadata(test='smoke')
         def sample_data(self, data_val):
             expect(data_val).to.equal('sample_text')
@@ -223,8 +249,10 @@ This will assign the metadata attributes to all tests that are generated from th
 The second way of assigning metadata is by creating a more complex dataset item. A complex dataset item contains two keys; args and meta.
 
 .. code-block:: python
-    
-    class ExampleDataDescribe(DataDescribe):
+
+    from specter import DataSpec
+
+    class ExampleData(DataSpec):
         DATASET = {
             'test': {'data_val': 'sample_text'},
             'second_test': {'args': {'data_val': 'sample_text'}, 'meta': {'network': 'yes'}

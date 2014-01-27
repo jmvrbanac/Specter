@@ -10,7 +10,8 @@ Release: 0.1.13 (Not Released)
 Features and bug fixes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
- #. Added basic parallel testing
+ #. Added clean test state per suite - gh-#37 gh-#13
+ #. Added basic parallel testing - gh-#3
  #. Fixed xUnit test class path
  #. Fixed standard reporter to not be red all the time - gh-#28
  #. Fixed be_in() assertion - gh-#34

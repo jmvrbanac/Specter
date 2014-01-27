@@ -33,4 +33,4 @@ verbose/pretty Specter output is really not feasible. As a result, we currently 
 
 State
 ^^^^^^^
-Due to the concept of parallelism, sharing live state between tests through the class instance is very costly and quite impractical. As a result, Specter does not sync state between tests during test execution. However, each Spec/Describe provides before_all() and after_all() functions to which is called before and after test execution, so that state is carried into the tests.
+Due to the concept of parallelism, sharing live state between tests through the class instance is very costly and quite impractical. As a result, Specter does not sync state between tests during test execution. However, each Spec provides before_all() and after_all() functions to which is called before and after test execution, so that state is carried into the tests.
