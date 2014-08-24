@@ -57,7 +57,7 @@ class SpecterRunner(object):
                    'parallel mode (default: 6)'))
 
     def generate_ascii_art(self):
-        tag_line = _('Keeping the boogy man away from your code!')
+        tag_line = _('Keeping the Bogeyman away from your code!')
         ascii_art = """
           ___
         _/ @@\\
