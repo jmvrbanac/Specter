@@ -75,6 +75,7 @@ class SpecterRunner(object):
                      '*/specter/spec.py',
                      '*/specter/expect.py',
                      '*/specter/parallel.py',
+                     '*/specter/scanner.py',
                      '*/specter/runner.py',
                      '*/specter/util.py',
                      '*/specter/reporting/__init__.py',
