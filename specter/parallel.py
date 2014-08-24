@@ -121,7 +121,9 @@ class ParallelManager(object):
             parent_pipe, child_pipe = mp.Pipe(duplex=False)
             test_process = ExecuteTestProcess(
                 self.work_queue, self.case_functions,
-                self.case_parents, child_pipe)
+                self.case_parents, child_pipe,
+                track_coverage=self.track_coverage,
+                coverage_omit=self.coverage_omit)
             self.active_pipes.append(parent_pipe)
             self.processes.append(test_process)
             self.work_queue.put('STOP')

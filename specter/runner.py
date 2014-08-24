@@ -1,7 +1,7 @@
 import sys
 from argparse import ArgumentParser
 
-from coverage import coverage
+import coverage
 from specter import _
 from specter.scanner import SuiteScanner
 from specter.reporting import ReporterPluginManager
@@ -85,6 +85,13 @@ class SpecterRunner(object):
                      '*/specter/__init__.py']
         return omit_list
 
+    def combine_coverage_reports(self, omit, parallel):
+        """ Method to force the combination of parallel coverage reports."""
+        tmp_cov = coverage.coverage(omit=omit, data_suffix=parallel)
+        tmp_cov.load()
+        tmp_cov.combine()
+        tmp_cov.save()
+
     def run(self, args):
         select_meta = None
         self.arguments = self.arg_parser.parse_args(args)
@@ -95,6 +102,7 @@ class SpecterRunner(object):
         self.reporter_manager.process_arguments(self.arguments)
 
         if self.arguments.parallel:
+            coverage.process_startup()
             self.parallel_manager = ParallelManager(
                 num_processes=self.arguments.num_processes,
                 track_coverage=self.arguments.coverage,
@@ -109,8 +117,9 @@ class SpecterRunner(object):
 
         if self.arguments.coverage:
             print(_(' - Running with coverage enabled - '))
-            self.coverage = coverage(omit=self.get_coverage_omit_list(),
-                                     data_suffix=self.arguments.parallel)
+            self.coverage = coverage.coverage(
+                omit=self.get_coverage_omit_list(),
+                data_suffix=self.arguments.parallel)
             self.coverage._warn_no_data = False
             self.coverage.start()
 
@@ -135,8 +144,10 @@ class SpecterRunner(object):
         if self.coverage:
             self.coverage.stop()
             self.coverage.save()
+
             if self.arguments.parallel:
-                self.coverage.combine()
+                self.combine_coverage_reports(
+                    self.get_coverage_omit_list(), self.arguments.parallel)
 
         # Print all console summaries
         for reporter in self.reporter_manager.get_console_reporters():
