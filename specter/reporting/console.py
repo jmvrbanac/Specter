@@ -235,7 +235,18 @@ def print_expects(test_case, level):
         if expect.custom_msg:
             print_test_msg(expect.custom_msg, level + 3, status=status)
 
-        print_param(expect.target, expect.target_src_param,
-                    level + 3, 'Target')
-        print_param(expect.expected, expect.expected_src_param,
-                    level + 3, 'Expected')
+        # Print the target parameter
+        try:
+            print_param(expect.target, expect.target_src_param,
+                        level + 3, 'Target')
+        except:
+            print_param('ERROR - Couldn\'t evaluate target value',
+                        expect.target_src_param, level + 3, 'Target')
+
+        # Print the expected parameter
+        try:
+            print_param(expect.expected, expect.expected_src_param,
+                        level + 3, 'Expected')
+        except:
+            print_param('ERROR - Couldn\'t evaluate expected value',
+                        expect.expected_src_param, level + 3, 'Expected')
