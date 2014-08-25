@@ -17,7 +17,6 @@ after_success:
     - coveralls
 
 notifications:
-    irc:
-        channels: "chat.freenode.net#specterframework"
+    irc: "chat.freenode.net#specterframework"
         use_notice: true
         skip_join: true
