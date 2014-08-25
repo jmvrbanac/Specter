@@ -4,6 +4,8 @@ import itertools
 import sys
 import six
 
+CAPTURED_TRACEBACKS = []
+
 
 def convert_camelcase(input_str):
     if input_str is None:
@@ -87,6 +89,11 @@ def get_real_last_traceback(exception):
     traceback_blocks = []
     _n, _n, exc_traceback = sys.exc_info()
     tb_list = get_all_tracebacks(exc_traceback)[1:]
+
+    # Remove already captured tracebacks
+    # TODO(jmv): This must be a better way of doing this. Need to revisit.
+    tb_list = [tb for tb in tb_list if tb not in CAPTURED_TRACEBACKS]
+    CAPTURED_TRACEBACKS.extend(tb_list)
 
     for traceback in tb_list:
         lines, path, line_num = get_source_from_frame(traceback.tb_frame)
