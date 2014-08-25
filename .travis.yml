@@ -10,18 +10,14 @@ install:
     - sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
     - pip install tox coveralls
 
-script: 
+script:
     - tox -e $TOX_ENV
 
-after_success: 
+after_success:
     - coveralls
 
 notifications:
-  email:
-    - john.vrbanac@linux.com
-  notifications:
-      irc:
-          channels:
-             - "irc.freenode.org#specterframework"
-          use_notice: true
-          skip_join: true
+    irc:
+        channels: "chat.freenode.net#specterframework"
+        use_notice: true
+        skip_join: true
