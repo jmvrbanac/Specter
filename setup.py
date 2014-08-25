@@ -42,7 +42,7 @@ setup(
         'Programming Language :: Python :: 3.3',
     ),
     tests_require=read_requires('./tools/test-requires'),
-    install_requires=['pynsive', 'pyevents', 'coverage', 'six'],
+    install_requires=['pynsive>=0.2.7', 'pyevents', 'coverage', 'six'],
     entry_points = {
         'console_scripts':
         ['specter = specter.runner:activate']}
