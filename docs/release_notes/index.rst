@@ -4,6 +4,15 @@
 Release Notes
 =================
 
+Release: 0.1.15
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Fixing PyPI package number - gh-#43
+
+
 Release: 0.1.14
 --------------------------------
 
