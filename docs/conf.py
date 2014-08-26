@@ -34,7 +34,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.issuetracker']
 issuetracker = 'github'
 issuetracker_project = 'jmvrbanac/Specter'
 issuetracker_issue_pattern = r'gh-#(\d+)'
-issuetracker_title_template = '#{issue.id}'
+# issuetracker_title_template = '#{issue.id}'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['doc_templates']
