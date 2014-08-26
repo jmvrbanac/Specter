@@ -4,6 +4,19 @@
 Release Notes
 =================
 
+Release: 0.1.14
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Fixed Coverage.py integration - gh-#36 gh-#40
+ #. Fixed coverage reporting in parallel mode - gh-#40
+ #. Fixed duplicated traceback information on errors - gh-#42
+ #. Fixed difficult to trace error messages with expected parameters - gh-#41
+ #. Added support for execution of specter through Coverage (i.e. coverage run -m specter)
+
+
 Release: 0.1.13
 --------------------------------
 
@@ -25,7 +38,7 @@ Features and bug fixes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
  #. Fixing packaging issue where it wasn't including the specter.reporting package.
- 
+
 
 Release: 0.1.11
 ----------------

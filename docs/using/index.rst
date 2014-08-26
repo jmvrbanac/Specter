@@ -50,10 +50,10 @@ Specter allows for quick and easy execution of your tests by just calling 'spect
 	        _/ @@\
 	    ~- ( \  O/__     Specter
 	    ~-  \    \__)   ~~~~~~~~~~
-	    ~-  /     \     Keeping the boogy man away from your code!
+	    ~-  /     \     Keeping the Bogeyman away from your code!
 	    ~- /      _\
 	       ~~~~~~~~~
-	    
+
 	ExampleSpec
 	  ∟ this is a test spec
 	    • expect 'test' to equal 'test'

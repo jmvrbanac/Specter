@@ -2,20 +2,20 @@
    :format: html
 
 .. _GitHub: https://github.com/jmvrbanac/specter
-.. _Release Notes: http://docs.specterframework.com/release_notes/index.html
+.. _Release Notes: http://specter.readthedocs.org/en/latest/release_notes/index.html
 
 
 Specter
 ========
 
-Specter is a Python testing framework inspired from RSpec and Jasmine. The library was created out of a desire to have a relatively flexible Python testing framework that adopted a more code-centric approach to BDD. 
+Specter is a Python testing framework inspired from RSpec and Jasmine. The library was created out of a desire to have a relatively flexible Python testing framework that adopted a more code-centric approach to BDD.
 
 Specter is open-source and is available on `GitHub`_. We love contributions!
-	
+
 Getting Started
 ~~~~~~~~~~~~~~~~
 
-- Specter 0.1.12 `Documentation <http://docs.specterframework.com/en/0.1.12/>`_
+- Specter `Documentation <http://specter.readthedocs.org/en/latest/>`_
 - Problems or Questions? Ask us on Freenode on the #specterframework channel
 
 Continuous Integration
@@ -33,7 +33,7 @@ Continuous Integration
 .. image:: https://badge.fury.io/py/Specter.png
     :target: http://badge.fury.io/py/Specter
     :alt: Specter PyPi Package Page
-    
+
 
 Release Notes
 ~~~~~~~~~~~~~~
