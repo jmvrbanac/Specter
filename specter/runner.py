@@ -46,9 +46,6 @@ class SpecterRunner(object):
             '--no-color', dest='no_color', action='store_true',
             help=_('Disables all ASCII color codes.'))
         self.arg_parser.add_argument(
-            '--xunit-results', dest='xunit_results', metavar='',
-            help=_('Saves out xUnit compatible results to a specifed file'))
-        self.arg_parser.add_argument(
             '--parallel', dest='parallel', action='store_true',
             help=_('Activate parallel testing mode'))
         self.arg_parser.add_argument(

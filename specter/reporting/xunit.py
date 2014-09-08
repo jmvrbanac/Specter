@@ -1,6 +1,7 @@
 from xml.etree.ElementTree import Element, tostring as element_to_str
 
 import six
+from specter import _
 from specter.spec import DescribeEvent
 from specter.reporting import AbstractParallelReporter, AbstractSerialReporter
 
@@ -12,6 +13,11 @@ class XUnitReporter(AbstractSerialReporter, AbstractParallelReporter):
     def __init__(self):
         self.suites = []
         self.filename = ''
+
+    def add_arguments(self, argparser):
+        argparser.add_argument(
+            '--xunit-results', dest='xunit_results', metavar='',
+            help=_('Saves out xUnit compatible results to a specifed file'))
 
     def process_arguments(self, args):
         if args.xunit_results:
