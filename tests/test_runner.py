@@ -1,4 +1,5 @@
 from unittest import TestCase
+from nose.plugins.capture import Capture
 
 from specter.runner import SpecterRunner
 from specter.reporting.console import ConsoleReporter
@@ -8,6 +9,11 @@ class TestSpecterRunner(TestCase):
 
     def setUp(self):
         self.runner = SpecterRunner()
+        self.console = Capture()
+        self.console.begin()
+
+    def tearDown(self):
+        self.console.end()
 
     def get_console_reporter(self, reporters):
         for r in reporters:
@@ -17,7 +23,6 @@ class TestSpecterRunner(TestCase):
     def test_ascii_art_generation(self):
         """ We just want to know if it creates something"""
         art = self.runner.generate_ascii_art()
-
         self.assertGreater(len(art), 0)
 
     def test_run(self):
