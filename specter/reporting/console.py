@@ -20,6 +20,7 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
         self.failed_tests = 0
         self.incomplete_tests = 0
         self.output_docstrings = output_docstrings
+        self.show_all = False
 
     def get_name(self):
         return 'Simple BDD Serial console reporter'
@@ -32,6 +33,8 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
     def process_arguments(self, args):
         if args.no_color:
             self.use_color = False
+        if args.show_all_expects:
+            self.show_all = True
 
     def get_test_case_status(self, test_case, name):
         status = TestStatus.FAIL
@@ -86,8 +89,8 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
             for line in test_case.error:
                 self.output(line, level+2, TestStatus.FAIL)
 
-        #if status == TestStatus.FAIL:
-        print_expects(test_case, level, self.use_color)
+        if status == TestStatus.FAIL or self.show_all:
+            print_expects(test_case, level, self.use_color)
 
     def subscribe_to_spec(self, spec):
         spec.add_listener(TestEvent.COMPLETE, self.test_complete)
