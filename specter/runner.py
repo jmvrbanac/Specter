@@ -133,7 +133,7 @@ class SpecterRunner(object):
 
             suite = suite_type()
             self.suites.append(suite)
-            self.reporter_manager.subscribe_all_to_describe(suite)
+            self.reporter_manager.subscribe_all_to_spec(suite)
             suite.execute(select_metadata=select_meta,
                           parallel_manager=self.parallel_manager)
 

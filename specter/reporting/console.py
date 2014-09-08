@@ -89,9 +89,9 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
         #if status == TestStatus.FAIL:
         print_expects(test_case, level, self.use_color)
 
-    def subscribe_to_describe(self, describe):
-        describe.add_listener(TestEvent.COMPLETE, self.test_complete)
-        describe.add_listener(DescribeEvent.START, self.start_spec)
+    def subscribe_to_spec(self, spec):
+        spec.add_listener(TestEvent.COMPLETE, self.test_complete)
+        spec.add_listener(DescribeEvent.START, self.start_spec)
 
     def test_complete(self, evt):
         test_case = evt.payload

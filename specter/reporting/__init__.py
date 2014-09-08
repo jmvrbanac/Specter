@@ -23,7 +23,7 @@ class AbstractReporterPlugin(object):
         pass  # pragma: no cover
 
     @abstractmethod
-    def subscribe_to_describe(self, describe):
+    def subscribe_to_spec(self, spec):
         pass  # pragma: no cover
 
 
@@ -74,13 +74,13 @@ class ReporterPluginManager(object):
                 can_use = True
         return can_use
 
-    def subscribe_all_to_describe(self, describe):
+    def subscribe_all_to_spec(self, spec):
         """ Will automatically not subscribe reporters that are not parallel
         or serial depending on the current mode.
         """
         for reporter in self.reporters:
             if self.can_use_reporter(reporter, self.parallel):
-                reporter.subscribe_to_describe(describe)
+                reporter.subscribe_to_spec(spec)
 
     def finish_all(self):
         [reporter.finished() for reporter in self.reporters]

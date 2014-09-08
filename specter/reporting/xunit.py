@@ -20,8 +20,8 @@ class XUnitReporter(AbstractSerialReporter, AbstractParallelReporter):
     def get_name(self):
         return 'xUnit report generator'
 
-    def subscribe_to_describe(self, describe):
-        describe.add_listener(DescribeEvent.COMPLETE, self.describe_complete)
+    def subscribe_to_spec(self, spec):
+        spec.add_listener(DescribeEvent.COMPLETE, self.describe_complete)
 
     def describe_complete(self, evt):
         describe = evt.payload

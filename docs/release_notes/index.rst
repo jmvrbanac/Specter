@@ -15,6 +15,9 @@ Features and bug fixes
     the --show-all-expects cli argument - gh-#46
  #. Fixing the summary report colors to reflect the actual test results. - gh-#44
  #. Added the ability for reporters to add their own cli arguments
+ #. Breaking reporter contract by switching from subscribe_to_describe(self, describe)
+    to subscribe_to_spec(self, spec). This is due to the slow removal of the
+    "describe" terminology in Specter.
 
 
 Release: 0.1.15

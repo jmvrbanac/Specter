@@ -19,8 +19,8 @@ class DotsReporter(AbstractConsoleReporter, AbstractParallelReporter):
     def get_name(self):
         return _('Dots Reporter')
 
-    def subscribe_to_describe(self, describe):
-        describe.add_listener(TestEvent.COMPLETE, self.test_event)
+    def subscribe_to_spec(self, spec):
+        spec.add_listener(TestEvent.COMPLETE, self.test_event)
 
     def process_arguments(self, args):
         if args.no_color:
