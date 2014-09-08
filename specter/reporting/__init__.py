@@ -9,6 +9,9 @@ class AbstractReporterPlugin(object):
     serial reporter abstracts depending on your use case.
     """
 
+    def add_arguments(self, argparser):
+        pass  # pragma: no cover
+
     def process_arguments(self, args):
         pass  # pragma: no cover
 
@@ -53,6 +56,9 @@ class ReporterPluginManager(object):
         return [reporter for reporter in self.reporters
                 if issubclass(type(reporter), AbstractConsoleReporter) and
                 self.can_use_reporter(reporter, self.parallel)]
+
+    def add_to_arguments(self, argparser):
+        [reporter.add_arguments(argparser) for reporter in self.reporters]
 
     def process_arguments(self, args):
         self.parallel = args.parallel

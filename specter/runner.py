@@ -94,9 +94,10 @@ class SpecterRunner(object):
 
     def run(self, args):
         select_meta = None
-        self.arguments = self.arg_parser.parse_args(args)
-
         self.reporter_manager = ReporterPluginManager()
+        self.reporter_manager.add_to_arguments(self.arg_parser)
+
+        self.arguments = self.arg_parser.parse_args(args)
 
         # Let each reporter parse cli arguments
         self.reporter_manager.process_arguments(self.arguments)

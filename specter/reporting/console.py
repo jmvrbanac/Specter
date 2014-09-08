@@ -1,3 +1,4 @@
+from specter import _
 from specter.spec import TestEvent, DescribeEvent, DataDescribe
 from specter.reporting import AbstractConsoleReporter, AbstractSerialReporter
 from specter.reporting.utils import (
@@ -22,6 +23,11 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
 
     def get_name(self):
         return 'Simple BDD Serial console reporter'
+
+    def add_arguments(self, argparser):
+        argparser.add_argument(
+            '--show-all-expects', dest='show_all_expects', action='store_true',
+            help=_('Displays all expectations for test cases'))
 
     def process_arguments(self, args):
         if args.no_color:
