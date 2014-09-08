@@ -55,7 +55,7 @@ Test Setup / Teardown
         # Called before each test
         def before_each(self):
             pass
-            
+
         # Called after each test
         def after_each(self):
             pass
@@ -96,24 +96,24 @@ In Specter, a test fixture is defined as a test base class that is not treated a
 .. code-block:: python
 
     from specter import Spec, fixture, expect
-    
+
     @fixture
     class ExampleTestFixture(Spec):
-    
+
         def _random_helper_func(self):
             pass
-    
+
         def sample_test(self):
             """This test will be on every Spec that inherits this fixture"""
             expect('something').to.equal('something')
-    
-    
+
+
     class UsingFixture(ExampleTestFixture):
-    
+
         def another_test(self):
             expect('this').not_to.equal('that')
-            
-:raw-html:`<i>Expected Output:</i>`
+
+:raw-html:`<i>Expected Output (using --show-all-expects):</i>`
 
 .. code-block:: bash
 
@@ -212,7 +212,7 @@ Often times you find that you need to run numerous types of data through a given
 
 This dataset will produce a Spec with two tests: "sample_data_test" and "sample_data_second_test" each passed in "sample_text" under the data_val parameter.
 
-:raw-html:`<i>This would produce a console output similar to:</i>`
+:raw-html:`<i>This would produce a console output similar to (using --show-all-expects):</i>`
 
 .. code-block:: bash
 
@@ -257,7 +257,7 @@ The second way of assigning metadata is by creating a more complex dataset item.
             'test': {'data_val': 'sample_text'},
             'second_test': {'args': {'data_val': 'sample_text'}, 'meta': {'network': 'yes'}
         }
-        
+
         def sample_data(self, data_val):
             expect(data_val).to.equal('sample_text')
 
@@ -271,7 +271,7 @@ Specter provided a few different ways of skipping tests.
 .. autofunction:: specter.skip
 .. autofunction:: specter.skip_if
 .. autofunction:: specter.incomplete()
-    
+
 
 Adding Metadata to Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

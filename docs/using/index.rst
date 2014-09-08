@@ -56,7 +56,6 @@ Specter allows for quick and easy execution of your tests by just calling 'spect
 
 	ExampleSpec
 	  ∟ this is a test spec
-	    • expect 'test' to equal 'test'
 
 
 	------------------------
@@ -75,8 +74,8 @@ Command-line Arguments
 ------------------------
 Specter is a spec-based testing library to help facilitate BDD in Python.
 
-=====================  ============ 
-Argument               Description  
+=====================  ============
+Argument               Description
 =====================  ============
 -h, --help             Show console help
 --search PATH          Specifies the search path for spec files
@@ -88,4 +87,5 @@ Argument               Description
 --no-color             Disables ASCII color codes
 --parallel             Activates parallel testing mode
 --num-processes        Specifies the number of processes to use under parallel mode (default: 6)
+--show-all-expects     Displays all expectations for test cases
 =====================  ============
