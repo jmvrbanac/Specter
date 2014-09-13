@@ -108,6 +108,39 @@ class TestExpectAssertion(TestCase):
         expect.not_to.be_in('this is a test')
         self.assertTrue(expect.success)
 
+    def test_expect_be_a_w_str(self):
+        target = 'test'
+        expect = self._create_assert(target)
+        expect.to.be_a(str)
+        self.assertTrue(expect.success)
+
+    def test_expect_not_be_a_w_str(self):
+        target = 102
+        expect = self._create_assert(target)
+        expect.not_to.be_a(str)
+        self.assertTrue(expect.success)
+
+    def test_expect_be_an_instance_of(self):
+        class Bam(object):
+            pass
+
+        target = Bam()
+        expect = self._create_assert(target)
+        expect.to.be_an_instance_of(Bam)
+        self.assertTrue(expect.success)
+
+    def test_expect_not_be_an_instance_of(self):
+        class Bam(object):
+            pass
+
+        class OtherBam(object):
+            pass
+
+        target = Bam()
+        expect = self._create_assert(target)
+        expect.not_to.be_an_instance_of(OtherBam)
+        self.assertTrue(expect.success)
+
     def test_expect_true(self):
         target = True
         expect = self._create_assert(target)

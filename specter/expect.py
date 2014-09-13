@@ -82,6 +82,14 @@ class ExpectAssert(object):
         self._compare(action_name=_('be in'), expected=expected,
                       condition=self.target in expected)
 
+    def be_a(self, expected):
+        self._compare(action_name=_('be a'), expected=expected,
+                      condition=type(self.target) is expected)
+
+    def be_an_instance_of(self, expected):
+        self._compare(action_name=_('be an instance of'), expected=expected,
+                      condition=isinstance(self.target, expected))
+
     def raise_a(self, exception):
         self.expected = exception
         self.actions.extend(['raise', exception])

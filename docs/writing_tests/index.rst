@@ -165,8 +165,10 @@ Available Comparisons
     * be_none()
     * be_true()
     * be_false()
-    * contain(expected_object)
+    * be_a(expected_object_type)
+    * be_an_instance_of(expected_object_type)
     * be_in(expected_object)
+    * contain(expected_object)
     * raise_a(expected_exception_type)
 
 Asserting a raised exception
