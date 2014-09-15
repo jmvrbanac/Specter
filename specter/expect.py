@@ -28,6 +28,20 @@ class ExpectAssert(object):
         self.caller_args = caller_args
         self.custom_msg = None
 
+    def serialize(self):
+        """ Serializes the ExpectAssert object for collection.
+
+        Warning, this will only grab the available information.
+        It is strongly that you only call this once all specs and
+        tests have completed.
+        """
+        converted_dict = {
+            'success': self.success,
+            'assertion': str(self),
+            'required': self.required
+        }
+        return converted_dict
+
     def _verify_condition(self, condition):
         self.success = condition if not self.used_negative else not condition
         if self.required and not self.success:

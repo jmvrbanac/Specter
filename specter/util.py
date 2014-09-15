@@ -152,3 +152,7 @@ def extract_metadata(case_func):
             else:
                 raise e
     return case_func, metadata
+
+
+def remove_empty_entries_from_dict(input_dict):
+    return {k: v for k, v in six.iteritems(input_dict) if v is not None}

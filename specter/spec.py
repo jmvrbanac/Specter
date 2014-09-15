@@ -10,7 +10,8 @@ from pyevents.manager import EventDispatcher
 from pyevents.event import Event
 from specter.util import (get_real_last_traceback, convert_camelcase,
                           find_by_metadata, extract_metadata,
-                          children_with_tests_with_metadata)
+                          children_with_tests_with_metadata,
+                          remove_empty_entries_from_dict)
 
 
 class TimedObject(object):
@@ -45,6 +46,31 @@ class CaseWrapper(TimedObject):
         self.skip_reason = None
         self.execute_kwargs = execute_kwargs
         self.metadata = metadata
+
+    def serialize(self):
+        """ Serializes the CaseWrapper object for collection.
+
+        Warning, this will only grab the available information.
+        It is strongly that you only call this once all specs and
+        tests have completed.
+        """
+        expects = [exp.serialize() for exp in self.expects]
+        converted_dict = {
+            'id': self.id,
+            'name': self.pretty_name,
+            'raw_name': self.name,
+            'doc': self.doc,
+            'error': self.error,
+            'skipped': self.skipped,
+            'skip_reason': self.skip_reason,
+            'execute_kwargs': self.execute_kwargs,
+            'metadata': self.metadata,
+            'start': self.start_time,
+            'end': self.end_time,
+            'expects': expects,
+            'success': self.success
+        }
+        return remove_empty_entries_from_dict(converted_dict)
 
     def execute(self, context=None):
         kwargs = {}
@@ -124,6 +150,27 @@ class Describe(EventDispatcher):
                           for desc_type in self.describe_types]
         self._num_completed_cases = 0
         self._state = self.__create_state_obj__()
+
+    def serialize(self):
+        """ Serializes the Spec/Describe object for collection.
+
+        Warning, this will only grab the available information.
+        It is strongly that you only call this once all specs and
+        tests have completed.
+        """
+
+        cases = [case.serialize() for key, case in six.iteritems(self.cases)]
+        specs = [spec.serialize() for spec in self.describes]
+
+        converted_dict = {
+            'id': self.id,
+            'name': self.name,
+            'class_path': self.real_class_path,
+            'doc': self.doc,
+            'cases': cases,
+            'specs': specs
+        }
+        return converted_dict
 
     @property
     def name(self):
