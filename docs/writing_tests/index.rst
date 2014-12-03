@@ -12,6 +12,7 @@ Most frameworks require you to start your test with a given prefix such as :raw-
 
 * All helper functions should start with an underscore (_). Just as Python treats a single underscore as "protected", so does Specter.
 * "before_each", "after_each", "before_all", and "after_all" are reserved for setup functions on your test suites (Specs).
+* Currently, we also treat "serialize" and "execute" as reserved names as well.
 
 
 Writing Tests

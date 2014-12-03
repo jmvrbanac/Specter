@@ -1,3 +1,4 @@
+import copy
 import inspect
 import itertools
 import sys
@@ -63,7 +64,7 @@ class CaseWrapper(TimedObject):
             'error': self.error,
             'skipped': self.skipped,
             'skip_reason': self.skip_reason,
-            'execute_kwargs': self.execute_kwargs,
+            'execute_kwargs': self.safe_execute_kwargs,
             'metadata': self.metadata,
             'start': self.start_time,
             'end': self.end_time,
@@ -120,6 +121,17 @@ class CaseWrapper(TimedObject):
     def complete(self):
         return self.end_time > 0.0
 
+    @property
+    def safe_execute_kwargs(self):
+        safe_kwargs = copy.deepcopy(self.execute_kwargs)
+        if not safe_kwargs:
+            return
+
+        for k, v in six.iteritems(safe_kwargs):
+            if type(v) not in [str, int, list, bool, dict]:
+                safe_kwargs[k] = str(v)
+        return safe_kwargs
+
     def __getstate__(self):
         altered = dict(self.__dict__)
         if 'case_func' in altered:
@@ -150,27 +162,6 @@ class Describe(EventDispatcher):
                           for desc_type in self.describe_types]
         self._num_completed_cases = 0
         self._state = self.__create_state_obj__()
-
-    def serialize(self):
-        """ Serializes the Spec/Describe object for collection.
-
-        Warning, this will only grab the available information.
-        It is strongly that you only call this once all specs and
-        tests have completed.
-        """
-
-        cases = [case.serialize() for key, case in six.iteritems(self.cases)]
-        specs = [spec.serialize() for spec in self.describes]
-
-        converted_dict = {
-            'id': self.id,
-            'name': self.name,
-            'class_path': self.real_class_path,
-            'doc': self.doc,
-            'cases': cases,
-            'specs': specs
-        }
-        return converted_dict
 
     @property
     def name(self):
@@ -281,6 +272,27 @@ class Describe(EventDispatcher):
     def is_fixture(cls):
         return vars(cls).get('__FIXTURE__') is True
 
+    def serialize(self):
+        """ Serializes the Spec/Describe object for collection.
+
+        Warning, this will only grab the available information.
+        It is strongly that you only call this once all specs and
+        tests have completed.
+        """
+
+        cases = [case.serialize() for key, case in six.iteritems(self.cases)]
+        specs = [spec.serialize() for spec in self.describes]
+
+        converted_dict = {
+            'id': self.id,
+            'name': self.name,
+            'class_path': self.real_class_path,
+            'doc': self.doc,
+            'cases': cases,
+            'specs': specs
+        }
+        return converted_dict
+
     def __create_state_obj__(self):
         """ Generates the clean state object magic. Here be dragons! """
         stops = [Describe, Spec, DataDescribe, EventDispatcher]
@@ -381,8 +393,10 @@ class Describe(EventDispatcher):
         if type(obj) is not FunctionType:
             return False
 
-        reserved = ['execute', 'standard_execution', 'parallel_execution',
-                    'before_each', 'after_each', 'before_all', 'after_all']
+        reserved = [
+            'execute', 'standard_execution', 'parallel_execution', 'serialize',
+            'before_each', 'after_each', 'before_all', 'after_all'
+        ]
 
         func_name = obj.__name__
         return (not func_name.startswith('_') and
