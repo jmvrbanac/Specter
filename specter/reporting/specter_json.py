@@ -32,7 +32,7 @@ class SpecterJsonReporter(AbstractSerialReporter, AbstractParallelReporter):
         if not spec.parent:
             self.top_most_specs.append(spec)
 
-    def finished(self):
+    def finished(self, fp=None):
         if not self.filename:
             return
 
@@ -47,6 +47,8 @@ class SpecterJsonReporter(AbstractSerialReporter, AbstractParallelReporter):
         }
 
         # Open and Write to file
-        fp = open(self.filename, 'w')
+        if not fp:
+            fp = open(self.filename, 'w')
+
         json.dump(output, fp)
         fp.close()

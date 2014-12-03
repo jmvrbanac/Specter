@@ -73,6 +73,11 @@ class TestSpecterRunner(TestCase):
                               '--xunit-result', './sample_xunit.xml'])
         self.assertEqual(len(self.runner.reporter_manager.reporters), 4)
 
+    def test_run_w_json(self):
+        self.runner.run(args=['--search', './tests/example_data', '--no-art',
+                              '--json-result', './sample.json'])
+        self.assertEqual(len(self.runner.reporter_manager.reporters), 4)
+
     def test_run_w_parallel(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
                               '--parallel'])
