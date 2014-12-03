@@ -4,7 +4,7 @@
 Release Notes
 =================
 
-Release: 0.2.0 (not released)
+Release: 0.2.0
 --------------------------------
 
 Features and bug fixes
