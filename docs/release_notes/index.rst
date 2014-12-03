@@ -13,6 +13,7 @@ Features and bug fixes
  #. Switching to only showing error/failed expectations by default.
     The old style of showing all expectations is still available through
     the --show-all-expects cli argument - gh-#46
+ #. Adding support for the Specter report JSON format - gh-#12
  #. Fixing the summary report colors to reflect the actual test results. - gh-#44
  #. Added the ability for reporters to add their own cli arguments
  #. Breaking reporter contract by switching from subscribe_to_describe(self, describe)
