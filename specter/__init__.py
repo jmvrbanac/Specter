@@ -14,7 +14,6 @@ def _(msg):
     return gettext.gettext(msg)
 
 # Aliasing commonly used classes
-from specter.spec import Describe, Spec, fixture   # NOQA
-from specter.spec import DataDescribe, DataSpec  # NOQA
+from specter.spec import Spec, DataSpec, fixture   # NOQA
 from specter.expect import expect, require, skip, skip_if  # NOQA
 from specter.expect import incomplete, metadata  # NOQA
