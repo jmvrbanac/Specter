@@ -32,7 +32,7 @@ setup(
     description='Specter is a spec-based testing library to help facilitate BDD-testing in Python.',
     long_description=long_desc,
     classifiers=(
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
