@@ -118,9 +118,16 @@ class ExpectAssert(object):
 
         if not self.success:
             was = 'wasn\'t' if self.used_negative else 'was'
-            msg = _('Function {func_name} {was} expected to raise "{excpt}"'
+
+            # Make sure we have a name to use
+            if hasattr(self.expected, '__name__'):
+                name = self.expected.__name__
+            else:
+                name = type(self.expected).__name__
+
+            msg = _('function {func_name} {was} expected to raise "{excpt}"'
                     ''.format(func_name=self.target_src_param,
-                              excpt=self.expected.__name__,
+                              excpt=name,
                               was=was))
             self.custom_msg = msg
 
