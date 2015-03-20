@@ -73,6 +73,7 @@ class SpecterRunner(object):
         self.arg_parser.add_argument(
             '--num-processes',
             dest='num_processes',
+            type=int,
             default=6,
             metavar='',
             help=_('Specifies the number of processes to use under '
