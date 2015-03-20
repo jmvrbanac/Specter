@@ -24,34 +24,60 @@ class SpecterRunner(object):
 
     def setup_argparse(self):
         self.arg_parser.add_argument(
-            '--coverage', dest='coverage', action='store_true',
-            help=_('Activates coverage.py integration'))
+            '--coverage',
+            dest='coverage',
+            action='store_true',
+            help=_('Activates coverage.py integration')
+        )
         self.arg_parser.add_argument(
-            '--search', type=str, dest='search', metavar='',
-            help=_('The spec suite folder path.'))
+            '--search',
+            type=str,
+            dest='search',
+            metavar='',
+            help=_('The spec suite folder path.')
+        )
         self.arg_parser.add_argument(
-            '--no-art', dest='no_art', action='store_true',
-            help=_('Disables ASCII art'))
+            '--no-art',
+            dest='no_art',
+            action='store_true',
+            help=_('Disables ASCII art')
+        )
         self.arg_parser.add_argument(
-            '--select-module', dest='select_module', metavar='',
-            help=_('Selects a module path to run. '
-                   'Ex: spec.sample.TestClass'),
-            default=None)
+            '--select-module',
+            dest='select_module',
+            metavar='',
+            help=_('Selects a module path to run. Ex: spec.sample.TestClass'),
+            default=None
+        )
         self.arg_parser.add_argument(
-            '--select-by-metadata', dest='select_meta', metavar='',
+            '--select-by-metadata',
+            dest='select_meta',
+            metavar='',
             help=_('Selects tests to run by specifying a list of '
                    'key=value pairs you wish to run'),
-            default=[], nargs='*')
+            default=[],
+            nargs='*'
+        )
         self.arg_parser.add_argument(
-            '--no-color', dest='no_color', action='store_true',
-            help=_('Disables all ASCII color codes.'))
+            '--no-color',
+            dest='no_color',
+            action='store_true',
+            help=_('Disables all ASCII color codes.')
+        )
         self.arg_parser.add_argument(
-            '--parallel', dest='parallel', action='store_true',
-            help=_('Activate parallel testing mode'))
+            '--parallel',
+            dest='parallel',
+            action='store_true',
+            help=_('Activate parallel testing mode')
+        )
         self.arg_parser.add_argument(
-            '--num-processes', dest='num_processes', default=6, metavar='',
+            '--num-processes',
+            dest='num_processes',
+            default=6,
+            metavar='',
             help=_('Specifies the number of processes to use under '
-                   'parallel mode (default: 6)'))
+                   'parallel mode (default: 6)')
+        )
 
     def generate_ascii_art(self):
         tag_line = _('Keeping the Bogeyman away from your code!')
