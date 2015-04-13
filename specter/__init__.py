@@ -10,7 +10,7 @@ gettext.install('specter', **gettext_kwargs)
 
 
 def _(msg):
-    """ Dealing with pylint problems"""
+    """Dealing with pylint problems."""
     return gettext.gettext(msg)
 
 # Aliasing commonly used classes

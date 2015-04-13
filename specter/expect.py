@@ -1,9 +1,9 @@
-import inspect
 import functools
+import inspect
 # Making sure we support 2.7 and 3+
 try:
     from types import ClassType as ClassObjType
-except:
+except ImportError:
     from types import ModuleType as ClassObjType
 
 from specter import _
@@ -29,7 +29,7 @@ class ExpectAssert(object):
         self.custom_msg = None
 
     def serialize(self):
-        """ Serializes the ExpectAssert object for collection.
+        """Serializes the ExpectAssert object for collection.
 
         Warning, this will only grab the available information.
         It is strongly that you only call this once all specs and
@@ -125,10 +125,13 @@ class ExpectAssert(object):
             else:
                 name = type(self.expected).__name__
 
-            msg = _('function {func_name} {was} expected to raise "{excpt}"'
-                    ''.format(func_name=self.target_src_param,
-                              excpt=name,
-                              was=was))
+            msg = _(
+                'function {func_name} {was} expected to raise "{exc}"'.format(
+                    func_name=self.target_src_param,
+                    exc=name,
+                    was=was
+                )
+            )
             self.custom_msg = msg
 
     def __str__(self):
@@ -162,7 +165,8 @@ def _add_expect_to_wrapper(obj_to_add):
 
 
 def expect(obj, caller_args=[]):
-    """ Primary method for test assertions in Specter
+    """Primary method for test assertions in Specter
+
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
     """
@@ -175,7 +179,8 @@ def expect(obj, caller_args=[]):
 
 
 def require(obj, caller_args=[]):
-    """ Primary method for test assertions in Specter
+    """Primary method for test assertions in Specter
+
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
     """
@@ -188,7 +193,7 @@ def require(obj, caller_args=[]):
 
 
 def skip(reason):
-    """ The skip decorator allows for you to always bypass a test.
+    """The skip decorator allows for you to always bypass a test.
 
     :param reason: Expects a string
     """
@@ -212,8 +217,7 @@ def skip(reason):
 
 
 def skip_if(condition, reason=None):
-    """ The skip_if decorator allows for you to bypass a test given that a
-    specific condition is met.
+    """The skip_if decorator allows for you to bypass a test on conditions
 
     :param condition: Expects a boolean
     :param reason: Expects a string
@@ -227,7 +231,7 @@ def skip_if(condition, reason=None):
 
 
 def incomplete(test_func):
-    """ The incomplete decorator behaves much like a normal skip; however,
+    """The incomplete decorator behaves much like a normal skip; however,
     tests that are marked as incomplete get tracked under a different metric.
     This allows for you to create a skeleton around all of your features and
     specifications, and track what tests have been written and what
@@ -248,7 +252,7 @@ def incomplete(test_func):
 
 
 def metadata(**key_value_pairs):
-    """ The metadata decorator allows for you to tag specific tests with
+    """The metadata decorator allows for you to tag specific tests with
     key/value data for run-time processing or reporting. The common use case
     is to use metadata to tag a test as a positive or negative test type.
 

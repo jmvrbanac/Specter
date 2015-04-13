@@ -391,7 +391,7 @@ class Describe(EventDispatcher):
 
     @classmethod
     def case_filter(cls, obj):
-        if type(obj) is not types.FunctionType:
+        if not isinstance(obj, types.FunctionType):
             return False
 
         reserved = [
@@ -401,7 +401,7 @@ class Describe(EventDispatcher):
 
         func_name = obj.__name__
         return (not func_name.startswith('_') and
-                not func_name in reserved)
+                func_name not in reserved)
 
 
 class Spec(Describe):

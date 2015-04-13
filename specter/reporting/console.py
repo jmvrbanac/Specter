@@ -82,12 +82,12 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
                         self.use_color)
 
         if test_case.doc and self.output_docstrings:
-            print_indent_msg(test_case.doc, level+1, status)
+            print_indent_msg(test_case.doc, level + 1, status)
 
         # Print error if it exists
         if test_case.error:
             for line in test_case.error:
-                self.output(line, level+2, TestStatus.FAIL)
+                self.output(line, level + 2, TestStatus.FAIL)
 
         if status == TestStatus.FAIL or self.show_all:
             print_expects(test_case, level, self.use_color)
@@ -116,14 +116,14 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
 
         # Output Docstrings if enabled
         if evt.payload.doc and self.output_docstrings:
-            print_indent_msg(evt.payload.doc, level+1)
+            print_indent_msg(evt.payload.doc, level + 1)
 
         # Warn of duplicates
         if isinstance(evt.payload, DataDescribe) and evt.payload.dup_count:
             color = ConsoleColors.YELLOW if self.use_color else None
             print_indent_msg('Warning: Noticed {0} duplicate data '
                              'set(s)'.format(evt.payload.dup_count),
-                             level+1, color=color)
+                             level + 1, color=color)
 
     def output(self, msg, indent, status=None):
         """ Alias for print_indent_msg with color determined by status."""
@@ -152,6 +152,6 @@ Test Total      | {total}
             status = TestStatus.PASS
 
         print_to_screen('\n')
-        self.output('-'*24, 0, status)
+        self.output('-' * 24, 0, status)
         self.output(msg, 0, status)
-        self.output('-'*24, 0, status)
+        self.output('-' * 24, 0, status)

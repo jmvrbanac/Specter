@@ -111,7 +111,7 @@ def print_expects(test_case, level, use_color=True):
 
         expect_msg = u'{mark} {msg}'.format(mark=mark, msg=expect)
 
-        print_test_msg(expect_msg, level+1, status=status)
+        print_test_msg(expect_msg, level + 1, status=status)
 
         def hardcoded(param):
             result = re.match('^(\'|"|\d)', str(param)) is not None

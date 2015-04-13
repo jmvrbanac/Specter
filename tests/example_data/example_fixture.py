@@ -1,6 +1,7 @@
 from specter.spec import Spec, fixture
 from specter.expect import expect
 
+
 @fixture
 class ExampleTestFixture(Spec):
 

@@ -69,7 +69,7 @@ def get_numbered_source(lines, line_num, starting_line=0):
         end = center + 2 if center + 2 <= len(lines) else len(lines)
 
         orig_src_lines = [line.rstrip('\n') for line in lines[start:end]]
-        line_range = range(start+1+starting_line, end+1+starting_line)
+        line_range = range(start + 1 + starting_line, end + 1 + starting_line)
         nums_and_source = zip(line_range, orig_src_lines)
 
         traceback_lines = []

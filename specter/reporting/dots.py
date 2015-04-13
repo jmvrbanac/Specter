@@ -43,7 +43,12 @@ class DotsReporter(AbstractConsoleReporter, AbstractParallelReporter):
 
         if wrapper.error:
             for line in wrapper.error:
-                print_test_msg(line, level+2, TestStatus.FAIL, self.use_color)
+                print_test_msg(
+                    line,
+                    level + 2,
+                    TestStatus.FAIL,
+                    self.use_color
+                )
 
         print_expects(wrapper, level, use_color=self.use_color)
 
