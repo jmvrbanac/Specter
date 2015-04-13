@@ -19,7 +19,7 @@ if os.path.exists('pypi_description.rst'):
 
 version = ''
 if os.path.exists('.package-version'):
-    version = open('.package-version', 'r').readline()
+    version = open('.package-version', 'r').readline().strip()
 
 setup(
     name='Specter',
