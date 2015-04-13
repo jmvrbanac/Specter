@@ -4,6 +4,17 @@
 Release Notes
 =================
 
+Release: 0.2.1
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Fixed --num-processes error - gh-#52
+ #. Added extra error handling around except() - gh-#51
+ #. Added Python 3.4 job to CI
+
+
 Release: 0.2.0
 --------------------------------
 
