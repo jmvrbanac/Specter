@@ -3,7 +3,7 @@ import inspect
 import itertools
 import sys
 import six
-from uuid import uuid4
+import uuid
 
 from time import time
 from types import FunctionType, MethodType
@@ -36,7 +36,7 @@ class TimedObject(object):
 class CaseWrapper(TimedObject):
     def __init__(self, case_func, parent, execute_kwargs=None, metadata={}):
         super(CaseWrapper, self).__init__()
-        self.id = str(uuid4())
+        self.id = str(uuid.uuid4())
         self.case_func = case_func
         self.expects = []
         self.parent = parent
@@ -154,7 +154,7 @@ class Describe(EventDispatcher):
 
     def __init__(self, parent=None):
         super(Describe, self).__init__()
-        self.id = str(uuid4())
+        self.id = str(uuid.uuid4())
         wrappers = self.__wrappers__
         self.parent = parent
         self.cases = wrappers
