@@ -2,17 +2,18 @@ import copy
 import inspect
 import itertools
 import sys
-import six
+import time
+import types
 import uuid
 
-from time import time
-from types import FunctionType, MethodType
-from pyevents.manager import EventDispatcher
 from pyevents.event import Event
-from specter.util import (get_real_last_traceback, convert_camelcase,
-                          find_by_metadata, extract_metadata,
-                          children_with_tests_with_metadata,
-                          remove_empty_entries_from_dict)
+from pyevents.manager import EventDispatcher
+from specter.util import (
+    get_real_last_traceback, convert_camelcase, find_by_metadata,
+    extract_metadata, children_with_tests_with_metadata,
+    remove_empty_entries_from_dict
+)
+import six
 
 
 class TimedObject(object):
@@ -22,10 +23,10 @@ class TimedObject(object):
         self.end_time = 0
 
     def start(self):
-        self.start_time = time()
+        self.start_time = time.time()
 
     def stop(self):
-        self.end_time = time()
+        self.end_time = time.time()
 
     @property
     def elapsed_time(self):
@@ -80,7 +81,7 @@ class CaseWrapper(TimedObject):
 
         self.start()
         try:
-            MethodType(self.case_func, context or self)(**kwargs)
+            types.MethodType(self.case_func, context or self)(**kwargs)
         except TestIncompleteException as e:
             self.incomplete = True
 
@@ -390,7 +391,7 @@ class Describe(EventDispatcher):
 
     @classmethod
     def case_filter(cls, obj):
-        if type(obj) is not FunctionType:
+        if type(obj) is not types.FunctionType:
             return False
 
         reserved = [
@@ -477,7 +478,7 @@ def copy_function(func, name):
     globals = (func.func_globals
                if sys.version_info < py3 else func.__globals__)
 
-    return FunctionType(code, globals, name)
+    return types.FunctionType(code, globals, name)
 
 
 def get_function_kwargs(old_func, new_args):
