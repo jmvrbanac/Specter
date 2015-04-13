@@ -7,3 +7,5 @@ dist/*
 .tox/*
 .python-version
 docs/_build
+sample.json
+sample_xunit.xml
