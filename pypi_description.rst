@@ -22,15 +22,15 @@ Continuous Integration
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. image:: https://travis-ci.org/jmvrbanac/Specter.png?branch=master
+.. image:: https://travis-ci.org/jmvrbanac/Specter.svg?branch=master
     :target: https://travis-ci.org/jmvrbanac/Specter
     :alt: Travis CI Build status
 
-.. image:: https://coveralls.io/repos/jmvrbanac/Specter/badge.png?branch=master
+.. image:: https://coveralls.io/repos/jmvrbanac/Specter/badge.svg?branch=master
     :target: https://coveralls.io/r/jmvrbanac/Specter?branch=master
     :alt: Coveralls Coverage Status
 
-.. image:: https://badge.fury.io/py/Specter.png
+.. image:: https://badge.fury.io/py/Specter.svg
     :target: http://badge.fury.io/py/Specter
     :alt: Specter PyPi Package Page
 
