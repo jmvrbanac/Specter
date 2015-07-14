@@ -5,7 +5,8 @@ except ImportError:
 from time import sleep
 
 from specter.spec import (TimedObject, CaseWrapper, Spec, Describe,
-                          copy_function, get_function_kwargs)
+                          copy_function, get_function_kwargs,
+                          convert_to_hashable)
 
 
 class TestTimedObject(TestCase):
@@ -128,3 +129,21 @@ class TestSpecHelpers(TestCase):
         kwargs = get_function_kwargs(test_func, args)
         self.assertEqual(kwargs.get('arg'), 'temp')
         self.assertIsNone(kwargs.get('argv'))
+
+
+class TestConvertToHashable(TestCase):
+
+    def test_dict(self):
+        hash(convert_to_hashable({}))
+
+    def test_list(self):
+        hash(convert_to_hashable([]))
+
+    def test_list_of_dicts(self):
+        hash(convert_to_hashable([{}, {}, {}]))
+
+    def test_dict_with_list_values(self):
+        hash(convert_to_hashable({'a': [], 'b': []}))
+
+    def test_dict_with_list_of_dict_values(self):
+        hash(convert_to_hashable({'a': [{}, {}], 'b': [{}, {}]}))

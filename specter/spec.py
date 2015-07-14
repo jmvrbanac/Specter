@@ -461,7 +461,7 @@ def convert_to_hashable(obj):
         hashed = tuple([(k, convert_to_hashable(v))
                        for k, v in six.iteritems(obj)])
     elif isinstance(obj, list):
-        hashed = tuple(obj)
+        hashed = tuple(convert_to_hashable(item) for item in obj)
     return hashed
 
 
