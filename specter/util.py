@@ -4,6 +4,11 @@ import itertools
 import sys
 import six
 
+try:
+    import __builtin__
+except ImportError:
+    import builtins as __builtin__
+
 CAPTURED_TRACEBACKS = []
 
 
@@ -43,7 +48,12 @@ def get_expect_param_strs(src_line):
 def get_source_from_frame(frame):
     self = frame.f_locals.get('self', None)
     cls = frame.f_locals.get('cls', None)
+
+    # for old style classes, getmodule(type(self)) returns __builtin__, and
+    # inspect.getfile(__builtin__) throws an exception
     insp_obj = inspect.getmodule(type(self) if self else cls) or frame.f_code
+    if insp_obj == __builtin__:
+        insp_obj = frame.f_code
 
     line_num_modifier = 0
     if inspect.iscode(insp_obj):
