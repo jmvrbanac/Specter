@@ -55,3 +55,13 @@ class TestSpecterUtil(TestCase):
 
         func, meta = util.extract_metadata(sample_func)
         self.assertEqual(meta.get('type'), 'testing')
+
+    def test_get_real_last_traceback_w_exception_in_old_style_class(self):
+        class OldStyleClass:
+            def throw(self):
+                raise Exception('exception in OldStyleClass')
+
+        try:
+            OldStyleClass().throw()
+        except Exception as e:
+            util.get_real_last_traceback(e)
