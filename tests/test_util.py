@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from specter import util, spec, metadata, skip
 
-import sample_classes
+import tests.sample_classes as sample_classes
 
 
 class TestSpecterUtil(TestCase):
