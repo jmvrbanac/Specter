@@ -2,12 +2,32 @@ from unittest import TestCase
 
 from specter import util, spec, metadata, skip
 
+import sample_classes
+
 
 class TestSpecterUtil(TestCase):
 
     def test_get_called_src_line_error(self):
         handled = util.get_called_src_line()
         self.assertIsNone(handled)
+
+    def test_get_called_src_line(self):
+        x = sample_classes.SubclassForGetCalledSrcLine()
+        self.assertEqual(x.first(steps=1).strip(),
+                         "return util.get_called_src_line(steps=steps)")
+        self.assertEqual(x.first(steps=2).strip(),
+                         "return self.second(steps)")
+
+    def test_get_called_src_line_across_modules(self):
+        # the base and sub classes need to be in separate modules
+        class SubClass(sample_classes.BaseForGetCalledSrcLine):
+            def second(self, steps):
+                return util.get_called_src_line(steps=steps)
+        x = SubClass()
+        self.assertEqual(x.first(steps=1).strip(),
+                         "return util.get_called_src_line(steps=steps)")
+        self.assertEqual(x.first(steps=2).strip(),
+                         "return self.second(steps)")
 
     def test_convert_camelcase_error(self):
         result = util.convert_camelcase(None)
