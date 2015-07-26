@@ -8,8 +8,11 @@ import sample_classes
 class TestSpecterUtil(TestCase):
 
     def test_get_called_src_line_error(self):
-        handled = util.get_called_src_line()
-        self.assertIsNone(handled)
+        handled = util.get_called_src_line(steps=-1)
+        self.assertEqual(handled, '')
+
+        handled = util.get_called_src_line(steps=10000)
+        self.assertEqual(handled, '')
 
     def test_get_called_src_line(self):
         x = sample_classes.SubclassForGetCalledSrcLine()
