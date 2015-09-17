@@ -110,6 +110,23 @@ class TestSpecDescribe(TestCase):
     def test_success_property(self):
         self.assertFalse(self.spec.success)
 
+    def test_execute_with_hooks(self):
+        hook1_calls = []
+        spec = ExampleSpec()
+        spec._hook1 = lambda s: hook1_calls.append(s)
+
+        spec.standard_execution()
+        self.assertEqual(len(hook1_calls), 0)
+        self.assertTrue(spec.complete)
+
+        spec = ExampleSpec()
+        spec._hook1 = lambda s: hook1_calls.append(s)
+        spec.hooks = ('_hook1',)
+        spec.standard_execution()
+
+        self.assertEqual(len(hook1_calls), 1)
+        self.assertTrue(spec.complete)
+
 
 class TestSpecHelpers(TestCase):
 

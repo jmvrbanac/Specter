@@ -153,6 +153,9 @@ class CaseWrapper(TimedObject):
 class Describe(EventDispatcher):
     __FIXTURE__ = False
 
+    #: List of methods to be called after every test
+    hooks = ()
+
     def __init__(self, parent=None):
         super(Describe, self).__init__()
         self.id = str(uuid.uuid4())
@@ -294,6 +297,11 @@ class Describe(EventDispatcher):
         }
         return converted_dict
 
+    def _run_hooks(self):
+        """Calls any registered hooks providing the current state."""
+        for hook in self.hooks:
+            getattr(self, hook)(self._state)
+
     def __create_state_obj__(self):
         """ Generates the clean state object magic. Here be dragons! """
         stops = [Describe, Spec, DataDescribe, EventDispatcher]
@@ -349,6 +357,7 @@ class Describe(EventDispatcher):
             self._state.before_each()
             case.execute(context=self._state)
             self._state.after_each()
+            self._run_hooks()
             self._num_completed_cases += 1
 
             self.top_parent.dispatch(TestEvent(case))
