@@ -4,15 +4,6 @@ try:
 except ImportError:
     from distutils.core import setup, find_packages
 
-def read_requires(relative):
-    try:
-        abs_path = os.path.abspath(relative)
-        contents = open(abs_path, 'r').read()
-    except IOError:
-        # We should only hit this when we are using tox
-        return []
-    return [l for l in contents.split('\n') if l != '']
-
 long_desc = None
 if os.path.exists('pypi_description.rst'):
     long_desc = open('pypi_description.rst').read()
@@ -41,8 +32,8 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.3',
     ),
-    tests_require=read_requires('./tools/test-requires'),
     install_requires=['pynsive>=0.2.7', 'pyevents', 'coverage', 'six'],
+    tests_require=['tox', 'nose', 'flake8'],
     entry_points = {
         'console_scripts':
         ['specter = specter.runner:activate']}
