@@ -4,6 +4,21 @@
 Release Notes
 =================
 
+Release: 0.3.0
+--------------------------------
+
+Special thanks to `Paul Glass <https://github.com/pglass>`_ and
+`Stas Sușcov <https://github.com/stas>`_ for their contributions to this
+release!
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Switched to Pike for module loading and searching
+ #. Added support for teardown hooks - gh-#61
+ #. Fixed showing exceptions from old-style classes - gh-#57
+ #. Support dataset values to contain lists of dicts - gh-#56
+
 Release: 0.2.1
 --------------------------------
 
