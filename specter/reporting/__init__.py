@@ -1,6 +1,6 @@
 from six import add_metaclass
 from abc import ABCMeta, abstractmethod
-from pynsive import rlist_classes
+from pike.discovery import py
 
 
 @add_metaclass(ABCMeta)
@@ -93,7 +93,8 @@ class ReporterPluginManager(object):
                 class_type not in abstracts)
 
     def get_reporters_classes(self):
-        return rlist_classes('specter.reporting', self.reporter_filter)
+        module = py.get_module_by_name('specter.reporting')
+        return py.get_all_classes(module, self.reporter_filter)
 
     def load_reporters(self, force_reload=False):
         if force_reload:

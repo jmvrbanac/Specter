@@ -1,4 +1,4 @@
-pynsive>=0.2.7
+pike>=0.0.2
 pyevents
 coverage
 six

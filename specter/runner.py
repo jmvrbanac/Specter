@@ -15,7 +15,7 @@ class SpecterRunner(object):
     def __init__(self):
         super(SpecterRunner, self).__init__()
         self.coverage = None
-        self.suite_scanner = SuiteScanner()
+        self.suite_scanner = None
         self.arg_parser = ArgumentParser(description=self.DESCRIPTION)
         self.setup_argparse()
         self.suites = []
@@ -148,9 +148,9 @@ class SpecterRunner(object):
             self.coverage._warn_no_data = False
             self.coverage.start()
 
+        self.suite_scanner = SuiteScanner(self.arguments.search or 'spec')
         self.suite_types = self.suite_scanner.scan(
-            search_path=self.arguments.search,
-            module_name=self.arguments.select_module)
+            self.arguments.select_module)
 
         # Serial: Add and Execute | Parallel: Collect all with the add process
         for suite_type in self.suite_types:

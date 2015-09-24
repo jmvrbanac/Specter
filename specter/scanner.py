@@ -1,16 +1,17 @@
 from os import path
 from itertools import chain
 
-from pynsive import PluginManager, rlist_classes
+# from pynsive import PluginManager, rlist_classes
+from pike.manager import PikeManager
 from specter.spec import Describe
 
 
 class SuiteScanner(object):
 
-    def __init__(self, search_path='spec'):
+    def __init__(self, search_path):
         super(SuiteScanner, self).__init__()
-        self.search_path = search_path
-        self.plugin_manager = PluginManager()
+        self.search_path = path.abspath(search_path)
+        self.plugin_manager = PikeManager([self.search_path])
 
     def filter_by_module_name(self, classes, name):
         found = [cls for cls in classes
@@ -25,21 +26,15 @@ class SuiteScanner(object):
 
         return found
 
-    def scan(self, search_path=None, module_name=None):
-        search_path = search_path or self.search_path
-        search_path = path.abspath(search_path)
-        module = path.split(search_path)[1]
-
-        if not path.exists(path.join(search_path)):
+    def scan(self, module_name=None):
+        if not path.exists(path.join(self.search_path)):
             return []
 
-        self.plugin_manager.plug_into(path.split(search_path)[0])
-
-        classes = rlist_classes(module, cls_filter=Describe.plugin_filter)
+        classes = self.plugin_manager.get_classes(Describe.plugin_filter)
         if module_name:
             classes = self.filter_by_module_name(classes, module_name)
 
         return classes
 
     def destroy(self):
-        self.plugin_manager.destroy()
+        self.plugin_manager.cleanup()
