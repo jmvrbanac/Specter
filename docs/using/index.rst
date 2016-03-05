@@ -15,10 +15,6 @@ It is recommended that you use  `pip
 
   pip install specter
 
-or::
-
-  easy_install specter
-
 You may consider using `virtualenv <http://www.virtualenv.org>`_ or `pyenv <https://github.com/yyuu/pyenv>`_ to create isolated Python environments.
 
 Setup
@@ -82,6 +78,7 @@ Argument               Description
 --no-art               Disables the ASCII art on the runner
 --coverage             Enables coverage.py integration. Configure using .coveragerc
 --select-module        Selects a module path to run. Ex: spec.sample.TestClass
+--select-tests         Selects tests to run by name. (Comma delimited list)
 --select-by-metadata   Selects tests to run by specifying a list of key=value pairs
 --xunit-results        Output xUnit XML results into a specified file
 --json-results         Saves Specter JSON results into a specifed file
