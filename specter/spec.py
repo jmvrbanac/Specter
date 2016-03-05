@@ -393,10 +393,10 @@ class Describe(EventDispatcher):
             return False
 
         return (issubclass(other, Describe) and
-                other is not cls
-                and other is not Spec
-                and other is not DataSpec
-                and other is not DataDescribe)
+                other is not cls and
+                other is not Spec and
+                other is not DataSpec and
+                other is not DataDescribe)
 
     @classmethod
     def case_filter(cls, obj):

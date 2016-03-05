@@ -38,9 +38,9 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
 
     def get_test_case_status(self, test_case, name):
         status = TestStatus.FAIL
-        if (test_case.success
-                and not test_case.skipped
-                and not test_case.incomplete):
+        if (test_case.success and
+                not test_case.skipped and
+                not test_case.incomplete):
             status = TestStatus.PASS
         elif test_case.incomplete:
             status = TestStatus.INCOMPLETE
@@ -56,9 +56,9 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
 
     def add_to_totals(self, test_case):
         self.test_total += 1
-        if (test_case.success
-                and not test_case.skipped
-                and not test_case.incomplete):
+        if (test_case.success and
+                not test_case.skipped and
+                not test_case.incomplete):
             self.passed_tests += 1
         elif test_case.skipped:
             self.skipped_tests += 1
