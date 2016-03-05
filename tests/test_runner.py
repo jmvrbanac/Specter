@@ -59,6 +59,15 @@ class TestSpecterRunner(TestCase):
         self.assertEqual(reporter.skipped_tests, 0)
         self.assertEqual(reporter.test_total, 2)
 
+    def test_run_w_select_test(self):
+        self.runner.run(args=['--search', './tests/example_data', '--no-art',
+                              '--select-tests', 'this_should_work'])
+        reporter = self.get_console_reporter(
+            self.runner.reporter_manager.reporters)
+
+        self.assertEqual(reporter.skipped_tests, 0)
+        self.assertEqual(reporter.test_total, 1)
+
     def test_run_w_select_by_metadata(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
                               '--select-by-metadata', 'test="smoke"'])

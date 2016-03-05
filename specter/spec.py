@@ -11,7 +11,7 @@ from pyevents.manager import EventDispatcher
 from specter.util import (
     get_real_last_traceback, convert_camelcase, find_by_metadata,
     extract_metadata, children_with_tests_with_metadata,
-    remove_empty_entries_from_dict
+    remove_empty_entries_from_dict, find_by_names, children_with_tests_named,
 )
 import six
 
@@ -338,7 +338,8 @@ class Describe(EventDispatcher):
         state_cls = chain[-1:][0]
         return state_cls()
 
-    def parallel_execution(self, manager, select_metadata=None):
+    def parallel_execution(self, manager, select_metadata=None,
+                           select_tests=None):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
         self._state.before_all()
 
@@ -346,9 +347,9 @@ class Describe(EventDispatcher):
             manager.add_to_queue(case)
 
         for describe in self.describes:
-            describe.execute(select_metadata, manager)
+            describe.execute(select_metadata, select_tests, manager)
 
-    def standard_execution(self, select_metadata=None):
+    def standard_execution(self, select_metadata=None, select_tests=None):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
         self._state.before_all()
 
@@ -364,25 +365,37 @@ class Describe(EventDispatcher):
 
         # Execute Suites
         for describe in self.describes:
-            describe.execute(select_metadata=select_metadata)
+            describe.execute(
+                select_metadata=select_metadata,
+                select_tests=select_tests
+            )
 
         self._state.after_all()
 
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.COMPLETE, self))
 
-    def execute(self, select_metadata=None, parallel_manager=None):
+    def execute(self, select_metadata=None, select_tests=None,
+                parallel_manager=None):
         if select_metadata:
             self.cases = find_by_metadata(select_metadata, self.cases)
             self.describes = children_with_tests_with_metadata(
                 select_metadata, self)
 
+        if select_tests:
+            self.cases = find_by_names(select_tests, self.cases)
+            self.describes = children_with_tests_named(select_tests, self)
+
         # If it doesn't have tests or describes don't run it
         if len(self.cases) <= 0 and len(self.describes) <= 0:
             return
         if parallel_manager:
-            self.parallel_execution(parallel_manager, select_metadata)
+            self.parallel_execution(
+                parallel_manager,
+                select_metadata,
+                select_tests
+            )
         else:
-            self.standard_execution(select_metadata)
+            self.standard_execution(select_metadata, select_tests)
 
     @classmethod
     def plugin_filter(cls, other):

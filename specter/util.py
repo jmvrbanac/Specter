@@ -123,6 +123,26 @@ def get_real_last_traceback(exception):
     return traced_lines
 
 
+def find_by_names(names, cases):
+    selected_cases = {}
+    for case_id, case in six.iteritems(cases):
+        if case.name in names or case.pretty_name in names:
+            selected_cases[case_id] = case
+
+    return selected_cases
+
+
+def children_with_tests_named(names, describe):
+    children = []
+    for child in describe.describes:
+        found = find_by_names(names, child.cases)
+        if len(found) > 0:
+            children.append(child)
+        children.extend(children_with_tests_named(names, child))
+
+    return children
+
+
 def find_by_metadata(meta, cases):
     selected_cases = {}
     for case_id, case in six.iteritems(cases):

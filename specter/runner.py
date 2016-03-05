@@ -50,6 +50,13 @@ class SpecterRunner(object):
             default=None
         )
         self.arg_parser.add_argument(
+            '--select-tests',
+            dest='select_tests',
+            metavar='',
+            help=_('Selects tests by name (comma delimited list).'),
+            default=None
+        )
+        self.arg_parser.add_argument(
             '--select-by-metadata',
             dest='select_meta',
             metavar='',
@@ -159,7 +166,8 @@ class SpecterRunner(object):
             self.suites.append(suite)
             self.reporter_manager.subscribe_all_to_spec(suite)
             suite.execute(select_metadata=select_meta,
-                          parallel_manager=self.parallel_manager)
+                          parallel_manager=self.parallel_manager,
+                          select_tests=self.arguments.select_tests)
 
         # Actually execute the tests for parallel now
         if self.arguments.parallel:
