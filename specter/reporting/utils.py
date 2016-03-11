@@ -117,7 +117,7 @@ def print_expects(test_case, level, use_color=True):
             result = re.match('^(\'|"|\d)', str(param)) is not None
             return result
 
-        def print_param(value, param, indent, prefix):
+        def print_param(value, param, indent, prefix=None):
             if not expect.success and not hardcoded(param):
                 msg_list = str(value).splitlines() or ['']
                 prefix = _('{0}: {1}').format(param or prefix, msg_list[0])
@@ -143,3 +143,6 @@ def print_expects(test_case, level, use_color=True):
         except:
             print_param('ERROR - Couldn\'t evaluate expected value',
                         expect.expected_src_param, level + 3, 'Expected')
+
+        for var_name, var_value in expect.custom_report_vars.items():
+            print_param(var_value, var_name, level + 3)

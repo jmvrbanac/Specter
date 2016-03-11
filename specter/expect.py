@@ -27,6 +27,7 @@ class ExpectAssert(object):
         self.required = required
         self.caller_args = caller_args
         self.custom_msg = None
+        self.custom_report_vars = {}
 
     def serialize(self):
         """Serializes the ExpectAssert object for collection.
@@ -108,13 +109,20 @@ class ExpectAssert(object):
         self.expected = exception
         self.actions.extend(['raise', exception])
         condition = False
+        raised_exc = 'nothing'
 
         try:
             self.target(*self.caller_args)
         except Exception as e:
-            condition = True and type(e) is exception
+            condition = type(e) == exception
+            raised_exc = e
 
-        self.success = condition if not self.used_negative else not condition
+        if self.used_negative and type(raised_exc) != exception:
+            self.success = False
+        elif self.used_negative:
+            self.success = not condition
+        else:
+            self.success = condition
 
         if not self.success:
             was = 'wasn\'t' if self.used_negative else 'was'
@@ -125,14 +133,15 @@ class ExpectAssert(object):
             else:
                 name = type(self.expected).__name__
 
-            msg = _(
-                'function {func_name} {was} expected to raise "{exc}"'.format(
-                    func_name=self.target_src_param,
-                    exc=name,
-                    was=was
-                )
+            msg = _('function {func_name} {was} expected to raise "{exc}".')
+            self.custom_msg = msg.format(
+                func_name=self.target_src_param,
+                exc=name,
+                was=was
             )
-            self.custom_msg = msg
+            self.custom_report_vars['Raised Exception'] = (
+                type(raised_exc).__name__
+            )
 
     def __str__(self):
         action_list = []

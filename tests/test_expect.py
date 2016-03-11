@@ -183,6 +183,21 @@ class TestExpectAssertion(TestCase):
         expect.not_to.raise_a(Exception)
         self.assertFalse(expect.success)
 
+    def test_expect_should_surface_not_specified_assertion(self):
+        class SecondException(Exception):
+            pass
+
+        class RandoException(Exception):
+            pass
+
+        def sample_raise_func():
+            raise RandoException()
+
+        target = sample_raise_func
+        expect = self._create_assert(target)
+        expect.not_to.raise_a(SecondException)
+        self.assertFalse(expect.success)
+
 
 class TestRequireAssertion(TestExpectAssertion):
 
