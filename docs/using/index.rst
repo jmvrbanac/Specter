@@ -77,7 +77,7 @@ Argument               Description
 --search PATH          Specifies the search path for spec files
 --no-art               Disables the ASCII art on the runner
 --coverage             Enables coverage.py integration. Configure using .coveragerc
---select-module        Selects a module path to run. Ex: spec.sample.TestClass
+--select-module        Selects a module path to run. Ex: sample.TestClass
 --select-tests         Selects tests to run by name. (Comma delimited list)
 --select-by-metadata   Selects tests to run by specifying a list of key=value pairs
 --xunit-results        Output xUnit XML results into a specified file

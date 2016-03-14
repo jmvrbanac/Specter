@@ -46,7 +46,7 @@ class SpecterRunner(object):
             '--select-module',
             dest='select_module',
             metavar='',
-            help=_('Selects a module path to run. Ex: spec.sample.TestClass'),
+            help=_('Selects a module path to run. Ex: sample.TestClass'),
             default=None
         )
         self.arg_parser.add_argument(
