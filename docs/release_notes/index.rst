@@ -4,6 +4,23 @@
 Release Notes
 =================
 
+Release: 0.4.1
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Fixing incorrect cli documentation for --select-module
+
+Release: 0.4.0
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Adding support to execute individual tests - gh-#65
+ #. Fixing issues with using a negative raises_a conditional - gh-#63
+
 Release: 0.3.0
 --------------------------------
 
