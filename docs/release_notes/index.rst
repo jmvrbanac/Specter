@@ -4,6 +4,15 @@
 Release Notes
 =================
 
+Release: 0.4.2
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Fixing regression in raises_a expectation - gh-#67
+ #. Adding support for the --ascii-only cli argument - gh-#68
+
 Release: 0.4.1
 --------------------------------
 
