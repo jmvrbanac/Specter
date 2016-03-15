@@ -5,6 +5,9 @@ from specter.reporting.utils import (
     TestStatus, print_expects, print_to_screen, get_color_from_status,
     print_test_args, get_item_level, print_indent_msg, ConsoleColors)
 
+UNICODE_SEP = u'\u221F'
+ASCII_SEP = '-'
+
 
 class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
     """ Simple BDD Style console reporter. """
@@ -12,6 +15,7 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
     def __init__(self, output_docstrings=False, use_color=True):
         super(ConsoleReporter, self).__init__()
         self.use_color = use_color
+        self.use_unicode = True
         self.test_total = 0
         self.test_expects = 0
         self.passed_tests = 0
@@ -21,6 +25,7 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
         self.incomplete_tests = 0
         self.output_docstrings = output_docstrings
         self.show_all = False
+        self.separator = UNICODE_SEP
 
     def get_name(self):
         return 'Simple BDD Serial console reporter'
@@ -29,12 +34,20 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
         argparser.add_argument(
             '--show-all-expects', dest='show_all_expects', action='store_true',
             help=_('Displays all expectations for test cases'))
+        argparser.add_argument(
+            '--ascii-only', dest='ascii_only', action='store_true',
+            help=_('Disables color and uses only ascii characters '
+                   '(useful for CI systems)'))
 
     def process_arguments(self, args):
         if args.no_color:
             self.use_color = False
         if args.show_all_expects:
             self.show_all = True
+        if args.ascii_only:
+            self.use_color = False
+            self.use_unicode = False
+            self.separator = ASCII_SEP
 
     def get_test_case_status(self, test_case, name):
         status = TestStatus.FAIL
@@ -73,7 +86,7 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
     def output_test_case_result(self, test_case, level):
         name = test_case.pretty_name
         if level > 0:
-            name = u'\u221F {0}'.format(name)
+            name = u'{0} {1}'.format(self.separator, name)
 
         status, name = self.get_test_case_status(test_case, name)
 
@@ -90,7 +103,12 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
                 self.output(line, level + 2, TestStatus.FAIL)
 
         if status == TestStatus.FAIL or self.show_all:
-            print_expects(test_case, level, self.use_color)
+            print_expects(
+                test_case,
+                level,
+                self.use_color,
+                self.use_unicode
+            )
 
     def subscribe_to_spec(self, spec):
         spec.add_listener(TestEvent.COMPLETE, self.test_complete)
@@ -108,7 +126,7 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
         level = get_item_level(evt.payload)
         name = evt.payload.name
         if level > 0:
-            name = u'\u221F {0}'.format(name)
+            name = u'{0} {1}'.format(self.separator, name)
 
         # Output Spec name
         color = ConsoleColors.GREEN if self.use_color else None

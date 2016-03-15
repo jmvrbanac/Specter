@@ -83,6 +83,7 @@ Argument               Description
 --xunit-results        Output xUnit XML results into a specified file
 --json-results         Saves Specter JSON results into a specifed file
 --no-color             Disables ASCII color codes
+--ascii-only           Disables color and uses only ascii characters (useful for CI systems).
 --parallel             Activates parallel testing mode
 --num-processes        Specifies the number of processes to use under parallel mode (default: 6)
 --show-all-expects     Displays all expectations for test cases

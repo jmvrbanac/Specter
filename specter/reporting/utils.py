@@ -95,15 +95,19 @@ def get_item_level(item):
     return levels
 
 
-def print_expects(test_case, level, use_color=True):
+def print_expects(test_case, level, use_color=True, use_unicode=True):
     # Print expects
     for expect in test_case.expects:
         mark = u'\u2718'
+        if not use_unicode:
+            mark = 'x'
 
         status = TestStatus.FAIL
         if expect.success:
             status = TestStatus.PASS
             mark = u'\u2714'
+            if not use_unicode:
+                mark = ' '
 
         # Turn off the status if we're not using color
         if not use_color:
