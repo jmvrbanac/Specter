@@ -117,10 +117,17 @@ class ExpectAssert(object):
             condition = type(e) == exception
             raised_exc = e
 
-        if self.used_negative and type(raised_exc) != exception:
+        # We didn't raise anything
+        if self.used_negative and not isinstance(raised_exc, Exception):
+            self.success = True
+
+        # Raised, but it didn't match
+        elif self.used_negative and type(raised_exc) != exception:
             self.success = False
+
         elif self.used_negative:
             self.success = not condition
+
         else:
             self.success = condition
 

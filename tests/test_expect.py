@@ -198,6 +198,15 @@ class TestExpectAssertion(TestCase):
         expect.not_to.raise_a(SecondException)
         self.assertFalse(expect.success)
 
+    def test_expect_should_succeed_with_not_assertion_and_no_raise(self):
+        def sample_raise_func():
+            pass
+
+        target = sample_raise_func
+        expect = self._create_assert(target)
+        expect.not_to.raise_a(Exception)
+        self.assertTrue(expect.success)
+
 
 class TestRequireAssertion(TestExpectAssertion):
 
