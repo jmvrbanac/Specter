@@ -8,7 +8,7 @@ Writing Specter Tests
 
 Naming Rules
 ~~~~~~~~~~~~~~~~~
-Most frameworks require you to start your test with a given prefix such as :raw-html:`"test_"`. Specter does not impose any prefix rules on test functions. We believe that it is better to give the developer more flexibility in naming so that their test names better describe what they are actually testing. However, while Specter does have a couple rules that should be followed.
+Most frameworks require you to start your test with a given prefix such as :raw-html:`"test_"`. Specter does not impose any prefix rules on test functions. We believe that it is better to give the developer more flexibility in naming so that their test names better describe what they are actually testing. However, Specter does have a few rules that should be followed.
 
 * All helper functions should start with an underscore (_). Just as Python treats a single underscore as "protected", so does Specter.
 * "before_each", "after_each", "before_all", and "after_all" are reserved for setup functions on your test suites (Specs).

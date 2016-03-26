@@ -33,7 +33,7 @@ By default, Specter looks within the current directory for a folder called "spec
            ├── example.py
            └── __init__.py
 
-If you do not which to use the default folder, you can specific an alternative using the :raw-html:`"--search"` command-line argument::
+If you do not wish to use the default folder, you can specify an alternative using the :raw-html:`"--search"` command-line argument::
 
    specter --search /path/to/folder
 
