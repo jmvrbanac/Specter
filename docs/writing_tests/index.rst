@@ -163,6 +163,7 @@ Available Comparisons
     * equal(expected_object)
     * be_greater_than(expected_object)
     * be_less_than(expected_object)
+    * be_almost_equal(expected_number, places)
     * be_none()
     * be_true()
     * be_false()
