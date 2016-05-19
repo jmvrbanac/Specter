@@ -69,10 +69,15 @@ class ExpectAssert(object):
         self._compare(action_name=_('equal'), expected=expected,
                       condition=self.target == expected)
 
-    def be_almost_equal(self, expected, places=None):
-        places = places or 7
-        self._compare(action_name=_('be almost equal within {} places'), expected=expected,
-                      condition=round(abs(self.target - expected), places) == 0)
+    def almost_equal(self, expected, places=7):
+        if not isinstance(places, int):
+            raise TypeError('Places must be an integer')
+
+        self._compare(
+            action_name=_('almost equal'),
+            expected=expected,
+            condition=round(abs(self.target - expected), places) == 0
+        )
 
     def be_greater_than(self, expected):
         self._compare(action_name=_('be greater than'), expected=expected,
