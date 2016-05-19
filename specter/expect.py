@@ -9,7 +9,7 @@ except ImportError:
 from specter import _
 from specter.spec import (CaseWrapper, FailedRequireException,
                           TestSkippedException, TestIncompleteException)
-from specter.util import get_called_src_line, get_expect_param_strs
+from specter.util import ExpectParams, get_module_and_line
 
 
 class ExpectAssert(object):
@@ -19,8 +19,7 @@ class ExpectAssert(object):
         super(ExpectAssert, self).__init__()
         self.prefix = _('expect')
         self.target = target
-        self.target_src_param = src_params[0] if src_params else None
-        self.expected_src_param = src_params[1] if src_params else None
+        self.src_params = src_params
         self.actions = [target]
         self.success = False
         self.used_negative = False
@@ -28,6 +27,16 @@ class ExpectAssert(object):
         self.caller_args = caller_args
         self.custom_msg = None
         self.custom_report_vars = {}
+
+    @property
+    def target_src_param(self):
+        if self.src_params and self.src_params.expect_arg:
+            return self.src_params.expect_arg
+
+    @property
+    def expected_src_param(self):
+        if self.src_params and self.src_params.cmp_arg:
+            return self.src_params.cmp_arg
 
     def serialize(self):
         """Serializes the ExpectAssert object for collection.
@@ -191,10 +200,14 @@ def expect(obj, caller_args=[]):
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
     """
-    src_line = get_called_src_line(use_child_attr='__spec__')
-    src_params = get_expect_param_strs(src_line)
-    expect_obj = ExpectAssert(obj, src_params=src_params,
-                              caller_args=caller_args)
+    line, module = get_module_and_line('__spec__')
+    src_params = ExpectParams(line, module)
+
+    expect_obj = ExpectAssert(
+        obj,
+        src_params=src_params,
+        caller_args=caller_args
+    )
     _add_expect_to_wrapper(expect_obj)
     return expect_obj
 
@@ -205,10 +218,14 @@ def require(obj, caller_args=[]):
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
     """
-    src_line = get_called_src_line(use_child_attr='__spec__')
-    src_params = get_expect_param_strs(src_line)
-    require_obj = RequireAssert(obj, src_params=src_params,
-                                caller_args=caller_args)
+    line, module = get_module_and_line('__spec__')
+    src_params = ExpectParams(line, module)
+
+    require_obj = RequireAssert(
+        obj,
+        src_params=src_params,
+        caller_args=caller_args
+    )
     _add_expect_to_wrapper(require_obj)
     return require_obj
 

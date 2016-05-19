@@ -33,6 +33,12 @@ class ExampleSpec(Spec):
     def causes_multi_line_error(self):
         expect(TestObj()).to.be_none()
 
+    def multi_line_expect(self):
+        expect((
+            'this '
+            'is a test'
+        )).to.equal('this is a test')
+
     class ExampleDataDescribe(DataDescribe):
         DATASET = {
             'test': {'sample': [1]},

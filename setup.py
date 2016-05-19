@@ -33,7 +33,7 @@ setup(
         'Programming Language :: Python :: 3.3',
     ),
     tests_require=['tox', 'nose', 'flake8'],
-    install_requires=['pike>=0.1.0', 'pyevents', 'coverage', 'six'],
+    install_requires=['pike>=0.1.0', 'pyevents', 'coverage', 'six', 'astor'],
     entry_points = {
         'console_scripts':
         ['specter = specter.runner:activate']}
