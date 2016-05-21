@@ -5,8 +5,8 @@ except ImportError:
     from distutils.core import setup, find_packages
 
 long_desc = None
-if os.path.exists('pypi_description.rst'):
-    long_desc = open('pypi_description.rst').read()
+if os.path.exists('README.rst'):
+    long_desc = open('README.rst').read()
 
 version = ''
 if os.path.exists('.package-version'):
@@ -31,8 +31,9 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
     ),
-    tests_require=['tox', 'nose', 'flake8'],
+    tests_require=['pytest', 'flake8'],
     install_requires=['pike>=0.1.0', 'pyevents', 'coverage', 'six', 'astor'],
     entry_points = {
         'console_scripts':
