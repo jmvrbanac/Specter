@@ -1,5 +1,4 @@
 from unittest import TestCase
-from nose.plugins.capture import Capture
 
 from specter.runner import SpecterRunner
 from specter.reporting.console import ConsoleReporter
@@ -9,11 +8,6 @@ class TestSpecterRunner(TestCase):
 
     def setUp(self):
         self.runner = SpecterRunner()
-        self.console = Capture()
-        self.console.begin()
-
-    def tearDown(self):
-        self.console.end()
 
     def get_console_reporter(self, reporters):
         for r in reporters:
