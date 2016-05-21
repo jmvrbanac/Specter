@@ -45,20 +45,25 @@ class TestExpectAssertion(TestCase):
     def test_expect_almost_equal(self):
         target = 0.010000001
         expect = self._create_assert(target)
-        expect.to.be_almost_equal(0.01)
+        expect.to.almost_equal(0.01)
         self.assertTrue(expect.success)
 
     def test_expect_almost_equal_with_places(self):
         target = 0.011
         expect = self._create_assert(target)
-        expect.to.be_almost_equal(0.01, places=2)
+        expect.to.almost_equal(0.01, places=2)
         self.assertTrue(expect.success)
 
     def test_expect_not_to_almost_equal(self):
         target = 0.01
         expect = self._create_assert(target)
-        expect.not_to.be_almost_equal(0.02)
+        expect.not_to.almost_equal(0.02)
         self.assertTrue(expect.success)
+
+    def test_expect_almost_equal_places_not_int(self):
+        expect = self._create_assert(0.01)
+        with self.assertRaises(TypeError):
+            expect.to.almost_equal(0.01, places=None)
 
     def test_expect_greater_than(self):
         target = 100
