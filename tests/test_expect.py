@@ -1,6 +1,9 @@
+import ast
+import inspect
 import types
 from unittest import TestCase
 
+from specter.util import ExpectParams
 from specter.expect import (ExpectAssert, RequireAssert, TestSkippedException,
                             FailedRequireException)
 
@@ -187,6 +190,23 @@ class TestExpectAssertion(TestCase):
         expect = self._create_assert(target)
         expect.not_to.be_false()
         self.assertTrue(expect.success)
+
+    def test_multi_line_expect(self):
+        from tests.example_data import example
+        tree = ast.parse(inspect.getsource(example))
+
+        # Dynamically find the right method
+        our_expect = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                if node.name == 'multi_line_expect':
+                    our_expect = node
+
+        params = ExpectParams(our_expect.lineno + 1, example)
+        self.assertEqual(params.cmp_arg, "'this is a test'")
+        self.assertEqual(params.expect_arg, "'this is a test'")
+        self.assertEqual(params.expect_type, 'expect')
+        self.assertEqual(params.cmp_type, 'equal')
 
     def test_expect_raise(self):
         def sample_raise_func():

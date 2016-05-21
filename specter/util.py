@@ -1,3 +1,5 @@
+import ast
+import astor
 import inspect
 import re
 import itertools
@@ -12,6 +14,66 @@ except ImportError:
 CAPTURED_TRACEBACKS = []
 
 
+class ExpectParams(object):
+    types_with_args = [
+        'equal',
+        'almost_equal',
+        'be_greater_than',
+        'be_less_than',
+        'be_almost_equal',
+        'be_a',
+        'be_an_instance_of',
+        'be_in',
+        'contain',
+        'raise_a'
+    ]
+
+    def __init__(self, line, module):
+        tree = ast.parse(inspect.getsource(module))
+
+        # Walk the tree until we get the expression we need
+        expect_exp = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Expr):
+                if node.lineno > line:
+                    break
+
+                expect_exp = node
+
+        self.expect_exp = expect_exp
+
+    @property
+    def cmp_call(self):
+        if self.expect_exp:
+            return self.expect_exp.value
+
+    @property
+    def expect_call(self):
+        if self.cmp_call:
+            return self.cmp_call.func.value.value
+
+    @property
+    def cmp_type(self):
+        if self.cmp_call:
+            return self.cmp_call.func.attr
+
+    @property
+    def cmp_arg(self):
+        arg = None
+        if self.cmp_type in self.types_with_args:
+            arg = astor.to_source(self.cmp_call.args[0])
+        return arg
+
+    @property
+    def expect_type(self):
+        return self.expect_call.func.id
+
+    @property
+    def expect_arg(self):
+        if self.expect_call:
+            return astor.to_source(self.expect_call.args[0])
+
+
 def convert_camelcase(input_str):
     if input_str is None:
         return ''
@@ -20,29 +82,19 @@ def convert_camelcase(input_str):
     return re.sub(camelcase_tags, r' \1', input_str)
 
 
-def get_called_src_line(steps=2, use_child_attr=None):
-    src_line, last_frame = None, inspect.currentframe()
+def get_module_and_line(use_child_attr=None):
+    last_frame = inspect.currentframe()
 
+    steps = 2
     for i in range(steps):
         last_frame = last_frame.f_back
 
     self = module = last_frame.f_locals['self']
     # Use an attr instead of self
     if use_child_attr:
-        module = getattr(self, use_child_attr)
+        module = getattr(self, use_child_attr, self)
 
-    try:
-        last_module = inspect.getmodule(type(module))
-        line = last_frame.f_lineno - 1
-        src_line = inspect.getsourcelines(last_module)[0][line]
-    except:
-        pass
-    return src_line
-
-
-def get_expect_param_strs(src_line):
-    matches = re.search('\((.*?)\)\..*\((.*?)\)', src_line)
-    return (matches.group(1), matches.group(2)) if matches else None
+    return last_frame.f_lineno, inspect.getmodule(type(module))
 
 
 def get_source_from_frame(frame):
