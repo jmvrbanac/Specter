@@ -21,23 +21,12 @@ def convert_camelcase(input_str):
 
 
 def get_called_src_line(steps=2, use_child_attr=None):
-    src_line, last_frame = None, inspect.currentframe()
-
-    for i in range(steps):
-        last_frame = last_frame.f_back
-
-    self = module = last_frame.f_locals['self']
-    # Use an attr instead of self
-    if use_child_attr:
-        module = getattr(self, use_child_attr)
-
-    try:
-        last_module = inspect.getmodule(type(module))
-        line = last_frame.f_lineno - 1
-        src_line = inspect.getsourcelines(last_module)[0][line]
-    except:
-        pass
-    return src_line
+    stack = inspect.stack()
+    if 0 <= steps < len(stack):
+        stack_entry = stack[steps]
+        frame, filename, lineno, function_name, lines, _ = stack_entry
+        return "".join(lines)
+    return ""
 
 
 def get_expect_param_strs(src_line):
