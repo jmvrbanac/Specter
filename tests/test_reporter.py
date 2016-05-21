@@ -1,21 +1,25 @@
 from unittest import TestCase
-from nose.plugins.capture import Capture
+import pytest
+
 from specter.reporting.console import ConsoleReporter
 from specter.reporting.utils import TestStatus, pretty_print_args
 
 
+@pytest.fixture()
+def pass_capfd(request, capfd):
+    """Provide capfd object to unittest.TestCase instances"""
+    request.instance.capfd = capfd
+
+
+@pytest.mark.usefixtures('pass_capfd')
 class TestConsoleReporter(TestCase):
 
     def setUp(self):
         self.default_reporter = ConsoleReporter()
-        self.console = Capture()
-        self.console.begin()
-
-    def tearDown(self):
-        self.console.end()
 
     def _get_output(self):
-        return self.console.buffer
+        stdout, _ = self.capfd.readouterr()
+        return stdout
 
     def test_get_name(self):
         self.assertEqual(self.default_reporter.get_name(),
@@ -44,13 +48,6 @@ class TestConsoleReporter(TestCase):
 
 
 class TestReporterUtils(TestCase):
-    def setUp(self):
-        self.console = Capture()
-        self.console.begin()
-
-    def tearDown(self):
-        self.console.end()
-
     def test_pretty_print_args_with_empty_kwargs(self):
         result = pretty_print_args(None)
         self.assertEqual(result, 'None')
