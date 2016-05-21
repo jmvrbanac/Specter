@@ -8,13 +8,13 @@ env:
 install:
     # Temp solution to multiprocessing travis issue #155
     - sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
-    - pip install tox coveralls
+    - pip install tox codecov
 
 script:
     - tox -e $TOX_ENV
 
 after_success:
-    - coveralls
+    - codecov
 
 notifications:
     irc:

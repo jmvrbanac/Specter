@@ -8,7 +8,9 @@
 Specter
 ========
 
-Specter is a Python testing framework inspired from RSpec and Jasmine. The library was created out of a desire to have a relatively flexible Python testing framework that adopted a more code-centric approach to BDD.
+Specter is a Python testing framework inspired from RSpec and Jasmine.
+The library was created out of a desire to have a relatively flexible Python
+testing framework that adopted a more code-centric approach to BDD.
 
 Specter is open-source and is available on `GitHub`_. We love contributions!
 
@@ -26,13 +28,13 @@ Continuous Integration
     :target: https://travis-ci.org/jmvrbanac/Specter
     :alt: Travis CI Build status
 
-.. image:: https://coveralls.io/repos/jmvrbanac/Specter/badge.svg?branch=master
-    :target: https://coveralls.io/r/jmvrbanac/Specter?branch=master
-    :alt: Coveralls Coverage Status
+.. image:: https://codecov.io/gh/jmvrbanac/Specter/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/jmvrbanac/Specter
+    :alt: Coverage Status
 
-.. image:: https://badge.fury.io/py/Specter.svg
-    :target: http://badge.fury.io/py/Specter
-    :alt: Specter PyPi Package Page
+.. image::  https://img.shields.io/pypi/v/Specter.svg
+    :target: https://pypi.python.org/pypi/Specter
+    :alt: Specter PyPi Package
 
 
 Release Notes
