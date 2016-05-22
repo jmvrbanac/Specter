@@ -54,6 +54,7 @@ class SpecterRunner(object):
             dest='select_tests',
             metavar='',
             help=_('Selects tests by name (comma delimited list).'),
+            type=lambda s: [item.strip() for item in s.split(',')],
             default=None
         )
         self.arg_parser.add_argument(
