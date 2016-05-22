@@ -53,14 +53,35 @@ class TestSpecterRunner(TestCase):
         self.assertEqual(reporter.skipped_tests, 0)
         self.assertEqual(reporter.test_total, 2)
 
-    def test_run_w_select_test(self):
-        self.runner.run(args=['--search', './tests/example_data', '--no-art',
+    def test_run_w_select_tests(self):
+        self.runner.run(args=['--search', './tests/example_data',
                               '--select-tests', 'this_should_work'])
         reporter = self.get_console_reporter(
             self.runner.reporter_manager.reporters)
 
         self.assertEqual(reporter.skipped_tests, 0)
         self.assertEqual(reporter.test_total, 1)
+
+    def test_run_w_select_tests_multiple(self):
+        self.runner.run(
+            args=['--search', './tests/example_data',
+                  '--select-tests', 'this_should_work, sample_data_test']
+        )
+        reporter = self.get_console_reporter(
+            self.runner.reporter_manager.reporters)
+
+        self.assertEqual(reporter.skipped_tests, 0)
+        self.assertEqual(reporter.test_total, 2)
+
+    def test_run_w_select_tests_partial_search(self):
+        """ Testing it doesn't fuzzy match this field """
+        self.runner.run(args=['--search', './tests/example_data',
+                              '--select-tests', 'this_should'])
+        reporter = self.get_console_reporter(
+            self.runner.reporter_manager.reporters)
+
+        self.assertEqual(reporter.skipped_tests, 0)
+        self.assertEqual(reporter.test_total, 0)
 
     def test_run_w_select_by_metadata(self):
         self.runner.run(args=['--search', './tests/example_data', '--no-art',
