@@ -4,6 +4,21 @@
 Release Notes
 =================
 
+Release: 0.5.0
+--------------------------------
+
+Special thanks to `Alexander Shchapov <https://github.com/alexanderad>`_ for
+his contribution to this release!
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Adding support for the almost_equal() expectation.
+ #. Fixing issue where expect messages weren't getting captured across
+    lines - gh-#47
+ #. Fixing issue with --select-tests where it didn't properly select the
+    the correct tests - gh-#69
+
 Release: 0.4.2
 --------------------------------
 
