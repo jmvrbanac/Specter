@@ -4,6 +4,12 @@ import pytest
 from specter.reporting.console import ConsoleReporter
 from specter.reporting.utils import TestStatus, pretty_print_args
 
+from specter.reporting.xunit import XUnitReporter
+from specter.spec import DescribeEvent, Describe
+
+import os
+import xml.etree.ElementTree as ET
+
 
 @pytest.fixture()
 def pass_capfd(request, capfd):
@@ -51,3 +57,18 @@ class TestReporterUtils(TestCase):
     def test_pretty_print_args_with_empty_kwargs(self):
         result = pretty_print_args(None)
         self.assertEqual(result, 'None')
+
+
+class TestXUnitReporter(TestCase):
+
+    def test_outputs_valid_xml(self):
+        xunit_reporter = XUnitReporter()
+        describe = Describe()
+        describe_event = DescribeEvent(DescribeEvent.COMPLETE, describe)
+        xunit_reporter.describe_complete(describe_event)
+        xunit_reporter.filename = 'xunit.xml'
+        try:
+            xunit_reporter.finished()
+            ET.parse(xunit_reporter.filename)
+        finally:
+            os.remove(xunit_reporter.filename)

@@ -51,7 +51,7 @@ class XUnitReporter(AbstractSerialReporter, AbstractParallelReporter):
         body = element_to_str(self.convert_to_xml(), encoding='utf8')
 
         handle = open(self.filename, 'w')
-        handle.write('{0}'.format(body))
+        handle.write(body.decode('utf8'))
         handle.close()
 
 
