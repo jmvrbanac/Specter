@@ -8,9 +8,7 @@ long_desc = None
 if os.path.exists('README.rst'):
     long_desc = open('README.rst').read()
 
-version = ''
-if os.path.exists('.package-version'):
-    version = open('.package-version', 'r').readline().strip()
+version = '0.5.0'
 
 setup(
     name='Specter',
