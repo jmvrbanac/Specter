@@ -4,6 +4,18 @@
 Release Notes
 =================
 
+Release: 0.5.1
+--------------------------------
+
+Special thanks to `Mark Church <https://github.com/GrandPubba>`_ for
+his contribution to this release!
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Switching to bumpversion
+ #. Fixing xunit reporting output issue - gh-#83
+
 Release: 0.5.0
 --------------------------------
 
