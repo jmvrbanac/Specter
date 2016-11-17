@@ -200,5 +200,6 @@ def activate():  # pragma: no cover
         if not suite.success:
             exit(1)
 
+
 if __name__ == "__main__":
     activate()

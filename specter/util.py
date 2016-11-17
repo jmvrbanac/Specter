@@ -29,18 +29,25 @@ class ExpectParams(object):
     ]
 
     def __init__(self, line, module):
+        def distance(node):
+            return abs(node.lineno - line)
+
         tree = ast.parse(inspect.getsource(module))
 
         # Walk the tree until we get the expression we need
         expect_exp = None
+        closest_exp = None
         for node in ast.walk(tree):
             if isinstance(node, ast.Expr):
-                if node.lineno > line:
+                if node.lineno == line:
+                    expect_exp = node
                     break
 
-                expect_exp = node
+                if (closest_exp is None or
+                        distance(node) < distance(closest_exp)):
+                    closest_exp = node
 
-        self.expect_exp = expect_exp
+        self.expect_exp = expect_exp or closest_exp
 
     @property
     def cmp_call(self):
