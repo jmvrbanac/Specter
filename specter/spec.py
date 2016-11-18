@@ -1,4 +1,5 @@
 import copy
+import collections
 import inspect
 import itertools
 import sys
@@ -338,6 +339,11 @@ class Describe(EventDispatcher):
         state_cls = chain[-1:][0]
         return state_cls()
 
+    def _sort_cases(self, cases):
+        sort_key = lambda (key, case): case.case_func.__name__
+        sorted_cases = sorted(cases.items(), key=sort_key)
+        return collections.OrderedDict(sorted_cases)
+
     def parallel_execution(self, manager, select_metadata=None,
                            select_tests=None):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
@@ -388,6 +394,10 @@ class Describe(EventDispatcher):
         # If it doesn't have tests or describes don't run it
         if len(self.cases) <= 0 and len(self.describes) <= 0:
             return
+
+        # Sort suite case funcs to ensure stable order of execution
+        self.cases = self._sort_cases(self.cases)
+
         if parallel_manager:
             self.parallel_execution(
                 parallel_manager,
