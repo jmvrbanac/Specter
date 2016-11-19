@@ -340,8 +340,8 @@ class Describe(EventDispatcher):
         return state_cls()
 
     def _sort_cases(self, cases):
-        sort_key = lambda (key, case): case.case_func.__name__
-        sorted_cases = sorted(cases.items(), key=sort_key)
+        sorted_cases = sorted(
+            cases.items(), key=lambda case: case[1].case_func.__name__)
         return collections.OrderedDict(sorted_cases)
 
     def parallel_execution(self, manager, select_metadata=None,
