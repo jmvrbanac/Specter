@@ -4,6 +4,19 @@
 Release Notes
 =================
 
+Release: 0.5.2
+--------------------------------
+
+Special thanks to `Alexander Shchapov <https://github.com/alexanderad>`_ and
+`alin23 <https://github.com/alin23>`_ for their contributions to this release!
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Sorting test cases before execution to ensure consistent ordering
+ #. Fixing bug where a failed expect message can sometime report on
+    the wrong expect.
+
 Release: 0.5.1
 --------------------------------
 
