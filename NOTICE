@@ -1,0 +1,9 @@
+Specter
+Copyright 2013-2017 Specter Contributors
+
+The following vendored libraries are included in this project:
+
+AST Decompiler
+https://github.com/JelleZijlstra/ast_decompiler
+Copyright 2016-2017 Jelle Zijlstra
+Licensed under the Apache v2
