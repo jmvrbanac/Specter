@@ -1,10 +1,11 @@
 import ast
-import astor
 import inspect
 import re
 import itertools
 import sys
 import six
+
+from specter.vendor.ast_decompiler import decompile
 
 try:
     import __builtin__
@@ -68,7 +69,7 @@ class ExpectParams(object):
     def cmp_arg(self):
         arg = None
         if self.cmp_type in self.types_with_args:
-            arg = astor.to_source(self.cmp_call.args[0])
+            arg = decompile(self.cmp_call.args[0])
         return arg
 
     @property
@@ -78,7 +79,7 @@ class ExpectParams(object):
     @property
     def expect_arg(self):
         if self.expect_call:
-            return astor.to_source(self.expect_call.args[0])
+            return decompile(self.expect_call.args[0])
 
 
 def convert_camelcase(input_str):
