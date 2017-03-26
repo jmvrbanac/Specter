@@ -1,12 +1,12 @@
 .. role:: raw-html(raw)
    :format: html
 
-.. _GitHub: https://github.com/jmvrbanac/specter   
+.. _GitHub: https://github.com/jmvrbanac/specter
 
 =======
 Welcome
 =======
-Specter is a Python testing framework inspired from RSpec and Jasmine. The library was created out of a desire to have a relatively flexible Python testing framework that adopted a more code-centric approach to BDD. 
+Specter is a Python testing framework inspired from RSpec and Jasmine. The library was created out of a desire to have a relatively flexible Python testing framework that adopted a more code-centric approach to BDD.
 
 Specter is open-source and is available on `GitHub`_. We love contributions!
 
@@ -32,10 +32,10 @@ Continuous Integration
 .. only:: latex
 
     Travis CI builds - https://travis-ci.org/jmvrbanac/Specter
-   
-    Coveralls Coverage - https://coveralls.io/r/jmvrbanac/Specter?branch=master  
 
- 
+    Coveralls Coverage - https://coveralls.io/r/jmvrbanac/Specter?branch=master
+
+
 .. image:: https://travis-ci.org/jmvrbanac/Specter.png?branch=master
     :target: https://travis-ci.org/jmvrbanac/Specter
     :alt: Travis CI Build status
@@ -47,14 +47,17 @@ Continuous Integration
 .. image:: https://badge.fury.io/py/Specter.png
     :target: http://badge.fury.io/py/Specter
     :alt: Specter PyPi Package Page
-    
+
 |
 
 Tested Python Versions
 ------------------------
 * 2.7.x
 * 3.3.x
-* PyPy 1.9.0
+* 3.4.x
+* 3.5.x
+* 3.6.x
+* PyPy2 5.6.0
 
 
 .. Indices and tables
