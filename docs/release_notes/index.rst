@@ -4,6 +4,15 @@
 Release Notes
 =================
 
+Release: 0.6.0
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Replacing Astor with ast-decompiler
+ #. Adding support for Python 3.5 and 3.6 - gh-#92
+
 Release: 0.5.2
 --------------------------------
 
