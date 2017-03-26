@@ -25,6 +25,7 @@ Documentation
     parallel/index
     reporting/index
     release_notes/index
+    maintenance/index
 
 Continuous Integration
 -----------------------
