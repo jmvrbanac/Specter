@@ -4,6 +4,14 @@
 Release Notes
 =================
 
+Release: 0.6.1
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Removing DataSpec duplication removal code
+
 Release: 0.6.0
 --------------------------------
 
