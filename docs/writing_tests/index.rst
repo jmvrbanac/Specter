@@ -227,10 +227,6 @@ This dataset will produce a Spec with two tests: "sample_data_test" and "sample_
         ✘ "sample_text2" to equal "sample_text"
 
 
-.. note::
-
-    Specter will automatically remove duplicated tests within a dataset and will inform you about how many duplications were found.
-
 Metadata in Data-Driven
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 There are two different methods of adding metadata to your data-driven tests. The first method is to assign metadata to the entire set of data-driven tests.
