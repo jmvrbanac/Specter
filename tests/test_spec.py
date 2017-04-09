@@ -3,9 +3,10 @@ try:
 except ImportError:
     from unittest import TestCase
 from time import sleep
+import types
 
 from specter.spec import (TimedObject, CaseWrapper, Spec, Describe,
-                          copy_function, get_function_kwargs,
+                          DataSpec, copy_function, get_function_kwargs,
                           convert_to_hashable)
 
 
@@ -126,6 +127,37 @@ class TestSpecDescribe(TestCase):
 
         self.assertEqual(len(hook1_calls), 1)
         self.assertTrue(spec.complete)
+
+
+# Data class structure used for testing
+class ExampleDataSpec(DataSpec):
+    DATASET = {
+        'test': {'thing': 'trace', 'thing2': 'boom'},
+        'another': {'thing': 'trace', 'thing2': 'boom'},
+    }
+
+    def tracer(self, thing, thing2):
+        pass
+
+    def nope(self, thing, thing2):
+        pass
+
+
+class TestDataSpec(TestCase):
+    def setUp(self):
+        self.spec = ExampleDataSpec()
+
+    def test_functions(self):
+        funcs = [
+            getattr(self.spec, 'tracer_test'),
+            getattr(self.spec, 'tracer_another'),
+            getattr(self.spec, 'nope_test'),
+            getattr(self.spec, 'nope_another')
+        ]
+
+        self.assertTrue(all(funcs))
+        for func in funcs:
+            self.assertIsInstance(func, types.FunctionType)
 
 
 class TestSpecHelpers(TestCase):

@@ -447,9 +447,6 @@ class DataDescribe(Describe):
         super(DataDescribe, self).__init__(parent=parent)
         self.cases = {}
 
-        self.dup_count = 0
-        self.dups = set()
-
         # Generate new functions and monkey-patch
         for case_func in self.case_funcs:
             extracted_func, base_metadata = extract_metadata(case_func)
@@ -461,15 +458,6 @@ class DataDescribe(Describe):
                 if 'args' in data and 'meta' in data:
                     args = data.get('args', {})
                     meta.update(data.get('meta', {}))
-
-                # Skip duplicates
-                if args:
-                    key_args = convert_to_hashable(args)
-                    if key_args in self.dups:
-                        self.dup_count += 1
-                        continue
-                    else:
-                        self.dups.add(key_args)
 
                 # Extract name, args and duplicate function
                 func_name = '{0}_{1}'.format(extracted_func.__name__, name)

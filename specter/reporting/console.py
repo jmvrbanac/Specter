@@ -1,5 +1,5 @@
 from specter import _
-from specter.spec import TestEvent, DescribeEvent, DataDescribe
+from specter.spec import TestEvent, DescribeEvent
 from specter.reporting import AbstractConsoleReporter, AbstractSerialReporter
 from specter.reporting.utils import (
     TestStatus, print_expects, print_to_screen, get_color_from_status,
@@ -135,13 +135,6 @@ class ConsoleReporter(AbstractConsoleReporter, AbstractSerialReporter):
         # Output Docstrings if enabled
         if evt.payload.doc and self.output_docstrings:
             print_indent_msg(evt.payload.doc, level + 1)
-
-        # Warn of duplicates
-        if isinstance(evt.payload, DataDescribe) and evt.payload.dup_count:
-            color = ConsoleColors.YELLOW if self.use_color else None
-            print_indent_msg('Warning: Noticed {0} duplicate data '
-                             'set(s)'.format(evt.payload.dup_count),
-                             level + 1, color=color)
 
     def output(self, msg, indent, status=None):
         """ Alias for print_indent_msg with color determined by status."""
