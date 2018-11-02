@@ -1,8 +1,5 @@
 import os
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from distutils.core import setup, find_packages
+from setuptools import setup, find_packages
 
 long_desc = None
 if os.path.exists('README.rst'):
@@ -27,13 +24,19 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ),
+    python_requires='>=3.5',
     tests_require=['pytest', 'flake8'],
-    install_requires=['pike>=0.1.0', 'pyevents', 'coverage', 'six'],
+    install_requires=[
+        'docopt',
+        'pike>=0.1.0',
+    ],
     entry_points = {
-        'console_scripts':
-        ['specter = specter.runner:activate']}
+        'console_scripts': [
+            'specter = specter.__main__:main'
+        ]
+    },
 )
