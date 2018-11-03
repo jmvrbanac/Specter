@@ -1,55 +1,13 @@
 import asyncio
-import time
 
 from specter import logger, utils
-from specter.spec import Spec
-from specter.expect import expect
+
+from specter.sample import ExampleSpec
 
 logger.setup()
 log = logger.get(__name__)
 
-
-def rando(msg):
-    raise Exception(msg)
-
-
-class ExampleSpec(Spec):
-    def before_all(self):
-        self.bam = 'this is a test'
-
-    def things(self):
-        # comment here
-        bam = 'this'
-        # more comments
-        expect('more').to.equal('this')
-        expect(bam).to.equal('this')
-        expect(
-            rando,
-            msg='thingy').to.raise_a(Exception)
-
-    # async def should_something_async(self):
-    #     await asyncio.sleep(2)
-
-    # def should_do_something_sync(self):
-    #     time.sleep(1)
-
-    # class ChildSpec(Spec):
-    #     def more_things(self):
-    #         raise Exception(self.parent.bam)
-
-    #     async def even_more_things(self):
-    #         await asyncio.sleep(2)
-
-    #     class ChildChildSpec(Spec):
-    #         def more_things(self):
-    #             print(self.parent.parent.bam)
-
-    # class SecondChildSpec(Spec):
-    #     def second_more_things(self):
-    #         pass
-
-    #     async def second_even_more_things(self):
-    #         await asyncio.sleep(1)
+concurrent_sem = asyncio.Semaphore(10)
 
 
 class SpecterRunner(object):
@@ -81,15 +39,22 @@ async def execute_spec(spec):
 
 
 async def execute_method(method, *args, **kwargs):
-    try:
-        if asyncio.iscoroutinefunction(method):
-            return await method(*args, **kwargs)
-        else:
-            return method(*args, **kwargs)
-    except Exception as exc:
-        # Get the tracebacks and attach them to the test case for reporting later.
-        tracebacks = utils.get_tracebacks(exc)
-        method.__func__.__tracebacks__ = tracebacks
+    # If it has the inherited tag, it's from the base class and don't execute
+    if getattr(method, '__inherited_from_spec__', None):
+        return
+
+    async with concurrent_sem:
+        try:
+            log.debug('Executing: %s', method.__func__.__qualname__)
+            if asyncio.iscoroutinefunction(method):
+                return await method(*args, **kwargs)
+            else:
+                return method(*args, **kwargs)
+        except Exception as exc:
+            # Get the tracebacks and attach them to the test case for
+            # reporting later.
+            tracebacks = utils.get_tracebacks(exc)
+            method.__func__.__tracebacks__ = tracebacks
 
 
 async def execute_test_case(spec, case, *args, **kwargs):
