@@ -72,3 +72,8 @@ def load_source_and_ast(filename):
             SOURCE_CACHE[filename] = source = fp.read()
 
     return source, ast.parse(source)
+
+
+def tag_as_inherited(f):
+    f.__inherited_from_spec__ = True
+    return f

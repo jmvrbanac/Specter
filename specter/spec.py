@@ -37,17 +37,21 @@ class Spec(object):
     def is_fixture(cls):
         return getattr(cls, '__FIXTURE__', False) is True
 
+    @utils.tag_as_inherited
     async def before_all(self):
-        self._log.debug('Executing before_all')
+        pass
 
+    @utils.tag_as_inherited
     async def before_each(self):
-        self._log.debug('Executing before_each')
+        pass
 
+    @utils.tag_as_inherited
     async def after_each(self):
-        self._log.debug('Executing after_each')
+        pass
 
+    @utils.tag_as_inherited
     async def after_all(self):
-        self._log.debug('Executing after_all')
+        pass
 
 
 def case_filter(cls, obj):
@@ -88,3 +92,4 @@ def find_children(cls):
         for key, val in cls.__members__().items()
         if child_filter(cls, val)
     ]
+
