@@ -28,13 +28,13 @@ async def execute_spec(spec):
             for func in spec.__test_cases__
         ]
         spec_futures = [
-            execute_spec(child(parent=spec))
+            execute_spec(child)
             for child in spec.children
         ]
 
         await execute_method(spec.before_all)
-        await asyncio.gather(*spec_futures)
         await asyncio.gather(*test_futures)
+        await asyncio.gather(*spec_futures)
         await execute_method(spec.after_all)
 
 

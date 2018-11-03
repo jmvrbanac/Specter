@@ -10,7 +10,7 @@ class Spec(object):
     def __init__(self, parent=None):
         self._log = logger.get(utils.get_fullname(self))
         self.parent = parent
-        self.children = find_children(self)
+        self.children = [child(parent=self) for child in find_children(self)]
         self.__expects__ = defaultdict(list)
 
     @classmethod
@@ -92,4 +92,3 @@ def find_children(cls):
         for key, val in cls.__members__().items()
         if child_filter(cls, val)
     ]
-
