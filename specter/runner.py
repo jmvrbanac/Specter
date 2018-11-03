@@ -1,7 +1,7 @@
 import asyncio
 import time
 
-from specter import logger
+from specter import logger, utils
 from specter.spec import Spec
 from specter.expect import expect
 
@@ -87,7 +87,8 @@ async def execute_method(method, *args, **kwargs):
         else:
             return method(*args, **kwargs)
     except Exception as exc:
-        log.exception('Test method execution failed:', exc_info=exc)
+        tracebacks = utils.get_tracebacks(exc)
+        utils.log_tracebacks(tracebacks)
 
 
 async def execute_test_case(spec, case, *args, **kwargs):

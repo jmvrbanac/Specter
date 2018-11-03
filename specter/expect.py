@@ -1,11 +1,9 @@
 import ast
 import copy
 import inspect
-import sys
 
+from specter import utils
 from specter.spec import Spec
-
-SOURCE_CACHE = {}
 
 
 class Expectation(object):
@@ -204,15 +202,6 @@ def _add_expect_to_spec(instance):
         )
 
 
-def _load_source_and_ast(filename):
-    source = SOURCE_CACHE.get(filename)
-
-    if not source:
-        with open(filename, 'r') as fp:
-            SOURCE_CACHE[filename] = source = fp.read()
-
-    return source, ast.parse(source)
-
 
 def _get_closest_expression(line, tree):
     def distance(node):
@@ -238,13 +227,11 @@ def get_module_and_line(use_child_attr=None):
     spec, frame = _find_last_spec()
     source_filename = frame.f_code.co_filename
     func = getattr(spec, frame.f_code.co_name)
-    source, node = _load_source_and_ast(source_filename)
+    source, node = utils.load_source_and_ast(source_filename)
 
-    expr_node = _get_closest_expression(frame.f_lineno, node)
+    # expr_node = _get_closest_expression(frame.f_lineno, node)
+    # expr = ExpectExpression(expr_node)
 
-
-    import astor
-    print(astor.to_source(expr_node))
     #  = astor.parse_file(source_filename)
     # last_frame = inspect.currentframe()
     # test_case_frame = last_frame.f_back.f_back
