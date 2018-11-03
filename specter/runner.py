@@ -2,6 +2,7 @@ import asyncio
 
 from specter import logger, utils
 
+from specter.reporting.pretty import PrettyReporter
 from specter.sample import ExampleSpec
 
 logger.setup()
@@ -16,10 +17,13 @@ class SpecterRunner(object):
 
     def run(self):
         loop = asyncio.get_event_loop()
+        reporter = PrettyReporter()
+        reporter.report_art()
+
         spec = ExampleSpec()
 
         loop.run_until_complete(execute_spec(spec))
-        pass
+        reporter.report_spec(spec)
 
 
 async def execute_spec(spec):

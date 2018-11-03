@@ -1,4 +1,5 @@
 import ast
+import re
 import sys
 
 from specter import logger
@@ -77,3 +78,14 @@ def load_source_and_ast(filename):
 def tag_as_inherited(f):
     f.__inherited_from_spec__ = True
     return f
+
+
+def camelcase_to_spaces(value):
+    if value is None:
+        return ''
+
+    return re.sub(
+        '((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))',
+        r' \1',
+        value
+    )
