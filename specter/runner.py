@@ -87,8 +87,9 @@ async def execute_method(method, *args, **kwargs):
         else:
             return method(*args, **kwargs)
     except Exception as exc:
+        # Get the tracebacks and attach them to the test case for reporting later.
         tracebacks = utils.get_tracebacks(exc)
-        utils.log_tracebacks(tracebacks)
+        method.__func__.__tracebacks__ = tracebacks
 
 
 async def execute_test_case(spec, case, *args, **kwargs):
