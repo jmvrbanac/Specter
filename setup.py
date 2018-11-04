@@ -31,6 +31,7 @@ setup(
     python_requires='>=3.5',
     tests_require=['pytest', 'flake8'],
     install_requires=[
+        'colored',
         'docopt',
         'pike>=0.1.0',
     ],

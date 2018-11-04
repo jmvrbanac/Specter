@@ -54,6 +54,31 @@ class Spec(object):
         pass
 
 
+class TestCaseData(object):
+    def __init__(self):
+        self.incomplete = False
+        self.metadata = {}
+
+
+def incomplete(f):
+    get_case_data(f).incomplete = True
+    return f
+
+
+def metadata(**kv_pairs):
+    def decorated(f):
+        get_case_data(f).metadata = kv_pairs
+        return f
+    return decorated
+
+
+def get_case_data(case):
+    data = getattr(case, '__specter__', None)
+    if not data:
+        case.__specter__ = TestCaseData()
+    return case.__specter__
+
+
 def case_filter(cls, obj):
     if not isinstance(obj, types.FunctionType):
         return False

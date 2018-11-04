@@ -2,6 +2,7 @@ import asyncio
 
 from specter import logger, utils
 
+from specter.spec import get_case_data
 from specter.reporting.pretty import PrettyReporter
 from specter.sample import ExampleSpec
 
@@ -62,6 +63,10 @@ async def execute_method(method, *args, **kwargs):
 
 
 async def execute_test_case(spec, case, *args, **kwargs):
+    data = get_case_data(case)
+    if data.incomplete:
+        return
+
     await execute_method(spec.before_each)
     await execute_method(getattr(spec, case.__name__), *args, **kwargs)
     await execute_method(spec.after_each)
