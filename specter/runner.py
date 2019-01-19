@@ -9,12 +9,10 @@ from specter.sample import ExampleSpec
 logger.setup()
 log = logger.get(__name__)
 
-concurrent_sem = asyncio.Semaphore(10)
-
 
 class SpecterRunner(object):
     def __init__(self):
-        pass
+        self.semaphore = asyncio.Semaphore(10)
 
     def run(self):
         loop = asyncio.get_event_loop()
@@ -23,32 +21,34 @@ class SpecterRunner(object):
 
         spec = ExampleSpec()
 
-        loop.run_until_complete(execute_spec(spec))
+        loop.run_until_complete(
+            execute_spec(spec, self.semaphore)
+        )
         reporter.report_spec(spec)
 
 
-async def execute_spec(spec):
+async def execute_spec(spec, semaphore):
         test_futures = [
-            execute_test_case(spec, func)
+            execute_test_case(spec, func, semaphore)
             for func in spec.__test_cases__
         ]
         spec_futures = [
-            execute_spec(child)
+            execute_spec(child, semaphore)
             for child in spec.children
         ]
 
-        await execute_method(spec.before_all)
+        await execute_method(spec.before_all, semaphore)
         await asyncio.gather(*test_futures)
         await asyncio.gather(*spec_futures)
-        await execute_method(spec.after_all)
+        await execute_method(spec.after_all, semaphore)
 
 
-async def execute_method(method, *args, **kwargs):
+async def execute_method(method, semaphore, *args, **kwargs):
     # If it has the inherited tag, it's from the base class and don't execute
     if getattr(method, '__inherited_from_spec__', None):
         return
 
-    async with concurrent_sem:
+    async with semaphore:
         try:
             log.debug('Executing: %s', method.__func__.__qualname__)
             if asyncio.iscoroutinefunction(method):
@@ -62,11 +62,11 @@ async def execute_method(method, *args, **kwargs):
             method.__func__.__tracebacks__ = tracebacks
 
 
-async def execute_test_case(spec, case, *args, **kwargs):
+async def execute_test_case(spec, case, semaphore, *args, **kwargs):
     data = get_case_data(case)
     if data.incomplete:
         return
 
-    await execute_method(spec.before_each)
-    await execute_method(getattr(spec, case.__name__), *args, **kwargs)
-    await execute_method(spec.after_each)
+    await execute_method(spec.before_each, semaphore)
+    await execute_method(getattr(spec, case.__name__), semaphore, *args, **kwargs)
+    await execute_method(spec.after_each, semaphore)
