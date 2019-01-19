@@ -60,7 +60,27 @@ class PrettyReporter(object):
 
         for case in spec.__test_cases__:
             case_name = case.__name__.replace('_', ' ')
-            successful = all(expect.success for expect in spec.__expects__[case])
+            tracebacks = getattr(case, '__tracebacks__', [])
+
+            for tb in tracebacks:
+                frame = tb['frame']
+                filename = frame.f_code.co_filename
+                separator = '-' * (len(filename) + 2)
+
+                formatted = ['|  ' + line for line in tb['source']]
+                formatted[-1] = f'{self.sep}->' + formatted[-1][2:]
+                tb['formatted'] = [
+                    separator,
+                    f'- {filename}',
+                    separator,
+                    *formatted,
+                    separator,
+                ]
+
+            successful = (
+                not tracebacks and
+                all(expect.success for expect in spec.__expects__[case])
+            )
             data = get_case_data(case)
 
             color = good
