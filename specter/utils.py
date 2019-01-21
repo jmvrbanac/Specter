@@ -89,3 +89,7 @@ def camelcase_to_spaces(value):
         r' \1',
         value
     )
+
+
+def snakecase_to_spaces(value):
+    return value.replace('_', ' ')

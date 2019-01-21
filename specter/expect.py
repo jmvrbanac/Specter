@@ -34,7 +34,6 @@ class Expectation(object):
 
     def __str__(self):
         action_list = copy.copy(self.actions)
-        action_list[0] = str(self.target)
         action_list[-1] = str(self.expected)
 
         return ' '.join([str(action) for action in action_list])

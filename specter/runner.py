@@ -1,8 +1,10 @@
 import asyncio
+import time
 
 from specter import logger, utils
 
 from specter.spec import get_case_data
+from specter.reporting.core import ReportManager
 from specter.reporting.pretty import PrettyReporter
 from specter.sample import ExampleSpec
 
@@ -16,24 +18,29 @@ class SpecterRunner(object):
 
     def run(self):
         loop = asyncio.get_event_loop()
-        reporter = PrettyReporter()
-        reporter.report_art()
+        reporting = ReportManager()
+        # reporter = PrettyReporter()
+        # reporter.report_art()
 
         spec = ExampleSpec()
 
         loop.run_until_complete(
-            execute_spec(spec, self.semaphore)
+            execute_spec(spec, self.semaphore, reporting)
         )
-        reporter.report_spec(spec)
+        reporting.output()
+        # reporter.track_spec(spec)
+        # reporter.report_spec(spec)
 
 
-async def execute_spec(spec, semaphore):
+async def execute_spec(spec, semaphore, reporting):
+        reporting.track_spec(spec)
+
         test_futures = [
-            execute_test_case(spec, func, semaphore)
+            execute_test_case(spec, func, semaphore, reporting)
             for func in spec.__test_cases__
         ]
         spec_futures = [
-            execute_spec(child, semaphore)
+            execute_spec(child, semaphore, reporting)
             for child in spec.children
         ]
 
@@ -62,11 +69,17 @@ async def execute_method(method, semaphore, *args, **kwargs):
             method.__func__.__tracebacks__ = tracebacks
 
 
-async def execute_test_case(spec, case, semaphore, *args, **kwargs):
+async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
     data = get_case_data(case)
     if data.incomplete:
         return
 
     await execute_method(spec.before_each, semaphore)
+
+    data.start_time = time.time()
     await execute_method(getattr(spec, case.__name__), semaphore, *args, **kwargs)
+    data.end_time = time.time()
+
     await execute_method(spec.after_each, semaphore)
+
+    reporting.case_finished(spec, case)

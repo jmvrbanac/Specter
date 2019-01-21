@@ -1,5 +1,6 @@
 from collections import defaultdict
 import types
+import uuid
 
 from specter import logger, utils
 
@@ -8,6 +9,7 @@ class Spec(object):
     __FIXTURE__ = False
 
     def __init__(self, parent=None):
+        self._id = str(uuid.uuid4())
         self._log = logger.get(utils.get_fullname(self))
         self.parent = parent
         self.children = [child(parent=self) for child in find_children(self)]
@@ -58,6 +60,8 @@ class TestCaseData(object):
     def __init__(self):
         self.incomplete = False
         self.metadata = {}
+        self.start_time = 0
+        self.end_time = 0
 
 
 def incomplete(f):
