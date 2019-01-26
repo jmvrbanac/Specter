@@ -18,6 +18,8 @@ class ReportManager(object):
         }
 
     def case_finished(self, spec, case):
+        print('.', end='', flush=True)
+
         parent = None
         data = get_case_data(case)
         tracebacks = getattr(case, '__tracebacks__', [])
