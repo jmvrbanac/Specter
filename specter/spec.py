@@ -121,3 +121,63 @@ def find_children(cls):
         for key, val in cls.__members__().items()
         if child_filter(cls, val)
     ]
+
+
+def case_as_dict(spec, case):
+    data = get_case_data(case)
+    tracebacks = getattr(case, '__tracebacks__', [])
+    successful = (
+        not tracebacks and
+        all(expect.success for expect in spec.__expects__[case])
+    )
+
+    # TODO: Clean this up
+    for tb in tracebacks:
+        frame = tb['frame']
+        filename = frame.f_code.co_filename
+        separator = '-' * (len(filename) + 2)
+
+        formatted = ['|  ' + line for line in tb['source']]
+        formatted[-1] = f'-->' + formatted[-1][2:]
+        tb['formatted'] = '\n'.join([
+            separator,
+            f'- {filename}',
+            separator,
+            *formatted,
+            separator,
+        ])
+
+    return {
+        'name': utils.snakecase_to_spaces(case.__name__),
+        'raw_name': case.__name__,
+        'start': data.start_time,
+        'end': data.end_time,
+        'success': successful,
+        'skipped': False,
+        'metadata': data.metadata,
+        'expects': [
+            {
+                'evaluation': str(exp),
+                'required': exp.required,
+                'success': exp.success,
+            }
+            for exp in spec.__expects__[case]
+        ],
+        'error': '\n'.join([tb['formatted'] for tb in tracebacks]) or None
+    }
+
+
+def spec_as_dict(spec):
+    return {
+        'name': utils.camelcase_to_spaces(type(spec).__name__),
+        'module': spec.__module__,
+        'doc': spec.__doc__,
+        'cases': [
+            case_as_dict(spec, case)
+            for case in spec.__test_cases__
+        ],
+        'specs': [
+            spec_as_dict(child)
+            for child in spec.children
+        ],
+    }
