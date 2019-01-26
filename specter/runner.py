@@ -15,7 +15,7 @@ log = logger.get(__name__)
 
 class SpecterRunner(object):
     def __init__(self):
-        self.semaphore = asyncio.Semaphore(10)
+        self.semaphore = asyncio.Semaphore(2)
 
     def run(self, search_paths):
         loop = asyncio.get_event_loop()
@@ -63,9 +63,13 @@ async def execute_method(method, semaphore, *args, **kwargs):
         try:
             log.debug('Executing: %s', method.__func__.__qualname__)
             if asyncio.iscoroutinefunction(method):
-                return await method(*args, **kwargs)
+                ret = await method(*args, **kwargs)
             else:
-                return method(*args, **kwargs)
+                ret = method(*args, **kwargs)
+
+            log.debug('Finished: %s', method.__func__.__qualname__)
+            return ret
+
         except Exception as exc:
             # Get the tracebacks and attach them to the test case for
             # reporting later.
