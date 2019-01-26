@@ -69,6 +69,10 @@ class CaseFormatData(object):
     def __init__(self, spec, case):
         self._spec = spec
         self._case = case
+        self.expects = [
+            ExpectFormatData(expect)
+            for expect in self._spec.__expects__[self._case]
+        ]
 
     @property
     def name(self):
@@ -95,22 +99,8 @@ class CaseFormatData(object):
         tracebacks = getattr(self._case, '__tracebacks__', [])
         return (
             not tracebacks and
-            all(
-                expect.success
-                for expect in self._spec.__expects__[self._case]
-            )
+            all(expect.success for expect in self.expects)
         )
-
-    @property
-    def expects(self):
-        return [
-            {
-                'evaluation': str(exp),
-                'required': exp.required,
-                'success': exp.success,
-            }
-            for exp in self._spec.__expects__[self._case]
-        ]
 
     @property
     def errors(self):
@@ -145,6 +135,31 @@ class CaseFormatData(object):
             'success': self.successful,
             'skipped': False,
             'metadata': self.metadata,
-            'expects': self.expects,
+            'expects': [expect.as_dict for expect in self.expects],
             'errors': self.errors,
+        }
+
+
+class ExpectFormatData(object):
+    def __init__(self, expect):
+        self._expect = expect
+
+    @property
+    def evaluation(self):
+        return str(self._expect)
+
+    @property
+    def required(self):
+        return exp.required
+
+    @property
+    def success(self):
+        return exp.success
+
+    @property
+    def as_dict(self):
+        return {
+            'evaluation': self.evaluation,
+            'required': self.required,
+            'success': self.success,
         }
