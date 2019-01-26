@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 import types
 import uuid
@@ -7,6 +8,8 @@ from specter import logger, utils
 
 class Spec(object):
     __FIXTURE__ = False
+    __CASE_CONCURRENCY__ = None
+    __SPEC_CONCURRENCY__ = None
 
     def __init__(self, parent=None):
         self._id = str(uuid.uuid4())
@@ -121,3 +124,22 @@ def find_children(cls):
         for key, val in cls.__members__().items()
         if child_filter(cls, val)
     ]
+
+
+def fixture(cls):
+    """A decorator to set the fixture flag on the class."""
+    setattr(cls, '__FIXTURE__', True)
+    return cls
+
+
+def concurrency(case=None, spec=None):
+    """A decorator to override the case and child spec concurrency level."""
+
+    def decorator(cls):
+        if case:
+            setattr(cls, '__CASE_CONCURRENCY__', asyncio.Semaphore(case))
+        if spec:
+            setattr(cls, '__SPEC_CONCURRENCY__', asyncio.Semaphore(spec))
+        return cls
+
+    return decorator

@@ -14,8 +14,8 @@ log = logger.get(__name__)
 
 
 class SpecterRunner(object):
-    def __init__(self):
-        self.semaphore = asyncio.Semaphore(2)
+    def __init__(self, concurrency=1):
+        self.semaphore = asyncio.Semaphore(concurrency)
 
     def run(self, search_paths):
         loop = asyncio.get_event_loop()
@@ -30,18 +30,27 @@ class SpecterRunner(object):
             ])
 
             loop.run_until_complete(future)
-            reporting.report_specter_format()
+
+            reporting.build_report()
 
 
 async def execute_spec(spec, semaphore, reporting):
         reporting.track_spec(spec)
 
+        test_semaphore = semaphore
+        spec_semaphore = semaphore
+
+        if spec.__CASE_CONCURRENCY__:
+            test_semaphore = spec.__CASE_CONCURRENCY__
+        if spec.__SPEC_CONCURRENCY__:
+            spec_semaphore = spec.__SPEC_CONCURRENCY__
+
         test_futures = [
-            execute_test_case(spec, func, semaphore, reporting)
+            execute_test_case(spec, func, test_semaphore, reporting)
             for func in spec.__test_cases__
         ]
         spec_futures = [
-            execute_spec(child, semaphore, reporting)
+            execute_spec(child, spec_semaphore, reporting)
             for child in spec.children
         ]
 
@@ -56,6 +65,7 @@ async def execute_method(method, semaphore, *args, **kwargs):
     if getattr(method, '__inherited_from_spec__', None):
         return
 
+    print(semaphore)
     async with semaphore:
         try:
             log.debug('Executing: %s', method.__func__.__qualname__)

@@ -1,5 +1,3 @@
-import json
-
 from specter import logger, utils
 from specter.spec import get_case_data
 
@@ -15,14 +13,12 @@ class ReportManager(object):
     def case_finished(self, spec, case):
         print('.', end='', flush=True)
 
-    def report_specter_format(self):
-        data = [
+    def build_report(self):
+        return [
             SpecFormatData(spec).as_dict
             for spec in self.specs.values()
             if not spec.parent
         ]
-        print(json.dumps(data, indent=2))
-        return data
 
 
 class SpecFormatData(object):
