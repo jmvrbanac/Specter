@@ -65,5 +65,6 @@ class ReportManager(object):
             'error': '\n'.join([tb['formatted'] for tb in tracebacks]) or None
         })
 
-    def output(self):
+
+    def build_tree(self, parents=None):
         print(json.dumps(self.specs, indent=2))

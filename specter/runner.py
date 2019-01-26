@@ -1,12 +1,13 @@
 import asyncio
 import time
 
+from pike.manager import PikeManager
+
 from specter import logger, utils
 
-from specter.spec import get_case_data
+from specter.spec import get_case_data, Spec
 from specter.reporting.core import ReportManager
 from specter.reporting.pretty import PrettyReporter
-from specter.sample import ExampleSpec
 
 logger.setup()
 log = logger.get(__name__)
@@ -16,18 +17,21 @@ class SpecterRunner(object):
     def __init__(self):
         self.semaphore = asyncio.Semaphore(10)
 
-    def run(self):
+    def run(self, search_paths):
         loop = asyncio.get_event_loop()
         reporting = ReportManager()
         # reporter = PrettyReporter()
         # reporter.report_art()
 
-        spec = ExampleSpec()
 
-        loop.run_until_complete(
-            execute_spec(spec, self.semaphore, reporting)
-        )
-        reporting.output()
+        with PikeManager(search_paths) as mgr:
+            future = asyncio.gather(*[
+                execute_spec(cls(), self.semaphore, reporting)
+                for cls in mgr.get_all_inherited_classes(Spec)
+            ])
+
+            loop.run_until_complete(future)
+            reporting.build_tree()
         # reporter.track_spec(spec)
         # reporter.report_spec(spec)
 
