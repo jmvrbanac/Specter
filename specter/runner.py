@@ -23,7 +23,6 @@ class SpecterRunner(object):
         # reporter = PrettyReporter()
         # reporter.report_art()
 
-
         with PikeManager(search_paths) as mgr:
             future = asyncio.gather(*[
                 execute_spec(cls(), self.semaphore, reporting)
@@ -31,9 +30,7 @@ class SpecterRunner(object):
             ])
 
             loop.run_until_complete(future)
-            reporting.build_tree()
-        # reporter.track_spec(spec)
-        # reporter.report_spec(spec)
+            reporting.report_specter_format()
 
 
 async def execute_spec(spec, semaphore, reporting):
