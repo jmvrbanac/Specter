@@ -91,6 +91,14 @@ class CaseFormatData(object):
         return get_case_data(self._case).metadata
 
     @property
+    def skipped(self):
+        return get_case_data(self._case).skipped
+
+    @property
+    def skip_reason(self):
+        return get_case_data(self._case).skip_reason
+
+    @property
     def successful(self):
         tracebacks = getattr(self._case, '__tracebacks__', [])
         return (
@@ -129,7 +137,8 @@ class CaseFormatData(object):
             'start': self.start,
             'end': self.end,
             'success': self.successful,
-            'skipped': False,
+            'skipped': self.skipped,
+            'skip_reason': self.skip_reason,
             'metadata': self.metadata,
             'expects': [expect.as_dict for expect in self.expects],
             'errors': self.errors,

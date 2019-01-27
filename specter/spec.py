@@ -1,5 +1,6 @@
 import asyncio
 from collections import defaultdict
+import functools
 import types
 import uuid
 
@@ -62,6 +63,8 @@ class Spec(object):
 class TestCaseData(object):
     def __init__(self):
         self.incomplete = False
+        self.skipped = True
+        self.skip_reason = None
         self.metadata = {}
         self.start_time = 0
         self.end_time = 0
@@ -70,6 +73,43 @@ class TestCaseData(object):
 def incomplete(f):
     get_case_data(f).incomplete = True
     return f
+
+
+def skip(reason):
+    """The skip decorator allows for you to always bypass a test.
+
+    :param reason: Expects a string
+    """
+    def decorator(test_func):
+        if not isinstance(test_func, (type, types.ModuleType)):
+            # If a decorator, call down and save the results
+            if test_func.__name__ == 'DECORATOR_ONCALL':
+                test_func()
+
+            @functools.wraps(test_func)
+            def skip_wrapper(*args, **kwargs):
+                data = get_case_data(test_func)
+                data.skipped = True
+                data.skip_reason = reason
+
+            test_func = skip_wrapper
+
+        return test_func
+    return decorator
+
+
+def skip_if(condition, reason=None):
+    """The skip_if decorator allows for you to bypass a test on conditions
+
+    :param condition: Expects a boolean
+    :param reason: Expects a string
+    """
+    if condition:
+        return skip(reason)
+
+    def wrapper(func):
+        return func
+    return wrapper
 
 
 def metadata(**kv_pairs):

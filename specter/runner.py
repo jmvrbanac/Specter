@@ -66,7 +66,6 @@ async def execute_method(method, semaphore, *args, **kwargs):
     if getattr(method, '__inherited_from_spec__', None):
         return
 
-    print(semaphore)
     async with semaphore:
         try:
             log.debug('Executing: %s', method.__func__.__qualname__)
