@@ -7,7 +7,7 @@ from specter import logger, utils
 
 from specter.spec import get_case_data, Spec, spec_filter
 from specter.reporting.core import ReportManager
-from specter.reporting.pretty import PrettyReporter
+from specter.reporting.pretty import PrettyRenderer
 
 logger.setup()
 log = logger.get(__name__)
@@ -20,8 +20,7 @@ class SpecterRunner(object):
     def run(self, search_paths):
         loop = asyncio.get_event_loop()
         reporting = ReportManager()
-        # reporter = PrettyReporter()
-        # reporter.report_art()
+        renderer = PrettyRenderer()
 
         with PikeManager(search_paths) as mgr:
             future = asyncio.gather(*[
@@ -31,8 +30,14 @@ class SpecterRunner(object):
             ])
 
             loop.run_until_complete(future)
+            print('\n', flush=True)
 
-            reporting.build_report()
+
+            report = reporting.build_report()
+            renderer.render(report)
+
+            # import json
+            # print(json.dumps(report, indent=2))
 
 
 async def execute_spec(spec, semaphore, reporting):

@@ -7,6 +7,14 @@ class ReportManager(object):
         self.version = '2.0'
         self.specs = {}
 
+    @property
+    def parent_specs(self):
+        return [
+            spec
+            for spec in self.specs.values()
+            if not spec.parent
+        ]
+
     def track_spec(self, spec):
         self.specs[spec._id] = spec
 
@@ -15,9 +23,8 @@ class ReportManager(object):
 
     def build_report(self):
         return [
-            SpecFormatData(spec).as_dict
-            for spec in self.specs.values()
-            if not spec.parent
+            SpecFormatData(spec)
+            for spec in self.parent_specs
         ]
 
 
@@ -91,6 +98,10 @@ class CaseFormatData(object):
         return get_case_data(self._case).metadata
 
     @property
+    def incomplete(self):
+        return get_case_data(self._case).incomplete
+
+    @property
     def skipped(self):
         return get_case_data(self._case).skipped
 
@@ -155,11 +166,11 @@ class ExpectFormatData(object):
 
     @property
     def required(self):
-        return exp.required
+        return self._expect.required
 
     @property
     def success(self):
-        return exp.success
+        return self._expect.success
 
     @property
     def as_dict(self):

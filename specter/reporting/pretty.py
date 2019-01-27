@@ -9,6 +9,8 @@ from specter.spec import get_case_data
 log = logger.get(__name__)
 
 UNICODE_SEP = u'\u221F'
+UNICODE_CHECK = u'\u2713'
+UNICODE_X = u'\u2717'
 ASCII_SEP = '-'
 
 
@@ -23,8 +25,9 @@ ASCII_SEP = '-'
 #     WHITE = 37
 
 good = colored.fg('blue')
-red = colored.fg('red')
+fail = colored.fg('red')
 purple = colored.fg('purple_1b')
+yellow = colored.fg('yellow_4a')
 reset = colored.attr('reset')
 
 
@@ -35,67 +38,111 @@ def supports_colors():
         return False
 
 
-class PrettyReporter(object):
+def print_indent(msg, level=0, color=None):
+    msg = f'{"  " * level}{msg}'
+
+    if color:
+        msg = f'{color}{msg}{reset}'
+
+    print(msg)
+
+
+def get_spec_color(spec):
+    color = good
+
+    if not spec.successful:
+        color = fail
+
+    return color
+
+
+def get_case_color(case):
+    color = good
+
+    if case.incomplete:
+        color = purple
+    elif case.skipped:
+        color = yellow
+    elif case.successful is False:
+        color = fail
+
+    return color
+
+
+def get_expect_color(expect):
+    color = good
+
+    if not expect.success:
+        color = fail
+
+    return color
+
+
+class PrettyRenderer(object):
     def __init__(self):
-        self.sep = UNICODE_SEP
-        self.use_colors = supports_colors()
+        self.total = 0
+        self.passed = 0
+        self.skipped = 0
+        self.failed = 0
+        self.errored = 0
+        self.incomplete = 0
+        self.expectations = 0
 
-    def report_art(self):
-        tag = 'Keeping the Bogeyman away from your code!'
-        ascii_art = textwrap.dedent(f"""
-              ___
-            _/ @@\\
-        ~- ( \\  O/__     Specter
-        ~-  \\    \\__)   ~~~~~~~~~
-        ~-  /     \\     {tag}
-        ~- /      _\\
-           ~~~~~~~~~
-        """)
-        print(ascii_art)
+    def count_case(self, case):
+        self.total += 1
+        self.expectations += len(case.expects)
 
-    def report_spec(self, spec, level=0):
-        spec_name = utils.camelcase_to_spaces(type(spec).__name__)
-        msg = f'{"  " * level}{spec_name}'
-        log.info(f'{msg}')
+        if case.errors:
+            self.errored += 1
 
-        for case in spec.__test_cases__:
-            case_name = case.__name__.replace('_', ' ')
-            tracebacks = getattr(case, '__tracebacks__', [])
+        elif case.successful is False:
+            self.failed += 1
 
-            for tb in tracebacks:
-                frame = tb['frame']
-                filename = frame.f_code.co_filename
-                separator = '-' * (len(filename) + 2)
+        elif case.skipped and not case.incomplete:
+            self.skipped += 1
 
-                formatted = ['|  ' + line for line in tb['source']]
-                formatted[-1] = f'{self.sep}->' + formatted[-1][2:]
-                tb['formatted'] = [
-                    separator,
-                    f'- {filename}',
-                    separator,
-                    *formatted,
-                    separator,
-                ]
+        elif case.incomplete:
+            self.incomplete += 1
 
-            successful = (
-                not tracebacks and
-                all(expect.success for expect in spec.__expects__[case])
+        elif case.successful:
+            self.passed += 1
+
+
+    def render_spec(self, spec, level=0):
+        print_indent(spec.name, level, color=get_spec_color(spec))
+
+        for case in spec.cases:
+            self.count_case(case)
+            mark = UNICODE_CHECK if case.successful else UNICODE_X
+            print_indent(
+                f'{UNICODE_SEP} {mark} {case.name}',
+                level+1,
+                color=get_case_color(case)
             )
-            data = get_case_data(case)
 
-            color = good
-            if not successful:
-                color = red
-            elif data.incomplete:
-                color = purple
+            for expect in case.expects:
+                mark = UNICODE_CHECK if expect.success else UNICODE_X
+                print_indent(
+                    f'{UNICODE_SEP} {mark} {expect.evaluation}',
+                    level+2,
+                    color=get_expect_color(expect)
+                )
 
-            msg = f'{"  " * (level + 1)}{self.sep} {case_name}'
-            log.info(f'{color}{msg}{reset}')
+        print_indent('', level)
+        for spec in spec.specs:
+            self.render_spec(spec, level+1)
 
-            for expect in spec.__expects__[case]:
-                color = good if expect.success else red
-                msg = f'{"  " * (level + 2)}{self.sep} {str(expect)}'
-                log.info(f'{color}{msg}{reset}')
+    def render(self, report):
+        for spec in report:
+            self.render_spec(spec)
 
-        for child in spec.children:
-            self.report_spec(child, level + 1)
+            print('------------------------')
+            print('------- Summary --------')
+            print(f'Pass            | {self.passed}')
+            print(f'Skip            | {self.skipped}')
+            print(f'Fail            | {self.failed}')
+            print(f'Error           | {self.errored}')
+            print(f'Incomplete      | {self.incomplete}')
+            print(f'Test Total      | {self.total}')
+            print(f' - Expectations | {self.expectations}')
+            print('------------------------')

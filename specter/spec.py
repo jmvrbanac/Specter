@@ -63,7 +63,7 @@ class Spec(object):
 class TestCaseData(object):
     def __init__(self):
         self.incomplete = False
-        self.skipped = True
+        self.skipped = False
         self.skip_reason = None
         self.metadata = {}
         self.start_time = 0
