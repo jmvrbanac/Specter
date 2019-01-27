@@ -40,7 +40,7 @@ class Spec(object):
 
     @classmethod
     def is_fixture(cls):
-        return getattr(cls, '__FIXTURE__', False) is True
+        return vars(cls).get('__FIXTURE__') is True
 
     @utils.tag_as_inherited
     async def before_all(self):
@@ -104,7 +104,7 @@ def case_filter(cls, obj):
     )
 
 
-def child_filter(cls, other):
+def spec_filter(cls, other):
     if not isinstance(other, type):
         return False
 
@@ -122,7 +122,7 @@ def find_children(cls):
     return [
         val
         for key, val in cls.__members__().items()
-        if child_filter(cls, val)
+        if spec_filter(cls, val)
     ]
 
 

@@ -5,7 +5,7 @@ from pike.manager import PikeManager
 
 from specter import logger, utils
 
-from specter.spec import get_case_data, Spec
+from specter.spec import get_case_data, Spec, spec_filter
 from specter.reporting.core import ReportManager
 from specter.reporting.pretty import PrettyReporter
 
@@ -27,6 +27,7 @@ class SpecterRunner(object):
             future = asyncio.gather(*[
                 execute_spec(cls(), self.semaphore, reporting)
                 for cls in mgr.get_all_inherited_classes(Spec)
+                if spec_filter(Spec, cls)
             ])
 
             loop.run_until_complete(future)
