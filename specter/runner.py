@@ -36,9 +36,6 @@ class SpecterRunner(object):
             report = reporting.build_report()
             renderer.render(report)
 
-            # import json
-            # print(json.dumps(report, indent=2))
-
 
 async def execute_spec(spec, semaphore, reporting):
         reporting.track_spec(spec)

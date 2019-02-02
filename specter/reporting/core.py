@@ -19,7 +19,16 @@ class ReportManager(object):
         self.specs[spec._id] = spec
 
     def case_finished(self, spec, case):
-        print('.', end='', flush=True)
+        data = CaseFormatData(spec, case)
+        indicator = '.'
+
+        if not data.successful:
+            indicator = 'F'
+
+        elif data.skipped:
+            indicator = 'S'
+
+        print(indicator, end='', flush=True)
 
     def build_report(self):
         return [
@@ -126,19 +135,18 @@ class CaseFormatData(object):
         for tb in tracebacks:
             frame = tb['frame']
             filename = frame.f_code.co_filename
-            separator = '-' * (len(filename) + 2)
+            separator = '-' * 40
 
             formatted = ['|  ' + line for line in tb['source']]
             formatted[-1] = f'-->' + formatted[-1][2:]
-            formatted_tracebacks.append('\n'.join([
-                separator,
+            formatted_tracebacks.append([
                 f'- {filename}',
                 separator,
                 *formatted,
                 separator,
-            ]))
+            ])
 
-        return '\n'.join(formatted_tracebacks) or None
+        return formatted_tracebacks or []
 
     @property
     def as_dict(self):

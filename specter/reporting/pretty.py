@@ -8,6 +8,7 @@ from specter.spec import get_case_data
 
 log = logger.get(__name__)
 
+UNICODE_SKIP = u'\u2607'
 UNICODE_SEP = u'\u221F'
 UNICODE_CHECK = u'\u2713'
 UNICODE_X = u'\u2717'
@@ -113,9 +114,22 @@ class PrettyRenderer(object):
 
         for case in spec.cases:
             self.count_case(case)
-            mark = UNICODE_CHECK if case.successful else UNICODE_X
+            errors = case.errors
+            mark = UNICODE_CHECK
+            skip_reason = case.skip_reason or ''
+
+            if not case.successful:
+                mark = UNICODE_X
+            elif case.skipped:
+                mark = UNICODE_SKIP
+            elif case.incomplete:
+                mark = UNICODE_SKIP
+
+            if skip_reason:
+                skip_reason = f' - skipped: {skip_reason}'
+
             print_indent(
-                f'{UNICODE_SEP} {mark} {case.name}',
+                f'{UNICODE_SEP} {mark} {case.name}{skip_reason}',
                 level+1,
                 color=get_case_color(case)
             )
@@ -128,6 +142,27 @@ class PrettyRenderer(object):
                     color=get_expect_color(expect)
                 )
 
+            if errors:
+                print_indent('')
+                print_indent(
+                    'Traceback occurred during execution',
+                    level+2,
+                    color=fail
+                )
+                print_indent(
+                    '-' * 40,
+                    level+2,
+                    color=fail
+                )
+
+            for error in errors:
+                for line in error:
+                    print_indent(
+                        line,
+                        level+2,
+                        color=fail
+                    )
+
         print_indent('', level)
         for spec in spec.specs:
             self.render_spec(spec, level+1)
@@ -136,13 +171,13 @@ class PrettyRenderer(object):
         for spec in report:
             self.render_spec(spec)
 
-            print('------------------------')
-            print('------- Summary --------')
-            print(f'Pass            | {self.passed}')
-            print(f'Skip            | {self.skipped}')
-            print(f'Fail            | {self.failed}')
-            print(f'Error           | {self.errored}')
-            print(f'Incomplete      | {self.incomplete}')
-            print(f'Test Total      | {self.total}')
-            print(f' - Expectations | {self.expectations}')
-            print('------------------------')
+        print('------------------------')
+        print('------- Summary --------')
+        print(f'Pass            | {self.passed}')
+        print(f'Skip            | {self.skipped}')
+        print(f'Fail            | {self.failed}')
+        print(f'Error           | {self.errored}')
+        print(f'Incomplete      | {self.incomplete}')
+        print(f'Test Total      | {self.total}')
+        print(f' - Expectations | {self.expectations}')
+        print('------------------------')
