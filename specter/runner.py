@@ -16,15 +16,15 @@ log = logger.get(__name__)
 class SpecterRunner(object):
     def __init__(self, concurrency=1):
         self.semaphore = asyncio.Semaphore(concurrency)
+        self.reporting = ReportManager()
+        self.renderer = PrettyRenderer()
 
     def run(self, search_paths):
         loop = asyncio.get_event_loop()
-        reporting = ReportManager()
-        renderer = PrettyRenderer()
 
         with PikeManager(search_paths) as mgr:
             future = asyncio.gather(*[
-                execute_spec(cls(), self.semaphore, reporting)
+                execute_spec(cls(), self.semaphore, self.reporting)
                 for cls in mgr.get_all_inherited_classes(Spec)
                 if spec_filter(Spec, cls)
             ])
@@ -33,8 +33,8 @@ class SpecterRunner(object):
             print('\n', flush=True)
 
 
-            report = reporting.build_report()
-            renderer.render(report)
+            report = self.reporting.build_report()
+            self.renderer.render(report)
 
 
 async def execute_spec(spec, semaphore, reporting):
