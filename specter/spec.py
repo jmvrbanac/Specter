@@ -60,6 +60,12 @@ class Spec(object):
         pass
 
 
+class DataSpec(Spec):
+    DATASET = {}
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.cases = {}
 class TestCaseData(object):
     def __init__(self):
         self.incomplete = False

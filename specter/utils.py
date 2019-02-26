@@ -1,4 +1,6 @@
 import ast
+import inspect
+import itertools
 import re
 import sys
 
@@ -93,3 +95,33 @@ def camelcase_to_spaces(value):
 
 def snakecase_to_spaces(value):
     return value.replace('_', ' ')
+
+
+def extract_metadata(case_func):
+    # Handle metadata decorator
+    metadata = {}
+    if 'DECORATOR_ONCALL' in case_func.__name__:
+        try:
+            decorator_data = case_func()
+            case_func = decorator_data[0]
+            metadata = decorator_data[1]
+        except Exception as e:
+            # Doing this old school to avoid dependancy conflicts
+            handled = ['TestIncompleteException', 'TestSkippedException']
+            if type(e).__name__ in handled:
+                case_func = e.func
+                metadata = e.other_data.get('metadata')
+            else:
+                raise e
+    return case_func, metadata
+
+
+def get_function_kwargs(old_func, new_args):
+    args, _, _, defaults = inspect.getargspec(old_func)
+    if 'self' in args:
+        args.remove('self')
+
+    # Make sure we take into account required arguments
+    kwargs = dict(itertools.zip_longest(args[::-1], list(defaults or ())[::-1], fillvalue=None))
+    kwargs.update(new_args)
+    return kwargs
