@@ -192,7 +192,8 @@ def _add_expect_to_spec(instance):
     """Walks the stack back until it gets to a Spec and adds the expectation"""
     try:
         spec, frame = _find_last_spec()
-        func = getattr(spec, frame.f_code.co_name).__func__
+        # HACK(jmvrbanac): Oooo this is nasty!
+        func = frame.f_back.f_locals['method'].__func__
         spec.__expects__[func].append(instance)
 
     except Exception as error:
