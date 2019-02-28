@@ -25,7 +25,6 @@ def get_tracebacks(exc):
     tracebacks = []
 
     for level in range(5):
-        exc_traceback = exc_traceback.tb_next
         if not exc_traceback:
             break
 
@@ -44,6 +43,12 @@ def get_tracebacks(exc):
             'path': path,
             'source': tb_source.splitlines()[start_line:end_line],
         })
+
+        exc_traceback = exc_traceback.tb_next
+
+    # The only time we want the full list is when specter has a problem
+    if len(tracebacks) > 1:
+        tracebacks = tracebacks[1:]
 
     return tracebacks
 
