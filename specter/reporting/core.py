@@ -148,8 +148,9 @@ class CaseFormatData(object):
 
         # Add the actual exception on the last one
         if formatted_tracebacks:
+            exc = tb["exception"]
             formatted_tracebacks[-1].extend([
-                f'- {tb["exception"]}',
+                f'- {type(exc).__name__}: {exc}',
                 separator,
             ])
 
