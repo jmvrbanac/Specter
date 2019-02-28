@@ -122,7 +122,7 @@ def extract_metadata(case_func):
 
 
 def get_function_kwargs(old_func, new_args):
-    args, _, _, defaults = inspect.getargspec(old_func)
+    args, _, _, defaults, *_ = inspect.getfullargspec(old_func)
     if 'self' in args:
         args.remove('self')
 
