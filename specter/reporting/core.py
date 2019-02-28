@@ -146,6 +146,13 @@ class CaseFormatData(object):
                 separator,
             ])
 
+        # Add the actual exception on the last one
+        if formatted_tracebacks:
+            formatted_tracebacks[-1].extend([
+                f'- {tb["exception"]}',
+                separator,
+            ])
+
         return formatted_tracebacks or []
 
     @property
