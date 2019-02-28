@@ -91,6 +91,10 @@ async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
     if data.incomplete:
         return
 
+    # If we're executing a data-driven case we need to override the kwargs
+    if data.type == 'data-driven':
+        kwargs = data.data_kwargs
+
     await execute_method(spec.before_each, semaphore)
 
     data.start_time = time.time()

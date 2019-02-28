@@ -65,13 +65,55 @@ class DataSpec(Spec):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.cases = {}
+        self.cases = []
+
+        for test_func in super().__test_cases__:
+            extracted_func, base_metadata = utils.extract_metadata(test_func)
+
+            for name, data in self.DATASET.items():
+                args, meta = data, dict(base_metadata)
+
+                # Handle complex dataset item
+                if 'args' in data and 'meta' in data:
+                    args = data.get('args', {})
+                    meta.update(data.get('meta', {}))
+
+                # Extract name, args and duplicate function
+                func_name = '{0}_{1}'.format(extracted_func.__name__, name)
+                prefix, *_ = test_func.__qualname__.rpartition('.')
+
+                new_func = types.FunctionType(
+                    extracted_func.__code__,
+                    extracted_func.__globals__,
+                    func_name,
+                    extracted_func.__closure__,
+                )
+                new_func.__qualname__ = '{0}.{1}'.format(prefix, func_name)
+
+                kwargs = utils.get_function_kwargs(extracted_func, args)
+
+                case_data = get_case_data(new_func)
+                case_data.type = 'data-driven'
+                case_data.data_kwargs = kwargs
+
+                unbound_method = types.MethodType(new_func, self)
+
+                setattr(self, func_name, unbound_method)
+                self.cases.append(new_func)
+
+    @property
+    def __test_cases__(self):
+        return self.cases
+
+
 class TestCaseData(object):
     def __init__(self):
+        self.type = 'standard'
         self.incomplete = False
         self.skipped = False
         self.skip_reason = None
         self.metadata = {}
+        self.data_kwargs = {}
         self.start_time = 0
         self.end_time = 0
 
@@ -161,6 +203,7 @@ def spec_filter(cls, other):
         issubclass(other, Spec)
         and other is not cls
         and other is not Spec
+        and other is not DataSpec
     )
 
 
