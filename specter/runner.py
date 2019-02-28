@@ -5,6 +5,7 @@ from pike.manager import PikeManager
 
 from specter import logger, utils
 
+from specter.exceptions import FailedRequireException
 from specter.spec import get_case_data, Spec, spec_filter
 from specter.reporting.core import ReportManager
 from specter.reporting.pretty import PrettyRenderer
@@ -78,6 +79,9 @@ async def execute_method(method, semaphore, *args, **kwargs):
 
             log.debug('Finished: %s', method.__func__.__qualname__)
             return ret
+
+        except FailedRequireException:
+            pass
 
         except Exception as exc:
             # Get the tracebacks and attach them to the test case for

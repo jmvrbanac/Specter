@@ -4,6 +4,7 @@ import inspect
 
 from specter import utils
 from specter.spec import Spec
+from specter.exceptions import FailedRequireException
 
 
 class Expectation(object):
@@ -22,8 +23,7 @@ class Expectation(object):
     def _verify_condition(self, condition):
         self.success = condition if not self.used_negative else not condition
         if self.required and not self.success:
-            raise Exception()
-            # raise FailedRequireException()
+            raise FailedRequireException()
 
         return self.success
 
@@ -171,12 +171,12 @@ class Expectation(object):
 
 
 class Requirement(Expectation):
-    def __init__(self, target, required=True, *caller_args, **caller_kwargs):
+    def __init__(self, target, required=True, caller_args=None, caller_kwargs=None):
         super().__init__(
             target=target,
-            require=required,
-            *caller_args,
-            **caller_args,
+            required=required,
+            caller_args=caller_args,
+            caller_kwargs=caller_kwargs,
         )
         self.prefix = 'require'
 
