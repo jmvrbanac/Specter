@@ -140,7 +140,7 @@ class CaseFormatData(object):
             formatted = ['|  ' + line for line in tb['source']]
             formatted[-1] = f'->' + formatted[-1][2:]
             formatted_tracebacks.append([
-                f'- {filename}',
+                f'- {filename}:{tb["line"]}',
                 separator,
                 *formatted,
                 separator,
