@@ -110,6 +110,9 @@ class PrettyRenderer(object):
 
 
     def render_spec(self, spec, level=0):
+        if not has_tests_at_any_level(spec):
+            return
+
         print_indent(spec.name, level, color=get_spec_color(spec))
 
         for case in spec.cases:
@@ -181,3 +184,10 @@ class PrettyRenderer(object):
         print(f'Test Total      | {self.total}')
         print(f' - Expectations | {self.expectations}')
         print('------------------------')
+
+
+def has_tests_at_any_level(spec):
+    if len(spec.cases) > 0:
+        return True
+
+    return any([has_tests_at_any_level(child) for child in spec.specs])

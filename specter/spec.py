@@ -18,6 +18,11 @@ class Spec(object):
         self.parent = parent
         self.children = [child(parent=self) for child in find_children(self)]
         self.__expects__ = defaultdict(list)
+        self.__test_cases__ =  [
+            val
+            for key, val in type(self).__members__().items()
+            if case_filter(self, val)
+        ]
 
     @classmethod
     def __members__(cls):
@@ -30,14 +35,6 @@ class Spec(object):
         }
 
         return all_members
-
-    @property
-    def __test_cases__(self):
-        return [
-            val
-            for key, val in self.__members__().items()
-            if case_filter(self, val)
-        ]
 
     @classmethod
     def is_fixture(cls):
@@ -65,9 +62,9 @@ class DataSpec(Spec):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.cases = []
 
-        for test_func in super().__test_cases__:
+        cases = []
+        for test_func in self.__test_cases__:
             extracted_func, base_metadata = utils.extract_metadata(test_func)
 
             for name, data in self.DATASET.items():
@@ -99,11 +96,9 @@ class DataSpec(Spec):
                 unbound_method = types.MethodType(new_func, self)
 
                 setattr(self, func_name, unbound_method)
-                self.cases.append(new_func)
+                cases.append(new_func)
 
-    @property
-    def __test_cases__(self):
-        return self.cases
+        self.__test_cases__ = cases
 
 
 class TestCaseData(object):

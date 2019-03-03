@@ -21,7 +21,7 @@ class SpecterRunner(object):
         self.reporting = ReportManager()
         self.renderer = PrettyRenderer()
 
-    def run(self, search_paths, module_name=None):
+    def run(self, search_paths, module_name=None, metadata=None, test_names=None):
         loop = asyncio.get_event_loop()
 
         with PikeManager(search_paths) as mgr:
@@ -38,7 +38,7 @@ class SpecterRunner(object):
                 )
 
             future = asyncio.gather(*[
-                execute_spec(cls(), self.semaphore, self.reporting)
+                execute_spec(cls(), self.semaphore, self.reporting, test_names)
                 for cls in selected_modules
             ])
 
@@ -68,7 +68,7 @@ class SpecterRunner(object):
         return found
 
 
-async def execute_spec(spec, semaphore, reporting):
+async def execute_spec(spec, semaphore, reporting, test_names=None):
         reporting.track_spec(spec)
 
         test_semaphore = semaphore
@@ -79,12 +79,17 @@ async def execute_spec(spec, semaphore, reporting):
         if spec.__SPEC_CONCURRENCY__:
             spec_semaphore = spec.__SPEC_CONCURRENCY__
 
+        # I Don't really like messing with the test list after the fact.
+        # This should really get fixed at somepoint
+        if test_names:
+            spec.__test_cases__ = utils.find_by_names(test_names, spec.__test_cases__)
+
         test_futures = [
             execute_test_case(spec, func, test_semaphore, reporting)
             for func in spec.__test_cases__
         ]
         spec_futures = [
-            execute_spec(child, spec_semaphore, reporting)
+            execute_spec(child, spec_semaphore, reporting, test_names)
             for child in spec.children
         ]
 

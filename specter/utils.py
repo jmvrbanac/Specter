@@ -130,3 +130,11 @@ def get_function_kwargs(old_func, new_args):
     kwargs = dict(itertools.zip_longest(args[::-1], list(defaults or ())[::-1], fillvalue=None))
     kwargs.update(new_args)
     return kwargs
+
+
+def find_by_names(names, cases):
+    return [
+        case
+        for case in cases
+        if case.__name__ in names or snakecase_to_spaces(case.__name__) in names
+    ]
