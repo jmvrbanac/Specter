@@ -1,4 +1,5 @@
 import asyncio
+import itertools
 import time
 
 from pike.manager import PikeManager
@@ -20,14 +21,25 @@ class SpecterRunner(object):
         self.reporting = ReportManager()
         self.renderer = PrettyRenderer()
 
-    def run(self, search_paths):
+    def run(self, search_paths, module_name=None):
         loop = asyncio.get_event_loop()
 
         with PikeManager(search_paths) as mgr:
-            future = asyncio.gather(*[
-                execute_spec(cls(), self.semaphore, self.reporting)
+            selected_modules = [
+                cls
                 for cls in mgr.get_all_inherited_classes(Spec)
                 if spec_filter(Spec, cls)
+            ]
+
+            if module_name:
+                selected_modules = self.filter_by_module_name(
+                    selected_modules,
+                    module_name
+                )
+
+            future = asyncio.gather(*[
+                execute_spec(cls(), self.semaphore, self.reporting)
+                for cls in selected_modules
             ])
 
             loop.run_until_complete(future)
@@ -36,6 +48,24 @@ class SpecterRunner(object):
 
             report = self.reporting.build_report()
             self.renderer.render(report)
+
+    def filter_by_module_name(self, classes, name):
+        found = [
+            cls
+            for cls in classes
+            if name in '{}.{}'.format(cls.__module__, cls.__name__)
+        ]
+
+        # Only search children if the class cannot be found at the package lvl
+        if not found:
+            children = [cls.__get_all_child_describes__() for cls in classes]
+            found = [
+                cls
+                for cls in itertools.chain.from_iterable(children)
+                if name in '{}.{}'.format(cls.__module__, cls.__name__)
+            ]
+
+        return found
 
 
 async def execute_spec(spec, semaphore, reporting):

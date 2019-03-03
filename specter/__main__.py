@@ -5,9 +5,10 @@ Usage:
   specter [options]
 
 Options:
-  -h --help                   Show this screen.
-  -s --search=<search>        Search path for specifications [default: ./spec]
-  -c --concurrency=<ct>       The base concurrency level [default: 1]
+  -h --help                    Show this screen.
+  -s --search=<search>         Search path for specifications [default: ./spec]
+  -m --select-module=<module>  Selects a module path to run. Ex: sample.TestClass
+  -c --concurrency=<ct>        The base concurrency level [default: 1]
 """
 import os
 
@@ -26,4 +27,7 @@ def main(argv=None):
         return 1
 
     runner = SpecterRunner(concurrency)
-    runner.run([search_path])
+    runner.run(
+        search_paths=[search_path],
+        module_name=arguments['--select-module'],
+    )
