@@ -240,28 +240,30 @@ def get_module_and_line(use_child_attr=None):
     return None, None
 
 
-def expect(obj, *args, **kwargs):
+def expect(obj, caller_args=None, **kwargs):
     """Primary method for test assertions in Specter
 
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
+    :param **kwargs: Kwargs passed through to the function.
     """
-    line, module = get_module_and_line()
+    # line, module = get_module_and_line()
     # src_params = ExpectParams(line, module)
-    obj = Expectation(obj, caller_args=args, caller_kwargs=kwargs)
+    obj = Expectation(obj, caller_args=caller_args or [], caller_kwargs=kwargs)
     _add_expect_to_spec(obj)
     return obj
 
 
-def require(obj, *args, **kwargs):
+def require(obj, caller_args=None, **kwargs):
     """Primary method for test assertions in Specter
 
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
+    :param **kwargs: Kwargs passed through to the function.
     """
     # line, module = get_module_and_line('__spec__')
     # src_params = ExpectParams(line, module)
 
-    obj = Requirement(obj, caller_args=args, caller_kwargs=kwargs)
+    obj = Requirement(obj, caller_args=caller_args or [], caller_kwargs=kwargs)
     _add_expect_to_spec(obj)
     return obj
