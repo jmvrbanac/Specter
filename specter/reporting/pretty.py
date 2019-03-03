@@ -80,7 +80,7 @@ def get_expect_color(expect):
 
 
 class PrettyRenderer(object):
-    def __init__(self):
+    def __init__(self, reporting_options=None):
         self.total = 0
         self.passed = 0
         self.skipped = 0
@@ -88,6 +88,7 @@ class PrettyRenderer(object):
         self.errored = 0
         self.incomplete = 0
         self.expectations = 0
+        self.reporting_options = reporting_options or {}
 
     def count_case(self, case):
         self.total += 1
@@ -137,13 +138,14 @@ class PrettyRenderer(object):
                 color=get_case_color(case)
             )
 
-            for expect in case.expects:
-                mark = UNICODE_CHECK if expect.success else UNICODE_X
-                print_indent(
-                    f'{UNICODE_SEP} {mark} {expect.evaluation}',
-                    level+2,
-                    color=get_expect_color(expect)
-                )
+            if self.reporting_options.get('show_all_expects'):
+                for expect in case.expects:
+                    mark = UNICODE_CHECK if expect.success else UNICODE_X
+                    print_indent(
+                        f'{UNICODE_SEP} {mark} {expect.evaluation}',
+                        level+2,
+                        color=get_expect_color(expect)
+                    )
 
             if errors:
                 print_indent('')

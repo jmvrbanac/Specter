@@ -25,7 +25,12 @@ def main(argv=None):
             ]
         }
 
-    runner = SpecterRunner(concurrency)
+    runner = SpecterRunner(
+        reporting_options={
+            'show_all_expects': arguments.show_all_expects,
+        },
+        concurrency=concurrency,
+    )
     runner.run(
         search_paths=[search_path],
         module_name=arguments.select_module,
@@ -78,5 +83,12 @@ def setup_argparse():
         metavar='',
         help='The base concurrency level',
         default=1,
+    )
+
+    parser.add_argument(
+        '--show-all-expects',
+        dest='show_all_expects',
+        action='store_true',
+        help='Displays all expectations for test cases',
     )
     return parser

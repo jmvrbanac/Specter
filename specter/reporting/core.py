@@ -3,9 +3,10 @@ from specter.spec import get_case_data
 
 
 class ReportManager(object):
-    def __init__(self):
+    def __init__(self, reporting_options=None):
         self.version = '2.0'
         self.specs = {}
+        self.reporting_options = reporting_options or {}
 
     @property
     def parent_specs(self):

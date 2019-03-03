@@ -16,10 +16,10 @@ log = logger.get(__name__)
 
 
 class SpecterRunner(object):
-    def __init__(self, concurrency=1):
+    def __init__(self, reporting_options=None, concurrency=1):
         self.semaphore = asyncio.Semaphore(concurrency)
-        self.reporting = ReportManager()
-        self.renderer = PrettyRenderer()
+        self.reporting = ReportManager(reporting_options)
+        self.renderer = PrettyRenderer(reporting_options)
 
     def run(self, search_paths, module_name=None, metadata=None, test_names=None):
         loop = asyncio.get_event_loop()
