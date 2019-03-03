@@ -138,3 +138,21 @@ def find_by_names(names, cases):
         for case in cases
         if case.__name__ in names or snakecase_to_spaces(case.__name__) in names
     ]
+
+
+def find_by_metadata(metadata, cases):
+    selected_cases = []
+
+    for case in cases:
+        data = getattr(case, '__specter__', None)
+
+        if not data or not data.metadata:
+            continue
+
+        matched_keys = set(metadata.keys()) & set(data.metadata.keys())
+
+        for key in matched_keys:
+            if metadata.get(key) == data.metadata.get(key):
+                selected_cases.append(case)
+
+    return selected_cases
