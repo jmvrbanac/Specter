@@ -86,18 +86,20 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
         if metadata:
             spec.__test_cases__ = utils.find_by_metadata(metadata, spec.__test_cases__)
 
+        await execute_method(spec.before_all, semaphore)
+
         test_futures = [
             execute_test_case(spec, func, test_semaphore, reporting)
             for func in spec.__test_cases__
         ]
+        await asyncio.gather(*test_futures)
+
         spec_futures = [
             execute_spec(child, spec_semaphore, reporting, metadata, test_names)
             for child in spec.children
         ]
-
-        await execute_method(spec.before_all, semaphore)
-        await asyncio.gather(*test_futures)
         await asyncio.gather(*spec_futures)
+
         await execute_method(spec.after_all, semaphore)
 
 
