@@ -8,6 +8,7 @@ from specter import logger, utils
 
 
 class Spec(object):
+    DATASET = {}
     __FIXTURE__ = False
     __CASE_CONCURRENCY__ = None
     __SPEC_CONCURRENCY__ = None
@@ -24,45 +25,10 @@ class Spec(object):
             if case_filter(self, val)
         ]
 
-    @classmethod
-    def __members__(cls):
-        classes = list(cls.__bases__) + [cls]
+        if self.DATASET:
+            self.__build_data_spec__()
 
-        all_members = {
-            name: value
-            for klass in classes
-            for name, value in vars(klass).items()
-        }
-
-        return all_members
-
-    @classmethod
-    def is_fixture(cls):
-        return vars(cls).get('__FIXTURE__') is True
-
-    @utils.tag_as_inherited
-    async def before_all(self):
-        pass
-
-    @utils.tag_as_inherited
-    async def before_each(self):
-        pass
-
-    @utils.tag_as_inherited
-    async def after_each(self):
-        pass
-
-    @utils.tag_as_inherited
-    async def after_all(self):
-        pass
-
-
-class DataSpec(Spec):
-    DATASET = {}
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-
+    def __build_data_spec__(self):
         cases = []
         for test_func in self.__test_cases__:
             extracted_func, base_metadata = utils.extract_metadata(test_func)
@@ -99,6 +65,42 @@ class DataSpec(Spec):
                 cases.append(new_func)
 
         self.__test_cases__ = cases
+
+    @classmethod
+    def __members__(cls):
+        classes = list(cls.__bases__) + [cls]
+
+        all_members = {
+            name: value
+            for klass in classes
+            for name, value in vars(klass).items()
+        }
+
+        return all_members
+
+    @classmethod
+    def is_fixture(cls):
+        return vars(cls).get('__FIXTURE__') is True
+
+    @utils.tag_as_inherited
+    async def before_all(self):
+        pass
+
+    @utils.tag_as_inherited
+    async def before_each(self):
+        pass
+
+    @utils.tag_as_inherited
+    async def after_each(self):
+        pass
+
+    @utils.tag_as_inherited
+    async def after_all(self):
+        pass
+
+
+class DataSpec(Spec):
+    pass
 
 
 class TestCaseData(object):
