@@ -192,15 +192,27 @@ def _add_expect_to_spec(instance):
     """Walks the stack back until it gets to a Spec and adds the expectation"""
     try:
         spec, frame = _find_last_spec()
+
         # HACK(jmvrbanac): Oooo this is nasty!
-        func = frame.f_back.f_locals['method'].__func__
-        spec.__expects__[func].append(instance)
+        max_depth = 50
+        depth = 0
+        stack_frame = frame.f_back
+        while stack_frame and depth < max_depth:
+            has_name = stack_frame.f_code.co_name == 'execute_method'
+            is_right_file = 'runner.py' in stack_frame.f_code.co_filename
+
+            if has_name and is_right_file:
+                func = stack_frame.f_locals['method'].__func__
+                spec.__expects__[func].append(instance)
+                break
+
+            stack_frame = stack_frame.f_back
+            depth += 1
 
     except Exception as error:
         raise Exception(
             f'Error attempting to add expect to parent Spec: {error}'
         )
-
 
 
 def _get_closest_expression(line, tree):
