@@ -19,7 +19,7 @@ class SpecterRunner(object):
     def __init__(self, reporting_options=None, concurrency=1):
         self.semaphore = asyncio.Semaphore(concurrency)
         self.reporting = ReportManager(reporting_options)
-        self.renderer = PrettyRenderer(reporting_options)
+        self.renderer = PrettyRenderer(self.reporting, reporting_options)
 
     def run(self, search_paths, module_name=None, metadata=None, test_names=None):
         loop = asyncio.get_event_loop()
@@ -86,7 +86,9 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
         if metadata:
             spec.__test_cases__ = utils.find_by_metadata(metadata, spec.__test_cases__)
 
-        await execute_method(spec.before_all, semaphore)
+        successful = await execute_method(spec.before_all, semaphore)
+        if successful is False:
+            return
 
         test_futures = [
             execute_test_case(spec, func, test_semaphore, reporting)
@@ -128,6 +130,10 @@ async def execute_method(method, semaphore, *args, **kwargs):
             tracebacks = utils.get_tracebacks(exc)
             method.__func__.__tracebacks__ = tracebacks
 
+            return False
+
+    return True
+
 
 async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
     data = get_case_data(case)
@@ -138,7 +144,9 @@ async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
     if data.type == 'data-driven':
         kwargs = data.data_kwargs
 
-    await execute_method(spec.before_each, semaphore)
+    successful = await execute_method(spec.before_each, semaphore)
+    if successful is False:
+        return
 
     data.start_time = time.time()
     await execute_method(getattr(spec, case.__name__), semaphore, *args, **kwargs)

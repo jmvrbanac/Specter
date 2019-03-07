@@ -5,6 +5,7 @@ import colored
 
 from specter import logger, utils
 from specter.spec import get_case_data
+from specter.reporting.core import CaseFormatData
 
 log = logger.get(__name__)
 
@@ -80,7 +81,8 @@ def get_expect_color(expect):
 
 
 class PrettyRenderer(object):
-    def __init__(self, reporting_options=None):
+    def __init__(self, manager, reporting_options=None):
+        self.manager = manager
         self.total = 0
         self.passed = 0
         self.skipped = 0
@@ -116,7 +118,20 @@ class PrettyRenderer(object):
 
         print_indent(spec.name, level, color=get_spec_color(spec))
 
+        before_all_tracebacks = getattr(spec._spec.before_all, '__tracebacks__', None)
+        if before_all_tracebacks:
+            data = CaseFormatData(spec._spec, spec._spec.before_all)
+            print_errors(data.errors, level, 'Traceback occurred running before_all')
+
         for case in spec.cases:
+            before_each_tracebacks = getattr(spec._spec.before_each, '__tracebacks__', None)
+            if before_each_tracebacks:
+                data = CaseFormatData(spec._spec, spec._spec.before_each)
+                print_errors(data.errors, level, 'Traceback occurred running before_each')
+
+            if case._case not in self.manager.executed_cases:
+                continue
+
             self.count_case(case)
             errors = case.errors
             mark = UNICODE_CHECK
@@ -148,29 +163,20 @@ class PrettyRenderer(object):
                     )
 
             if errors:
-                print_indent('')
-                print_indent(
-                    'Traceback occurred during execution',
-                    level+2,
-                    color=fail
-                )
-                print_indent(
-                    '-' * 40,
-                    level+2,
-                    color=fail
-                )
+                print_errors(errors, level)
 
-            for error in errors:
-                for line in error:
-                    print_indent(
-                        line,
-                        level+2,
-                        color=fail
-                    )
+            after_each_tracebacks = getattr(spec._spec.after_each, '__tracebacks__', None)
+            if after_each_tracebacks:
+                data = CaseFormatData(spec._spec, spec._spec.after_each)
+                print_errors(data.errors, level, 'Traceback occurred running after_each')
 
-        print_indent('', level)
-        for spec in spec.specs:
-            self.render_spec(spec, level+1)
+        for child_spec in spec.specs:
+            self.render_spec(child_spec, level+1)
+
+        after_all_tracebacks = getattr(spec._spec.after_all, '__tracebacks__', None)
+        if after_all_tracebacks:
+            data = CaseFormatData(spec._spec, spec._spec.after_all)
+            print_errors(data.errors, level, 'Traceback occurred running after_all')
 
     def render(self, report):
         for spec in report:
@@ -193,3 +199,25 @@ def has_tests_at_any_level(spec):
         return True
 
     return any([has_tests_at_any_level(child) for child in spec.specs])
+
+
+def print_errors(errors, level, msg=None):
+    print_indent('')
+    print_indent(
+        msg or 'Traceback occurred during execution',
+        level+2,
+        color=fail
+    )
+    print_indent(
+        '-' * 40,
+        level+2,
+        color=fail
+    )
+
+    for error in errors:
+        for line in error:
+            print_indent(
+                line,
+                level+2,
+                color=fail
+            )
