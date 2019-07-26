@@ -138,6 +138,7 @@ async def execute_method(method, semaphore, *args, **kwargs):
 async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
     data = get_case_data(case)
     if data.incomplete:
+        reporting.case_finished(spec, case)
         return
 
     # If we're executing a data-driven case we need to override the kwargs
