@@ -118,14 +118,12 @@ class PrettyRenderer(object):
 
         print_indent(spec.name, level, color=get_spec_color(spec))
 
-        before_all_tracebacks = getattr(spec._spec.before_all, '__tracebacks__', None)
-        if before_all_tracebacks:
+        if getattr(spec._spec.before_all, '__tracebacks__', None):
             data = CaseFormatData(spec._spec, spec._spec.before_all)
             print_errors(data.errors, level, 'Traceback occurred running before_all')
 
         for case in spec.cases:
-            before_each_tracebacks = getattr(spec._spec.before_each, '__tracebacks__', None)
-            if before_each_tracebacks:
+            if getattr(spec._spec.before_each, '__tracebacks__', None):
                 data = CaseFormatData(spec._spec, spec._spec.before_each)
                 print_errors(data.errors, level, 'Traceback occurred running before_each')
 
@@ -165,16 +163,14 @@ class PrettyRenderer(object):
             if errors:
                 print_errors(errors, level)
 
-            after_each_tracebacks = getattr(spec._spec.after_each, '__tracebacks__', None)
-            if after_each_tracebacks:
+            if getattr(spec._spec.after_each, '__tracebacks__', None):
                 data = CaseFormatData(spec._spec, spec._spec.after_each)
                 print_errors(data.errors, level, 'Traceback occurred running after_each')
 
         for child_spec in spec.specs:
             self.render_spec(child_spec, level+1)
 
-        after_all_tracebacks = getattr(spec._spec.after_all, '__tracebacks__', None)
-        if after_all_tracebacks:
+        if getattr(spec._spec.after_all, '__tracebacks__', None):
             data = CaseFormatData(spec._spec, spec._spec.after_all)
             print_errors(data.errors, level, 'Traceback occurred running after_all')
 
