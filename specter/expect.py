@@ -14,6 +14,7 @@ class Expectation(object):
         self.used_negative = False
         self.target = target
         self.required = required
+        self.expected = None
         self.actions = [target]
         self.caller_args = caller_args
         self.caller_kwargs = caller_kwargs
