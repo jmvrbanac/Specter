@@ -5,10 +5,12 @@ import inspect
 from specter import utils
 from specter.spec import Spec
 from specter.exceptions import FailedRequireException
+from specter.vendor.ast_decompiler import decompile
 
 
 class Expectation(object):
-    def __init__(self, target, required=False, caller_args=None, caller_kwargs=None):
+    def __init__(self, target, required=False, caller_args=None, caller_kwargs=None,
+                 src_params=None):
         self.prefix = 'expect'
         self.success = False
         self.used_negative = False
@@ -20,6 +22,7 @@ class Expectation(object):
         self.caller_kwargs = caller_kwargs
         self.custom_msg = None
         self.custom_report_vars = {}
+        self.src_params = src_params
 
     def _verify_condition(self, condition):
         self.success = condition if not self.used_negative else not condition
@@ -35,9 +38,20 @@ class Expectation(object):
 
     def __str__(self):
         action_list = copy.copy(self.actions)
-        action_list[-1] = str(self.expected)
+        action_list[0] = self.target_src_param or str(self.target)
+        action_list[-1] = self.expected_src_param or str(self.expected)
 
         return ' '.join([str(action) for action in action_list])
+
+    @property
+    def target_src_param(self):
+        if self.src_params and self.src_params.expect_arg:
+            return self.src_params.expect_arg
+
+    @property
+    def expected_src_param(self):
+        if self.src_params and self.src_params.cmp_arg:
+            return self.src_params.cmp_arg
 
     @property
     def not_to(self):
@@ -172,12 +186,14 @@ class Expectation(object):
 
 
 class Requirement(Expectation):
-    def __init__(self, target, required=True, caller_args=None, caller_kwargs=None):
+    def __init__(self, target, required=True, caller_args=None, caller_kwargs=None,
+                 src_params=None):
         super().__init__(
             target=target,
             required=required,
             caller_args=caller_args,
             caller_kwargs=caller_kwargs,
+            src_params=src_params,
         )
         self.prefix = 'require'
 
@@ -236,21 +252,14 @@ def _get_closest_expression(line, tree):
     return expect_exp or closest_exp
 
 
-def get_module_and_line(use_child_attr=None):
+def get_expect_params():
     spec, frame = _find_last_spec()
     source_filename = frame.f_code.co_filename
     func = getattr(spec, frame.f_code.co_name)
     source, node = utils.load_source_and_ast(source_filename)
 
-    # expr_node = _get_closest_expression(frame.f_lineno, node)
-    # expr = ExpectExpression(expr_node)
-
-    #  = astor.parse_file(source_filename)
-    # last_frame = inspect.currentframe()
-    # test_case_frame = last_frame.f_back.f_back
-
-    # import pdb; pdb.set_trace()
-    return None, None
+    expr_node = _get_closest_expression(frame.f_lineno, node)
+    return ExpectParams(expr_node)
 
 
 def expect(obj, caller_args=None, **kwargs):
@@ -260,9 +269,13 @@ def expect(obj, caller_args=None, **kwargs):
     :param caller_args: Is only used when using expecting a raised Exception
     :param **kwargs: Kwargs passed through to the function.
     """
-    # line, module = get_module_and_line()
-    # src_params = ExpectParams(line, module)
-    obj = Expectation(obj, caller_args=caller_args or [], caller_kwargs=kwargs)
+    src_params = get_expect_params()
+    obj = Expectation(
+        obj,
+        caller_args=caller_args or [],
+        caller_kwargs=kwargs,
+        src_params=src_params,
+    )
     _add_expect_to_spec(obj)
     return obj
 
@@ -274,9 +287,61 @@ def require(obj, caller_args=None, **kwargs):
     :param caller_args: Is only used when using expecting a raised Exception
     :param **kwargs: Kwargs passed through to the function.
     """
-    # line, module = get_module_and_line('__spec__')
-    # src_params = ExpectParams(line, module)
-
-    obj = Requirement(obj, caller_args=caller_args or [], caller_kwargs=kwargs)
+    src_params = get_expect_params()
+    obj = Requirement(
+        obj,
+        caller_args=caller_args or [],
+        caller_kwargs=kwargs,
+        src_params=src_params,
+    )
     _add_expect_to_spec(obj)
     return obj
+
+
+class ExpectParams(object):
+    types_with_args = [
+        'equal',
+        'almost_equal',
+        'be_greater_than',
+        'be_less_than',
+        'be_almost_equal',
+        'be_a',
+        'be_an_instance_of',
+        'be_in',
+        'contain',
+        'raise_a'
+    ]
+
+    def __init__(self, expr):
+        self.expect_exp = expr
+
+    @property
+    def cmp_call(self):
+        if self.expect_exp:
+            return self.expect_exp.value
+
+    @property
+    def expect_call(self):
+        if self.cmp_call:
+            return self.cmp_call.func.value.value
+
+    @property
+    def cmp_type(self):
+        if self.cmp_call:
+            return self.cmp_call.func.attr
+
+    @property
+    def cmp_arg(self):
+        arg = None
+        if self.cmp_type in self.types_with_args:
+            arg = decompile(self.cmp_call.args[0])
+        return arg
+
+    @property
+    def expect_type(self):
+        return self.expect_call.func.id
+
+    @property
+    def expect_arg(self):
+        if self.expect_call:
+            return decompile(self.expect_call.args[0])
