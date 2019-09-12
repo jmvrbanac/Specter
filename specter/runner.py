@@ -7,7 +7,7 @@ from pike.manager import PikeManager
 from specter import logger, utils
 
 from specter.exceptions import FailedRequireException
-from specter.spec import get_case_data, Spec, spec_filter
+from specter.spec import get_case_data, Spec, spec_filter, find_children
 from specter.reporting.core import ReportManager
 from specter.reporting.pretty import PrettyRenderer
 
@@ -37,10 +37,24 @@ class SpecterRunner(object):
                     module_name
                 )
 
-            future = asyncio.gather(*[
-                execute_spec(cls(), self.semaphore, self.reporting, metadata, test_names)
-                for cls in selected_modules
-            ])
+            coroutines = []
+            for cls in selected_modules:
+                exc_func = execute_spec
+                spec = cls()
+
+                if spec.__parent_cls__:
+                    exc_func = execute_nested_spec
+
+                coroutines.append(
+                    exc_func(spec, self.semaphore, self.reporting, metadata, test_names)
+                )
+
+            future = asyncio.gather(*coroutines)
+
+            # future = asyncio.gather(*[
+            #     execute_spec(cls(), self.semaphore, self.reporting, metadata, test_names)
+            #     for cls in selected_modules
+            # ])
 
             loop.run_until_complete(future)
             print('\n', flush=True)
@@ -58,7 +72,7 @@ class SpecterRunner(object):
 
         # Only search children if the class cannot be found at the package lvl
         if not found:
-            children = [cls.__get_all_child_describes__() for cls in classes]
+            children = [find_children(cls) for cls in classes]
             found = [
                 cls
                 for cls in itertools.chain.from_iterable(children)
@@ -68,41 +82,80 @@ class SpecterRunner(object):
         return found
 
 
-async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=None):
-        reporting.track_spec(spec)
+async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_names=None):
+    parents = []
+    cls = spec.__parent_cls__
+    last = None
 
-        test_semaphore = semaphore
-        spec_semaphore = semaphore
+    while cls:
+        parent = cls(parent=last)
+        last = parent
 
-        if spec.__CASE_CONCURRENCY__:
-            test_semaphore = spec.__CASE_CONCURRENCY__
-        if spec.__SPEC_CONCURRENCY__:
-            spec_semaphore = spec.__SPEC_CONCURRENCY__
+        parents.append(parent)
+        cls = parent.__parent_cls__
 
-        # I Don't really like messing with the test list after the fact.
-        # This should really get fixed at somepoint
-        if test_names:
-            spec.__test_cases__ = utils.find_by_names(test_names, spec.__test_cases__)
-        if metadata:
-            spec.__test_cases__ = utils.find_by_metadata(metadata, spec.__test_cases__)
 
-        successful = await execute_method(spec.before_all, semaphore)
+    # Walk up the tree to setup specs
+    parents.reverse()
+    last = None
+    for parent in parents:
+        successful = await setup_spec(parent, semaphore, reporting)
         if successful is False:
             return
+        last = parent
 
-        test_futures = [
-            execute_test_case(spec, func, test_semaphore, reporting)
-            for func in spec.__test_cases__
-        ]
-        await asyncio.gather(*test_futures)
+    # Execute the nested spec
+    spec.parent = last
+    await execute_spec(spec, semaphore, reporting, metadata=metadata, test_names=test_names)
 
-        spec_futures = [
-            execute_spec(child, spec_semaphore, reporting, metadata, test_names)
-            for child in spec.children
-        ]
-        await asyncio.gather(*spec_futures)
+    # Walk down the tree to setup specs
+    parents.reverse()
+    for parent in parents:
+        await teardown_spec(parent, semaphore)
 
-        await execute_method(spec.after_all, semaphore)
+
+async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=None):
+    test_semaphore = semaphore
+    spec_semaphore = semaphore
+
+    if spec.__CASE_CONCURRENCY__:
+        test_semaphore = spec.__CASE_CONCURRENCY__
+    if spec.__SPEC_CONCURRENCY__:
+        spec_semaphore = spec.__SPEC_CONCURRENCY__
+
+    # I Don't really like messing with the test list after the fact.
+    # This should really get fixed at somepoint
+    if test_names:
+        spec.__test_cases__ = utils.find_by_names(test_names, spec.__test_cases__)
+    if metadata:
+        spec.__test_cases__ = utils.find_by_metadata(metadata, spec.__test_cases__)
+
+    successful = await setup_spec(spec, semaphore, reporting)
+    if successful is False:
+        return
+
+    test_futures = [
+        execute_test_case(spec, func, test_semaphore, reporting)
+        for func in spec.__test_cases__
+    ]
+    await asyncio.gather(*test_futures)
+
+    spec_futures = [
+        execute_spec(child, spec_semaphore, reporting, metadata, test_names)
+        for child in spec.children
+    ]
+    await asyncio.gather(*spec_futures)
+
+    await teardown_spec(spec, semaphore)
+
+
+async def setup_spec(spec, semaphore, reporting):
+    reporting.track_spec(spec)
+    return await execute_method(spec.before_all, semaphore)
+
+
+async def teardown_spec(spec, semaphore):
+    return await execute_method(spec.after_all, semaphore)
 
 
 async def execute_method(method, semaphore, *args, **kwargs):

@@ -9,6 +9,7 @@ from specter import logger, utils
 
 class Spec(object):
     DATASET = {}
+    __parent_cls__ = None
     __FIXTURE__ = False
     __CASE_CONCURRENCY__ = None
     __SPEC_CONCURRENCY__ = None
@@ -27,6 +28,14 @@ class Spec(object):
 
         if self.DATASET:
             self.__build_data_spec__()
+
+    @classmethod
+    def get_parent_class_name(cls):
+        parents = cls.__qualname__.split('.')[:-1]
+        if not parents:
+            return
+
+        return parents[-1]
 
     def __build_data_spec__(self):
         cases = []
@@ -74,7 +83,13 @@ class Spec(object):
             name: value
             for klass in classes
             for name, value in vars(klass).items()
+            if name not in ['__parent_cls__']
         }
+
+        # Add parent class references
+        for name, value in all_members.items():
+            if isinstance(value, type) and issubclass(value, Spec):
+                all_members[name].__parent_cls__ = cls
 
         return all_members
 
@@ -205,11 +220,13 @@ def spec_filter(cls, other):
 
 
 def find_children(cls):
-    return [
+    children = [
         val
         for key, val in cls.__members__().items()
         if spec_filter(cls, val)
     ]
+
+    return children
 
 
 def fixture(cls):

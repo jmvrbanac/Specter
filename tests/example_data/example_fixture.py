@@ -1,5 +1,5 @@
-from specter.spec import Spec, fixture
-from specter.expect import expect
+from specter import Spec, fixture
+from specter import expect
 
 
 @fixture
