@@ -37,24 +37,25 @@ class SpecterRunner(object):
                     module_name
                 )
 
-            coroutines = []
-            for cls in selected_modules:
-                exc_func = execute_spec
-                spec = cls()
+            #TODO(jmvrbanac): Change how nested specs are executed
+            # coroutines = []
+            # for cls in selected_modules:
+            #     exc_func = execute_spec
+            #     spec = cls()
 
-                if spec.__parent_cls__:
-                    exc_func = execute_nested_spec
+            #     if spec.__parent_cls__:
+            #         exc_func = execute_nested_spec
 
-                coroutines.append(
-                    exc_func(spec, self.semaphore, self.reporting, metadata, test_names)
-                )
+            #     coroutines.append(
+            #         exc_func(spec, self.semaphore, self.reporting, metadata, test_names)
+            #     )
 
-            future = asyncio.gather(*coroutines)
+            # future = asyncio.gather(*coroutines)
 
-            # future = asyncio.gather(*[
-            #     execute_spec(cls(), self.semaphore, self.reporting, metadata, test_names)
-            #     for cls in selected_modules
-            # ])
+            future = asyncio.gather(*[
+                execute_spec(cls(), self.semaphore, self.reporting, metadata, test_names)
+                for cls in selected_modules
+            ])
 
             loop.run_until_complete(future)
             print('\n', flush=True)
