@@ -11,6 +11,7 @@ log = logger.get(__name__)
 
 UNICODE_SKIP = u'\u2607'
 UNICODE_SEP = u'\u221F'
+UNICODE_ARROWS = u'\u00BB'
 UNICODE_CHECK = u'\u2713'
 UNICODE_X = u'\u2717'
 ASCII_SEP = '-'
@@ -155,7 +156,7 @@ class PrettyRenderer(object):
                 for expect in case.expects:
                     mark = UNICODE_CHECK if expect.success else UNICODE_X
                     print_indent(
-                        f'{UNICODE_SEP} {mark} {expect.evaluation}',
+                        f'{UNICODE_ARROWS} {mark} {expect.evaluation}',
                         level+2,
                         color=get_expect_color(expect)
                     )
