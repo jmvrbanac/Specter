@@ -253,12 +253,14 @@ def _get_closest_expression(line, tree):
 
 
 def get_expect_params():
-    spec, frame = _find_last_spec()
-    source_filename = frame.f_code.co_filename
-    func = getattr(spec, frame.f_code.co_name)
+    expect_stack_info = inspect.stack()[2]
+    expect_frame = expect_stack_info.frame
+    spec, _ = _find_last_spec()
+
+    source_filename = expect_frame.f_code.co_filename
     source, node = utils.load_source_and_ast(source_filename)
 
-    expr_node = _get_closest_expression(frame.f_lineno, node)
+    expr_node = _get_closest_expression(expect_frame.f_lineno, node)
     return ExpectParams(expr_node)
 
 
