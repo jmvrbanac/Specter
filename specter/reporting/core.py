@@ -193,9 +193,29 @@ class ExpectFormatData(object):
         return self._expect.success
 
     @property
+    def target(self):
+        return self._expect.target
+
+    @property
+    def expected(self):
+        return self._expect.expected
+
+    @property
+    def target_name(self):
+        return self._expect.src_params.expect_arg
+
+    @property
+    def expected_name(self):
+        return self._expect.src_params.cmp_arg
+
+    @property
     def as_dict(self):
         return {
             'evaluation': self.evaluation,
             'required': self.required,
             'success': self.success,
+            'target': self.target,
+            'target_name': self.target_name,
+            'expected': self.expected,
+            'expected_name': self.expected_name,
         }

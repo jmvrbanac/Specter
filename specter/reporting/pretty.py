@@ -11,7 +11,8 @@ log = logger.get(__name__)
 
 UNICODE_SKIP = u'\u2607'
 UNICODE_SEP = u'\u221F'
-UNICODE_ARROWS = u'\u00BB'
+UNICODE_CORNER_ARROW = u'\u2198'
+UNICODE_CORNER_ARROW_BAR = u'\u21F2'
 UNICODE_CHECK = u'\u2713'
 UNICODE_X = u'\u2717'
 ASCII_SEP = '-'
@@ -155,11 +156,28 @@ class PrettyRenderer(object):
             if self.reporting_options.get('show_all_expects'):
                 for expect in case.expects:
                     mark = UNICODE_CHECK if expect.success else UNICODE_X
+                    arrow = UNICODE_CORNER_ARROW_BAR if expect.required else UNICODE_CORNER_ARROW
+
                     print_indent(
-                        f'{UNICODE_ARROWS} {mark} {expect.evaluation}',
+                        f'{arrow} {mark} {expect.evaluation}',
                         level+2,
                         color=get_expect_color(expect)
                     )
+                    if not expect.success:
+                        print_indent('Values:', level+3, color=get_expect_color(expect))
+                        print_indent('-------', level+3, color=get_expect_color(expect))
+                        print_indent(
+                            f'| {expect.target_name}: {expect.target}',
+                            level+3,
+                            color=get_expect_color(expect)
+                        )
+
+                        if str(expect.expected_name) != str(expect.expected):
+                            print_indent(
+                                f'| {expect.expected_name}: {expect.expected}',
+                                level+3,
+                                color=get_expect_color(expect)
+                            )
 
             if errors:
                 print_errors(errors, level)
