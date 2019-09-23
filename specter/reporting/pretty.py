@@ -1,18 +1,16 @@
 import sys
-import textwrap
 
 import colored
 
-from specter import logger, utils
-from specter.spec import get_case_data
+from specter import logger
 from specter.reporting.core import CaseFormatData
 
 log = logger.get(__name__)
 
 UNICODE_SKIP = u'\u2607'
 UNICODE_SEP = u'\u221F'
-UNICODE_CORNER_ARROW = u'\u2198'
-UNICODE_CORNER_ARROW_BAR = u'\u21F2'
+UNICODE_ARROW = u'\u2192'
+UNICODE_ARROW_BAR = u'\u219B'
 UNICODE_CHECK = u'\u2713'
 UNICODE_X = u'\u2717'
 ASCII_SEP = '-'
@@ -113,7 +111,6 @@ class PrettyRenderer(object):
         elif case.successful:
             self.passed += 1
 
-
     def render_spec(self, spec, level=0):
         if not has_tests_at_any_level(spec):
             return
@@ -149,26 +146,26 @@ class PrettyRenderer(object):
 
             print_indent(
                 f'{UNICODE_SEP} {mark} {case.name}{skip_reason}',
-                level+1,
+                level + 1,
                 color=get_case_color(case)
             )
 
             if self.reporting_options.get('show_all_expects'):
                 for expect in case.expects:
                     mark = UNICODE_CHECK if expect.success else UNICODE_X
-                    arrow = UNICODE_CORNER_ARROW_BAR if expect.required else UNICODE_CORNER_ARROW
+                    arrow = UNICODE_ARROW_BAR if expect.required else UNICODE_ARROW
 
                     print_indent(
                         f'{arrow} {mark} {expect.evaluation}',
-                        level+2,
+                        level + 2,
                         color=get_expect_color(expect)
                     )
                     if not expect.success:
-                        print_indent('Values:', level+3, color=get_expect_color(expect))
-                        print_indent('-------', level+3, color=get_expect_color(expect))
+                        print_indent('Values:', level + 3, color=get_expect_color(expect))
+                        print_indent('-------', level + 3, color=get_expect_color(expect))
                         print_indent(
                             f'| {expect.target_name}: {expect.target}',
-                            level+3,
+                            level + 3,
                             color=get_expect_color(expect)
                         )
 
