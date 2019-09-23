@@ -37,7 +37,7 @@ class SpecterRunner(object):
                     module_name
                 )
 
-            #TODO(jmvrbanac): Change how nested specs are executed
+            # TODO(jmvrbanac): Change how nested specs are executed
             # coroutines = []
             # for cls in selected_modules:
             #     exc_func = execute_spec
@@ -59,7 +59,6 @@ class SpecterRunner(object):
 
             loop.run_until_complete(future)
             print('\n', flush=True)
-
 
             report = self.reporting.build_report()
             self.renderer.render(report)
@@ -94,7 +93,6 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
 
         parents.append(parent)
         cls = parent.__parent_cls__
-
 
     # Walk up the tree to setup specs
     parents.reverse()

@@ -20,7 +20,7 @@ class Spec(object):
         self.parent = parent
         self.children = [child(parent=self) for child in find_children(self)]
         self.__expects__ = defaultdict(list)
-        self.__test_cases__ =  [
+        self.__test_cases__ = [
             val
             for key, val in type(self).__members__().items()
             if case_filter(self, val)

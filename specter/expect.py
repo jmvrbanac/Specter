@@ -2,10 +2,12 @@ import ast
 import copy
 import inspect
 
-from specter import utils
+from specter import logger, utils
 from specter.spec import Spec
 from specter.exceptions import FailedRequireException
 from specter.vendor.ast_decompiler import decompile
+
+log = logger.get(__name__)
 
 
 class Expectation(object):
@@ -229,7 +231,7 @@ def _add_expect_to_spec(instance):
     except Exception as error:
         raise Exception(
             f'Error attempting to add expect to parent Spec: {error}'
-        )
+        ) from error
 
 
 def _get_closest_expression(line, tree):
@@ -253,15 +255,19 @@ def _get_closest_expression(line, tree):
 
 
 def get_expect_params():
-    expect_stack_info = inspect.stack()[2]
+    stack = inspect.stack()
+    expect_stack_info = stack[2]
     expect_frame = expect_stack_info.frame
-    spec, _ = _find_last_spec()
+    try:
+        spec, _ = _find_last_spec()
 
-    source_filename = expect_frame.f_code.co_filename
-    source, node = utils.load_source_and_ast(source_filename)
+        source_filename = expect_frame.f_code.co_filename
+        source, node = utils.load_source_and_ast(source_filename)
 
-    expr_node = _get_closest_expression(expect_frame.f_lineno, node)
-    return ExpectParams(expr_node)
+        expr_node = _get_closest_expression(expect_frame.f_lineno, node)
+        return ExpectParams(expr_node)
+    except Exception:
+        log.debug('Failed to get expect params... suppressing')
 
 
 def expect(obj, caller_args=None, **kwargs):
@@ -278,7 +284,12 @@ def expect(obj, caller_args=None, **kwargs):
         caller_kwargs=kwargs,
         src_params=src_params,
     )
-    _add_expect_to_spec(obj)
+
+    try:
+        _add_expect_to_spec(obj)
+    except Exception:
+        log.debug('Failed to to add expect to spec... suppressing')
+
     return obj
 
 
@@ -296,7 +307,12 @@ def require(obj, caller_args=None, **kwargs):
         caller_kwargs=kwargs,
         src_params=src_params,
     )
-    _add_expect_to_spec(obj)
+
+    try:
+        _add_expect_to_spec(obj)
+    except Exception:
+        log.debug('Failed to to add require to spec... suppressing')
+
     return obj
 
 
