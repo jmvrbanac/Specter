@@ -8,6 +8,7 @@ class ReportManager(object):
         self.specs = {}
         self.executed_cases = {}
         self.reporting_options = reporting_options or {}
+        self.success = True
 
     @property
     def parent_specs(self):
@@ -28,6 +29,7 @@ class ReportManager(object):
 
         if not data.successful:
             indicator = 'F'
+            self.success = False
 
         elif data.skipped:
             indicator = 'S'

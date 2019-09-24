@@ -63,6 +63,8 @@ class SpecterRunner(object):
             report = self.reporting.build_report()
             self.renderer.render(report)
 
+        return self.reporting.success
+
     def filter_by_module_name(self, classes, name):
         found = [
             cls

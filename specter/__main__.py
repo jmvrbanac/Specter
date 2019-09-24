@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 
 from specter.runner import SpecterRunner
 
@@ -31,12 +32,15 @@ def main(argv=None):
         },
         concurrency=concurrency,
     )
-    runner.run(
+    success = runner.run(
         search_paths=[search_path],
         module_name=arguments.select_module,
         metadata=select_metadata,
         test_names=arguments.select_tests,
     )
+
+    if not success:
+        sys.exit(1)
 
 
 def setup_argparse():
