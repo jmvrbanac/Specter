@@ -3,6 +3,7 @@ import os
 import sys
 
 from specter.runner import SpecterRunner
+from specter.utils import translate_cli_argument
 
 
 def main(argv=None):
@@ -19,7 +20,7 @@ def main(argv=None):
 
     if arguments.select_metadata:
         select_metadata = {
-            key: value.strip('"\'')
+            key: translate_cli_argument(value.strip('"\''))
             for key, value in [
                 item.split('=')
                 for item in arguments.select_metadata
