@@ -9,6 +9,8 @@ from specter import logger
 log = logger.get(__name__)
 
 SOURCE_CACHE = {}
+TRUE_STRINGS = frozenset(['true', 'True'])
+FALSE_STRINGS = frozenset(['false', 'False'])
 
 
 def get_fullname(obj):
@@ -156,3 +158,15 @@ def find_by_metadata(metadata, cases):
                 selected_cases.append(case)
 
     return selected_cases
+
+
+def translate_cli_argument(argument):
+    converted = argument
+
+    if argument in TRUE_STRINGS:
+        converted = True
+
+    elif argument in FALSE_STRINGS:
+        converted = False
+
+    return converted
