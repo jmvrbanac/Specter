@@ -15,8 +15,16 @@ class XUnitRenderer(object):
         element = Element('testsuites')
 
         for spec in self.report:
-            test_suite = XUnitTestSuite(spec)
-            element.append(test_suite.convert_to_xml())
+            element = self.suite_tree(spec, element)
+
+        return element
+
+    def suite_tree(self, spec, element):
+        test_suite = XUnitTestSuite(spec)
+        element.append(test_suite.convert_to_xml())
+
+        for child_spec in spec.specs:
+            element = self.suite_tree(child_spec, element)
 
         return element
 
