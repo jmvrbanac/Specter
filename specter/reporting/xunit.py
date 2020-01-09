@@ -87,6 +87,9 @@ class XUnitTestSuite(object):
 class XUnitTestCase(object):
     def __init__(self, case):
         self.case = case
+        self.skipped_case = XUnitSkippedCase(self.case)
+        self.failure_case = XUnitFailureCase(self.case)
+        self.error_case = XUnitErrorCase(self.case)
 
     @property
     def name(self):
@@ -104,6 +107,53 @@ class XUnitTestCase(object):
         element = Element('testcase', {'name': self.name,
                                        'classname': self.classname,
                                        'time': self.time})
+
+        if self.skipped_case.has_skipped_case():
+            element.append(self.skipped_case.convert_to_xml())
+
+        if self.failure_case.has_failure_case():
+            element.append(self.failure_case.convert_to_xml())
+
+        if self.error_case.has_error_case():
+            element.append(self.error_case.convert_to_xml())
+
         return element
 
 
+class XUnitSkippedCase(object):
+    def __init__(self, case):
+        self.case = case
+
+    def has_skipped_case(self):
+        return self.case.skipped or self.case.incomplete
+
+    def convert_to_xml(self):
+        element = Element('skipped')
+        element.text = "SKIPPED REASON PLACEHOLDER"
+        return element
+
+
+class XUnitFailureCase(object):
+    def __init__(self, case):
+        self.case = case
+
+    def has_failure_case(self):
+        return not self.case.successful
+
+    def convert_to_xml(self):
+        element = Element('failure')
+        element.text = "FAILURE REASON PLACEHOLDER"
+        return element
+
+
+class XUnitErrorCase(object):
+    def __init__(self, case):
+        self.case = case
+
+    def has_error_case(self):
+        return self.case.errors
+
+    def convert_to_xml(self):
+        element = Element('error')
+        element.text = "ERROR REASON PLACEHOLDER"
+        return element
