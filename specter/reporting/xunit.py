@@ -112,7 +112,7 @@ class XUnitTestCase(object):
             element.append(self.skipped_case.convert_to_xml())
 
         if self.failure_case.has_failure_case:
-            element.append(self.failure_case.convert_to_xml())
+            element.extend(self.failure_case.convert_to_xml())
 
         if self.error_case.has_error_case:
             element.append(self.error_case.convert_to_xml())
@@ -148,10 +148,27 @@ class XUnitFailureCase(object):
     def has_failure_case(self):
         return not self.case.successful and not self.case.errors
 
+    def failure_message(self, expect):
+        return f'Failed: {expect.evaluation}'
+
+    def failure_body(self, expect):
+        return f"""
+        <![CDATA[
+        Target: {expect.target} : {expect.target_name}
+        Expected: {expect.expected} : {expect.expected_name}
+        ]]>
+        """
+
     def convert_to_xml(self):
-        element = Element('failure')
-        element.text = "FAILURE REASON PLACEHOLDER"
-        return element
+        elements = []
+
+        for expect in self.case.expects:
+            if not expect.success:
+                element = Element('failure', {'message': self.failure_message(expect)})
+                element.text = self.failure_body(expect)
+                elements.append(element)
+
+        return elements
 
 
 class XUnitErrorCase(object):
