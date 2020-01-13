@@ -1,6 +1,8 @@
 from specter import logger, utils
 from specter.spec import get_case_data
 
+log = logger.get(__name__)
+
 
 class ReportManager(object):
     def __init__(self, reporting_options=None):
@@ -145,8 +147,7 @@ class CaseFormatData(object):
     def successful(self):
         tracebacks = getattr(self._case, '__tracebacks__', [])
         return (
-            not tracebacks and
-            all(expect.success for expect in self.expects)
+            not tracebacks and all(expect.success for expect in self.expects)
         )
 
     @property
