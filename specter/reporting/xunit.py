@@ -148,10 +148,12 @@ class XUnitFailureCase(object):
     def has_failure_case(self):
         return not self.case.successful and not self.case.errors
 
-    def failure_message(self, expect):
+    @staticmethod
+    def failure_message(expect):
         return f'Failed: {expect.evaluation}'
 
-    def failure_body(self, expect):
+    @staticmethod
+    def failure_body(expect):
         return f"""
         <![CDATA[
         Target: {expect.target} : {expect.target_name}
@@ -179,7 +181,19 @@ class XUnitErrorCase(object):
     def has_error_case(self):
         return self.case.errors
 
+    @staticmethod
+    def error_message(errors):
+        all_errors = ''
+        for error in errors:
+            all_errors += '\n'.join(str(line) for line in error)
+
+        return f'''
+        <![CDATA[Traceback occurred during execution:
+        {all_errors}
+        ]]>
+        '''
+
     def convert_to_xml(self):
         element = Element('error')
-        element.text = "ERROR REASON PLACEHOLDER"
+        element.text = self.error_message(self.case.errors)
         return element
