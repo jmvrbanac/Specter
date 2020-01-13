@@ -101,6 +101,10 @@ class CaseFormatData(object):
         return self._case.__name__
 
     @property
+    def class_name(self):
+        return utils.pretty_class_name(str(self._spec.__class__))
+
+    @property
     def start(self):
         return get_case_data(self._case).start_time
 
@@ -167,6 +171,7 @@ class CaseFormatData(object):
         return {
             'name': self.name,
             'raw_name': self.raw_name,
+            'class_name': self.class_name,
             'start': self.start,
             'end': self.end,
             'success': self.successful,

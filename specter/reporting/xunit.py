@@ -97,7 +97,7 @@ class XUnitTestCase(object):
 
     @property
     def classname(self):
-        return "N/A"
+        return self.case.class_name
 
     @property
     def time(self):

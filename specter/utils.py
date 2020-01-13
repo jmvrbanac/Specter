@@ -104,6 +104,10 @@ def snakecase_to_spaces(value):
     return value.replace('_', ' ')
 
 
+def pretty_class_name(value):
+    return value.replace("<class '", '').replace("'>", '')
+
+
 def extract_metadata(case_func):
     # Handle metadata decorator
     metadata = {}
