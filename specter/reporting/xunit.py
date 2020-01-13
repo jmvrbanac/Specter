@@ -51,7 +51,7 @@ class XUnitTestSuite(object):
 
     @property
     def time(self):
-        return "N/A"
+        return str(self.suite.elapsed_time)
 
     @property
     def errors(self):
@@ -101,7 +101,7 @@ class XUnitTestCase(object):
 
     @property
     def time(self):
-        return "N/A"
+        return str(self.case.elapsed_time)
 
     def convert_to_xml(self):
         element = Element('testcase', {'name': self.name,
