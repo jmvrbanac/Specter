@@ -29,9 +29,6 @@ class XUnitRenderer(object):
         return element
 
     def render(self, report):
-        if not self.filename:
-            return
-
         self.report = report
 
         body = element_to_str(self.convert_to_xml(), encoding='utf8')

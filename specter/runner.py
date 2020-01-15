@@ -64,7 +64,9 @@ class SpecterRunner(object):
 
             report = self.reporting.build_report()
             self.renderer.render(report)
-            self.xunit_renderer.render(report)
+
+            if self.xunit_renderer.filename:
+                self.xunit_renderer.render(report)
 
         return self.reporting.success
 

@@ -30,6 +30,7 @@ def main(argv=None):
     runner = SpecterRunner(
         reporting_options={
             'show_all_expects': arguments.show_all_expects,
+            'xunit_results': arguments.xunit_results,
         },
         concurrency=concurrency,
     )
@@ -95,5 +96,13 @@ def setup_argparse():
         dest='show_all_expects',
         action='store_true',
         help='Displays all expectations for test cases',
+    )
+
+    parser.add_argument(
+        '--xunit-results',
+        dest='xunit_results',
+        metavar='',
+        default=None,
+        help='Saves out xUnit compatible results to a specified file',
     )
     return parser
