@@ -112,7 +112,7 @@ class CaseFormatData(object):
 
     @property
     def class_name(self):
-        return utils.pretty_class_name(str(self._spec.__class__))
+        return utils.pretty_class_name(self._spec)
 
     @property
     def start(self):
