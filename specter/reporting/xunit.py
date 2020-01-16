@@ -67,12 +67,17 @@ class XUnitTestSuite(object):
         return str(len(self.suite.cases))
 
     def convert_to_xml(self):
-        element = Element('testsuite', {'name': self.name,
-                                        'time': self.time,
-                                        'errors': self.errors,
-                                        'failures': self.failures,
-                                        'skipped': self.skipped,
-                                        'tests': self.tests})
+        element = Element(
+            'testsuite',
+            attrib={
+                'name': self.name,
+                'time': self.time,
+                'errors': self.errors,
+                'failures': self.failures,
+                'skipped': self.skipped,
+                'tests': self.tests,
+            },
+        )
 
         for case in self.suite.cases:
             test_case = XUnitTestCase(case)
@@ -101,9 +106,14 @@ class XUnitTestCase(object):
         return str(self.case.elapsed_time)
 
     def convert_to_xml(self):
-        element = Element('testcase', {'name': self.name,
-                                       'classname': self.classname,
-                                       'time': self.time})
+        element = Element(
+            'testcase',
+            attrib={
+                'name': self.name,
+                'classname': self.classname,
+                'time': self.time,
+            },
+        )
 
         if self.skipped_case.has_skipped_case:
             element.append(self.skipped_case.convert_to_xml())
