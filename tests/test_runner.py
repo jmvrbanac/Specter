@@ -10,5 +10,4 @@ def runner():
 
 def test_can_run(runner):
     runner.run(['./tests/example_data'])
-    report = runner.reporting.build_report()
     pass

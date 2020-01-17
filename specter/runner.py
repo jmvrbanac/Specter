@@ -10,6 +10,7 @@ from specter.exceptions import FailedRequireException
 from specter.spec import get_case_data, Spec, spec_filter, find_children
 from specter.reporting.core import ReportManager
 from specter.reporting.pretty import PrettyRenderer
+from specter.reporting.xunit import XUnitRenderer
 
 logger.setup()
 log = logger.get(__name__)
@@ -20,6 +21,7 @@ class SpecterRunner(object):
         self.semaphore = asyncio.Semaphore(concurrency)
         self.reporting = ReportManager(reporting_options)
         self.renderer = PrettyRenderer(self.reporting, reporting_options)
+        self.xunit_renderer = XUnitRenderer(self.reporting, reporting_options)
 
     def run(self, search_paths, module_name=None, metadata=None, test_names=None):
         loop = asyncio.get_event_loop()
@@ -62,6 +64,9 @@ class SpecterRunner(object):
 
             report = self.reporting.build_report()
             self.renderer.render(report)
+
+            if self.xunit_renderer.filename:
+                self.xunit_renderer.render(report)
 
         return self.reporting.success
 

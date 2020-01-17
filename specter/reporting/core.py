@@ -1,6 +1,8 @@
 from specter import logger, utils
 from specter.spec import get_case_data
 
+log = logger.get(__name__)
+
 
 class ReportManager(object):
     def __init__(self, reporting_options=None):
@@ -72,12 +74,20 @@ class SpecFormatData(object):
         return self._spec.__doc__
 
     @property
+    def elapsed_time(self):
+        elapsed = 0
+        for case in self.cases:
+            elapsed += case.elapsed_time
+        return elapsed
+
+    @property
     def as_dict(self):
         return {
             'name': self.name,
             'module': self.module,
             'doc': self.doc,
             'successful': self.successful,
+            'elapsed_time': self.elapsed_time,
             'cases': [case.as_dict for case in self.cases],
             'specs': [spec.as_dict for spec in self.specs],
         }
@@ -101,12 +111,21 @@ class CaseFormatData(object):
         return self._case.__name__
 
     @property
+    def class_name(self):
+        return utils.pretty_class_name(self._spec)
+
+    @property
     def start(self):
         return get_case_data(self._case).start_time
 
     @property
     def end(self):
         return get_case_data(self._case).end_time
+
+    @property
+    def elapsed_time(self):
+        elapsed = self.end - self.start
+        return elapsed if elapsed >= 0 else 0
 
     @property
     def metadata(self):
@@ -128,8 +147,7 @@ class CaseFormatData(object):
     def successful(self):
         tracebacks = getattr(self._case, '__tracebacks__', [])
         return (
-            not tracebacks and
-            all(expect.success for expect in self.expects)
+            not tracebacks and all(expect.success for expect in self.expects)
         )
 
     @property
@@ -167,8 +185,10 @@ class CaseFormatData(object):
         return {
             'name': self.name,
             'raw_name': self.raw_name,
+            'class_name': self.class_name,
             'start': self.start,
             'end': self.end,
+            'elapsed_time': self.elapsed_time,
             'success': self.successful,
             'skipped': self.skipped,
             'skip_reason': self.skip_reason,

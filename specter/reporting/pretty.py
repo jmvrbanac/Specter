@@ -172,7 +172,7 @@ class PrettyRenderer(object):
                         if str(expect.expected_name) != str(expect.expected):
                             print_indent(
                                 f'| {expect.expected_name}: {expect.expected}',
-                                level+3,
+                                level + 3,
                                 color=get_expect_color(expect)
                             )
 
@@ -184,7 +184,7 @@ class PrettyRenderer(object):
                 print_errors(data.errors, level, 'Traceback occurred running after_each')
 
         for child_spec in spec.specs:
-            self.render_spec(child_spec, level+1)
+            self.render_spec(child_spec, level + 1)
 
         if getattr(spec._spec.after_all, '__tracebacks__', None):
             data = CaseFormatData(spec._spec, spec._spec.after_all)
@@ -217,12 +217,12 @@ def print_errors(errors, level, msg=None):
     print_indent('')
     print_indent(
         msg or 'Traceback occurred during execution',
-        level+2,
+        level + 2,
         color=fail
     )
     print_indent(
         '-' * 40,
-        level+2,
+        level + 2,
         color=fail
     )
 
@@ -230,6 +230,6 @@ def print_errors(errors, level, msg=None):
         for line in error:
             print_indent(
                 line,
-                level+2,
+                level + 2,
                 color=fail
             )
