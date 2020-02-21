@@ -1,5 +1,5 @@
 from xml.etree.ElementTree import Element, tostring as element_to_str
-from specter import logger
+from specter import logger, utils
 
 log = logger.get(__name__)
 
@@ -189,18 +189,18 @@ class XUnitErrorCase(object):
         return self.case.errors
 
     @staticmethod
-    def error_message(errors):
+    def error_message(errors, error_type):
         all_errors = ''
         for error in errors:
             all_errors += '\n'.join(str(line) for line in error)
 
         return f'''
-        <![CDATA[Traceback occurred during execution:
+        <![CDATA[{utils.traceback_occurred_msg(error_type)}:
         {all_errors}
         ]]>
         '''
 
     def convert_to_xml(self):
         element = Element('error')
-        element.text = self.error_message(self.case.errors)
+        element.text = self.error_message(self.case.errors, self.case.error_type)
         return element

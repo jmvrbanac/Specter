@@ -174,3 +174,16 @@ def translate_cli_argument(argument):
         converted = False
 
     return converted
+
+
+def traceback_occurred_msg(case_type):
+    msg = 'Traceback occurred'
+    if case_type == 'before_all':
+        return f'{msg} running {case_type}'
+    else:
+        return f'{msg} during execution'
+
+# Traceback occurred running before_all
+# Traceback occurred running before_each
+# Traceback occurred running after_each
+# Traceback occurred running after_all

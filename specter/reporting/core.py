@@ -146,13 +146,22 @@ class CaseFormatData(object):
     @property
     def successful(self):
         tracebacks = getattr(self._case, '__tracebacks__', [])
+        tracebacks.extend(getattr(self._spec.before_all, '__tracebacks__', []))
         return (
             not tracebacks and all(expect.success for expect in self.expects)
         )
 
     @property
+    def error_type(self):
+        if getattr(self._case, '__tracebacks__', []):
+            return 'case'
+        elif getattr(self._spec.before_all, '__tracebacks__', []):
+            return 'before_all'
+
+    @property
     def errors(self):
         tracebacks = getattr(self._case, '__tracebacks__', [])
+        tracebacks.extend(getattr(self._spec.before_all, '__tracebacks__', []))
         formatted_tracebacks = []
 
         # TODO: Clean this up

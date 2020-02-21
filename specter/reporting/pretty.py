@@ -2,8 +2,7 @@ import sys
 
 import colored
 
-from specter import logger
-from specter.reporting.core import CaseFormatData
+from specter import logger, utils
 
 log = logger.get(__name__)
 
@@ -117,17 +116,9 @@ class PrettyRenderer(object):
 
         print_indent(spec.name, level, color=get_spec_color(spec))
 
-        if getattr(spec._spec.before_all, '__tracebacks__', None):
-            data = CaseFormatData(spec._spec, spec._spec.before_all)
-            print_errors(data.errors, level, 'Traceback occurred running before_all')
-
         for case in spec.cases:
-            if getattr(spec._spec.before_each, '__tracebacks__', None):
-                data = CaseFormatData(spec._spec, spec._spec.before_each)
-                print_errors(data.errors, level, 'Traceback occurred running before_each')
-
-            if case._case not in self.manager.executed_cases:
-                continue
+            # if case._case not in self.manager.executed_cases:
+            #     continue
 
             self.count_case(case)
             errors = case.errors
@@ -177,18 +168,10 @@ class PrettyRenderer(object):
                             )
 
             if errors:
-                print_errors(errors, level)
-
-            if getattr(spec._spec.after_each, '__tracebacks__', None):
-                data = CaseFormatData(spec._spec, spec._spec.after_each)
-                print_errors(data.errors, level, 'Traceback occurred running after_each')
+                print_errors(errors, level, case.error_type)
 
         for child_spec in spec.specs:
             self.render_spec(child_spec, level + 1)
-
-        if getattr(spec._spec.after_all, '__tracebacks__', None):
-            data = CaseFormatData(spec._spec, spec._spec.after_all)
-            print_errors(data.errors, level, 'Traceback occurred running after_all')
 
     def render(self, report):
         for spec in report:
@@ -213,10 +196,10 @@ def has_tests_at_any_level(spec):
     return any([has_tests_at_any_level(child) for child in spec.specs])
 
 
-def print_errors(errors, level, msg=None):
+def print_errors(errors, level, error_type):
     print_indent('')
     print_indent(
-        msg or 'Traceback occurred during execution',
+        utils.traceback_occurred_msg(error_type),
         level + 2,
         color=fail
     )
