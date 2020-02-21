@@ -128,6 +128,7 @@ class TestCaseData(object):
         self.data_kwargs = {}
         self.start_time = 0
         self.end_time = 0
+        self.before_each_traces = []
 
 
 def incomplete(f):
