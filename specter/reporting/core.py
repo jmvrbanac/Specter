@@ -8,7 +8,6 @@ class ReportManager(object):
     def __init__(self, reporting_options=None):
         self.version = '2.0'
         self.specs = {}
-        self.executed_cases = {}
         self.reporting_options = reporting_options or {}
         self.success = True
 
@@ -25,8 +24,6 @@ class ReportManager(object):
 
     def case_finished(self, spec, case):
         data = CaseFormatData(spec, case)
-        self.executed_cases[case] = data
-
         indicator = '.'
 
         if not data.successful:

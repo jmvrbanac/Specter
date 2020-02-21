@@ -80,8 +80,7 @@ def get_expect_color(expect):
 
 
 class PrettyRenderer(object):
-    def __init__(self, manager, reporting_options=None):
-        self.manager = manager
+    def __init__(self, reporting_options=None):
         self.total = 0
         self.passed = 0
         self.skipped = 0
@@ -117,9 +116,6 @@ class PrettyRenderer(object):
         print_indent(spec.name, level, color=get_spec_color(spec))
 
         for case in spec.cases:
-            # if case._case not in self.manager.executed_cases:
-            #     continue
-
             self.count_case(case)
             errors = case.errors
             mark = UNICODE_CHECK

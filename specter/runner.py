@@ -20,8 +20,8 @@ class SpecterRunner(object):
     def __init__(self, reporting_options=None, concurrency=1):
         self.semaphore = asyncio.Semaphore(concurrency)
         self.reporting = ReportManager(reporting_options)
-        self.renderer = PrettyRenderer(self.reporting, reporting_options)
-        self.xunit_renderer = XUnitRenderer(self.reporting, reporting_options)
+        self.renderer = PrettyRenderer(reporting_options)
+        self.xunit_renderer = XUnitRenderer(reporting_options)
 
     def run(self, search_paths, module_name=None, metadata=None, test_names=None):
         loop = asyncio.get_event_loop()
@@ -107,6 +107,7 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
     for parent in parents:
         successful = await setup_spec(parent, semaphore, reporting)
         if successful is False:
+            # TODO: Create a reporting.case_finished function to notifiy that this failed
             return
         last = parent
 
@@ -138,6 +139,7 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
 
     successful = await setup_spec(spec, semaphore, reporting)
     if successful is False:
+        # TODO: Create a reporting.case_finished function to notifiy that this failed
         return
 
     test_futures = [

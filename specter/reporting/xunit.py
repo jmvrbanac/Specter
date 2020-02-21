@@ -5,8 +5,7 @@ log = logger.get(__name__)
 
 
 class XUnitRenderer(object):
-    def __init__(self, manager, reporting_options=None):
-        self.manager = manager
+    def __init__(self, reporting_options=None):
         self.reporting_options = reporting_options or {}
         self.filename = self.reporting_options.get('xunit_results')
         self.report = None
