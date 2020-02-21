@@ -107,7 +107,7 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
     for parent in parents:
         successful = await setup_spec(parent, semaphore, reporting)
         if successful is False:
-            # TODO: Create a reporting.case_finished function to notifiy that this failed
+            reporting.case_finished(spec, None)
             return
         last = parent
 
@@ -139,7 +139,7 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
 
     successful = await setup_spec(spec, semaphore, reporting)
     if successful is False:
-        # TODO: Create a reporting.case_finished function to notifiy that this failed
+        reporting.case_finished(spec, None)
         return
 
     test_futures = [
