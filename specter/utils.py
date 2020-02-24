@@ -181,4 +181,3 @@ def traceback_occurred_msg(case_type):
     if case_type == 'case':
         return f'{msg} during execution'
     return f'{msg} running {case_type}'
-

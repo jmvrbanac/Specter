@@ -207,7 +207,6 @@ class CaseFormatData(object):
         tracebacks.extend(self.after_each_traces)
         return tracebacks
 
-
     @property
     def as_dict(self):
         return {
