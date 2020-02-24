@@ -157,9 +157,7 @@ class CaseFormatData(object):
 
     @property
     def error_type(self):
-        if getattr(self._case, '__tracebacks__', []):
-            return 'case'
-        elif getattr(self._spec.before_all, '__tracebacks__', []):
+        if getattr(self._spec.before_all, '__tracebacks__', []):
             return 'before_all'
         elif self.before_each_traces:
             return 'before_each'
@@ -167,6 +165,8 @@ class CaseFormatData(object):
             return 'after_all'
         elif self.after_each_traces:
             return 'after_each'
+        else:
+            return 'case'
 
     @property
     def errors(self):
