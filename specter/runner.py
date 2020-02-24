@@ -221,6 +221,8 @@ async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
     await execute_method(getattr(spec, case.__name__), semaphore, *args, **kwargs)
     data.end_time = time.time()
 
-    await execute_method(spec.after_each, semaphore)
+    successful = await execute_method(spec.after_each, semaphore)
+    if successful is False:
+        data.after_each_traces.extend(spec.after_each.__tracebacks__)
 
     reporting.case_finished(spec, case)
