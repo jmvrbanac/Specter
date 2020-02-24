@@ -7,7 +7,7 @@ from pike.manager import PikeManager
 from specter import logger, utils
 
 from specter.exceptions import FailedRequireException
-from specter.spec import get_case_data, Spec, spec_filter, find_children
+from specter.spec import get_case_data, Spec, spec_filter, find_children, TestCaseData
 from specter.reporting.core import ReportManager
 from specter.reporting.pretty import PrettyRenderer
 from specter.reporting.xunit import XUnitRenderer
@@ -107,7 +107,7 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
     for parent in parents:
         successful = await setup_spec(parent, semaphore, reporting)
         if successful is False:
-            reporting.case_finished(spec, None)
+            reporting.case_finished(spec, TestCaseData())
             return
         last = parent
 
@@ -118,7 +118,10 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
     # Walk down the tree to setup specs
     parents.reverse()
     for parent in parents:
-        await teardown_spec(parent, semaphore)
+        successful = await teardown_spec(parent, semaphore)
+        if successful is False:
+            reporting.case_finished(spec, TestCaseData())
+            return
 
 
 async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=None):
@@ -139,7 +142,7 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
 
     successful = await setup_spec(spec, semaphore, reporting)
     if successful is False:
-        reporting.case_finished(spec, None)
+        reporting.case_finished(spec, TestCaseData())
         return
 
     test_futures = [
@@ -154,7 +157,9 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
     ]
     await asyncio.gather(*spec_futures)
 
-    await teardown_spec(spec, semaphore)
+    successful = await teardown_spec(spec, semaphore)
+    if successful is False:
+        reporting.case_finished(spec, TestCaseData())
 
 
 async def setup_spec(spec, semaphore, reporting):
