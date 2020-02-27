@@ -146,6 +146,32 @@ class Expectation(object):
             condition=isinstance(self.target, expected)
         )
 
+    def be_a_subset_of(self, expected):
+        try:
+            iter(expected)
+            iter(self.target)
+        except TypeError:
+            raise TypeError('Expected must be ')
+
+        self._compare(
+            action_name='be a subset of',
+            expected=expected,
+            condition=set(self.target).issubset(set(expected))
+        )
+
+    def be_a_superset_of(self, expected):
+        try:
+            iter(expected)
+            iter(self.target)
+        except TypeError:
+            raise TypeError('Must specify iterables')
+
+        self._compare(
+            action_name='be a superset of',
+            expected=expected,
+            condition=set(self.target).issuperset(set(expected))
+        )
+
     def raise_a(self, exception):
         self.expected = exception
         self.actions.extend(['raise', exception])
@@ -327,7 +353,9 @@ class ExpectParams(object):
         'be_an_instance_of',
         'be_in',
         'contain',
-        'raise_a'
+        'raise_a',
+        'be_a_subset_of',
+        'be_a_superset_of'
     ]
 
     def __init__(self, expr):
