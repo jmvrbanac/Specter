@@ -150,7 +150,7 @@ class CaseFormatData(object):
 
     @property
     def successful(self):
-        tracebacks = self.__gather_tracebacks()
+        tracebacks = self.gather_tracebacks
         return (
             not tracebacks and all(expect.success for expect in self.expects)
         )
@@ -170,7 +170,7 @@ class CaseFormatData(object):
 
     @property
     def errors(self):
-        tracebacks = self.__gather_tracebacks()
+        tracebacks = self.gather_tracebacks
         formatted_tracebacks = []
 
         # TODO: Clean this up
@@ -198,7 +198,8 @@ class CaseFormatData(object):
 
         return formatted_tracebacks or []
 
-    def __gather_tracebacks(self):
+    @property
+    def gather_tracebacks(self):
         tracebacks = []
         tracebacks.extend(getattr(self._case, '__tracebacks__', []))
         tracebacks.extend(getattr(self._spec.before_all, '__tracebacks__', []))
