@@ -174,3 +174,10 @@ def translate_cli_argument(argument):
         converted = False
 
     return converted
+
+
+def traceback_occurred_msg(case_type):
+    msg = 'Traceback occurred'
+    if case_type == 'case':
+        return f'{msg} during execution'
+    return f'{msg} running {case_type}'

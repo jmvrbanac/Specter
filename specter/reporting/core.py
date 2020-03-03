@@ -8,7 +8,6 @@ class ReportManager(object):
     def __init__(self, reporting_options=None):
         self.version = '2.0'
         self.specs = {}
-        self.executed_cases = {}
         self.reporting_options = reporting_options or {}
         self.success = True
 
@@ -25,8 +24,6 @@ class ReportManager(object):
 
     def case_finished(self, spec, case):
         data = CaseFormatData(spec, case)
-        self.executed_cases[case] = data
-
         indicator = '.'
 
         if not data.successful:
@@ -144,15 +141,36 @@ class CaseFormatData(object):
         return get_case_data(self._case).skip_reason
 
     @property
+    def before_each_traces(self):
+        return get_case_data(self._case).before_each_traces
+
+    @property
+    def after_each_traces(self):
+        return get_case_data(self._case).after_each_traces
+
+    @property
     def successful(self):
-        tracebacks = getattr(self._case, '__tracebacks__', [])
+        tracebacks = self.gather_tracebacks
         return (
             not tracebacks and all(expect.success for expect in self.expects)
         )
 
     @property
+    def error_type(self):
+        if getattr(self._spec.before_all, '__tracebacks__', []):
+            return 'before_all'
+        elif self.before_each_traces:
+            return 'before_each'
+        elif getattr(self._spec.after_all, '__tracebacks__', []):
+            return 'after_all'
+        elif self.after_each_traces:
+            return 'after_each'
+        else:
+            return 'case'
+
+    @property
     def errors(self):
-        tracebacks = getattr(self._case, '__tracebacks__', [])
+        tracebacks = self.gather_tracebacks
         formatted_tracebacks = []
 
         # TODO: Clean this up
@@ -179,6 +197,16 @@ class CaseFormatData(object):
             ])
 
         return formatted_tracebacks or []
+
+    @property
+    def gather_tracebacks(self):
+        tracebacks = []
+        tracebacks.extend(getattr(self._case, '__tracebacks__', []))
+        tracebacks.extend(getattr(self._spec.before_all, '__tracebacks__', []))
+        tracebacks.extend(self.before_each_traces)
+        tracebacks.extend(getattr(self._spec.after_all, '__tracebacks__', []))
+        tracebacks.extend(self.after_each_traces)
+        return tracebacks
 
     @property
     def as_dict(self):
