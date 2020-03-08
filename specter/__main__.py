@@ -2,8 +2,15 @@ import argparse
 import os
 import sys
 
+import coverage
+
 from specter.runner import SpecterRunner
 from specter.utils import translate_cli_argument
+
+coverage_omit_list = [
+    '*/specter/*',
+    '*/pike/*',
+]
 
 
 def main(argv=None):
@@ -13,6 +20,7 @@ def main(argv=None):
     concurrency = int(arguments.concurrency)
     search_path = arguments.search
     select_metadata = None
+    activated_coverage = None
 
     if not os.path.exists(search_path):
         print(f'Search path "{search_path}" not found...')
@@ -34,12 +42,22 @@ def main(argv=None):
         },
         concurrency=concurrency,
     )
+
+    if arguments.coverage:
+        activated_coverage = coverage.coverage(omit=coverage_omit_list)
+        activated_coverage._warn_no_data = False
+        activated_coverage.start()
+
     success = runner.run(
         search_paths=[search_path],
         module_name=arguments.select_module,
         metadata=select_metadata,
         test_names=arguments.select_tests,
     )
+
+    if activated_coverage:
+        activated_coverage.stop()
+        activated_coverage.save()
 
     if not success:
         sys.exit(1)
@@ -56,6 +74,7 @@ def setup_argparse():
         dest='search',
         metavar='',
         help='The spec suite folder path.',
+        default='spec',
     )
     parser.add_argument(
         '-p', '--select-module',
@@ -92,6 +111,13 @@ def setup_argparse():
     )
 
     parser.add_argument(
+        '--coverage',
+        dest='coverage',
+        action='store_true',
+        help='Activates coverage.py integration'
+    )
+
+    parser.add_argument(
         '--show-all-expects',
         dest='show_all_expects',
         action='store_true',
@@ -106,3 +132,7 @@ def setup_argparse():
         help='Saves out xUnit compatible results to a specified file',
     )
     return parser
+
+
+if __name__ == '__main__':
+    main()
