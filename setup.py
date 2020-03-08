@@ -34,6 +34,7 @@ setup(
         'colored',
         'docopt',
         'pike>=0.1.0',
+        'coverage',
     ],
     entry_points = {
         'console_scripts': [
