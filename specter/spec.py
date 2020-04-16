@@ -40,7 +40,7 @@ class Spec(object):
     def __build_data_spec__(self):
         cases = []
         for test_func in self.__test_cases__:
-            extracted_func, base_metadata = utils.extract_metadata(test_func)
+            base_metadata = get_case_data(test_func).metadata
 
             for name, data in self.DATASET.items():
                 args, meta = data, dict(base_metadata)
@@ -51,18 +51,18 @@ class Spec(object):
                     meta.update(data.get('meta', {}))
 
                 # Extract name, args and duplicate function
-                func_name = '{0}_{1}'.format(extracted_func.__name__, name)
+                func_name = '{0}_{1}'.format(test_func.__name__, name)
                 prefix, *_ = test_func.__qualname__.rpartition('.')
 
                 new_func = types.FunctionType(
-                    extracted_func.__code__,
-                    extracted_func.__globals__,
+                    test_func.__code__,
+                    test_func.__globals__,
                     func_name,
-                    extracted_func.__closure__,
+                    test_func.__closure__,
                 )
                 new_func.__qualname__ = '{0}.{1}'.format(prefix, func_name)
 
-                kwargs = utils.get_function_kwargs(extracted_func, args)
+                kwargs = utils.get_function_kwargs(test_func, args)
 
                 case_data = get_case_data(new_func)
                 case_data.type = 'data-driven'
@@ -71,6 +71,7 @@ class Spec(object):
                 unbound_method = types.MethodType(new_func, self)
 
                 setattr(self, func_name, unbound_method)
+                get_case_data(new_func).metadata = meta
                 cases.append(new_func)
 
         self.__test_cases__ = cases
