@@ -23,7 +23,7 @@ class SpecterRunner(object):
         self.renderer = PrettyRenderer(reporting_options)
         self.xunit_renderer = XUnitRenderer(reporting_options)
 
-    def run(self, search_paths, module_name=None, metadata=None, test_names=None):
+    def run(self, search_paths, module_name=None, metadata=None, test_names=None, exclude=None):
         loop = asyncio.get_event_loop()
 
         with PikeManager(search_paths) as mgr:
@@ -55,7 +55,7 @@ class SpecterRunner(object):
             # future = asyncio.gather(*coroutines)
 
             future = asyncio.gather(*[
-                execute_spec(cls(), self.semaphore, self.reporting, metadata, test_names)
+                execute_spec(cls(), self.semaphore, self.reporting, metadata, test_names, exclude)
                 for cls in selected_modules
             ])
 
@@ -89,7 +89,8 @@ class SpecterRunner(object):
         return found
 
 
-async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_names=None):
+async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_names=None,
+                              exclude=None):
     parents = []
     cls = spec.__parent_cls__
     last = None
@@ -113,7 +114,14 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
 
     # Execute the nested spec
     spec.parent = last
-    await execute_spec(spec, semaphore, reporting, metadata=metadata, test_names=test_names)
+    await execute_spec(
+        spec,
+        semaphore,
+        reporting,
+        metadata=metadata,
+        test_names=test_names,
+        exclude=exclude
+    )
 
     # Walk down the tree to setup specs
     parents.reverse()
@@ -124,7 +132,7 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
             return
 
 
-async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=None):
+async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=None, exclude=None):
     test_semaphore = semaphore
     spec_semaphore = semaphore
 
@@ -139,6 +147,8 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
         spec.__test_cases__ = utils.find_by_names(test_names, spec.__test_cases__)
     if metadata:
         spec.__test_cases__ = utils.find_by_metadata(metadata, spec.__test_cases__)
+    if exclude:
+        spec.__test_cases__ = utils.exclude_by_metadata(exclude, spec.__test_cases__)
 
     successful = await setup_spec(spec, semaphore, reporting)
     if successful is False:
@@ -152,7 +162,7 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
     await asyncio.gather(*test_futures)
 
     spec_futures = [
-        execute_spec(child, spec_semaphore, reporting, metadata, test_names)
+        execute_spec(child, spec_semaphore, reporting, metadata, test_names, exclude)
         for child in spec.children
     ]
     await asyncio.gather(*spec_futures)
