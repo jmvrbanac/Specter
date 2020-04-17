@@ -20,6 +20,7 @@ def main(argv=None):
     concurrency = int(arguments.concurrency)
     search_path = arguments.search
     select_metadata = None
+    exclude_metadata = None
     activated_coverage = None
 
     if not os.path.exists(search_path):
@@ -32,6 +33,15 @@ def main(argv=None):
             for key, value in [
                 item.split('=')
                 for item in arguments.select_metadata
+            ]
+        }
+
+    if arguments.exclude_metadata:
+        exclude_metadata = {
+            key: translate_cli_argument(value.strip('"\''))
+            for key, value in [
+                item.split('=')
+                for item in arguments.exclude_metadata
             ]
         }
 
@@ -52,6 +62,7 @@ def main(argv=None):
         search_paths=[search_path],
         module_name=arguments.select_module,
         metadata=select_metadata,
+        exclude=exclude_metadata,
         test_names=arguments.select_tests,
     )
 
@@ -130,6 +141,15 @@ def setup_argparse():
         metavar='',
         default=None,
         help='Saves out xUnit compatible results to a specified file',
+    )
+
+    parser.add_argument(
+        '--exclude-by-metadata',
+        dest='exclude_metadata',
+        metavar='',
+        help=('Excludes tests to run by specifying a list of key=value pairs you wish to exclude'),
+        default=[],
+        nargs='*'
     )
     return parser
 

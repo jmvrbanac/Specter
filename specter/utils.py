@@ -164,6 +164,28 @@ def find_by_metadata(metadata, cases):
     return selected_cases
 
 
+def exclude_by_metadata(metadata, cases):
+    selected_cases = []
+
+    for case in cases:
+        data = getattr(case, '__specter__', None)
+
+        if not data or not data.metadata:
+            selected_cases.append(case)
+            continue
+
+        matched_keys = set(metadata.keys()) & set(data.metadata.keys())
+
+        if not matched_keys:
+            selected_cases.append(case)
+
+        for key in matched_keys:
+            if metadata.get(key) != data.metadata.get(key):
+                selected_cases.append(case)
+
+    return selected_cases
+
+
 def translate_cli_argument(argument):
     converted = argument
 
