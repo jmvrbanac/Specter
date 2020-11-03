@@ -68,6 +68,16 @@ class Spec(object):
                 case_data.type = 'data-driven'
                 case_data.data_kwargs = kwargs
 
+                test_func_data = get_case_data(test_func)
+                case_data.incomplete = test_func_data.incomplete
+
+                if getattr(test_func, 'skipped', None):
+                    test_func()
+                    test_func_data = get_case_data(test_func)
+
+                    case_data.skipped = test_func_data.skipped
+                    case_data.skip_reason = test_func_data.skip_reason
+
                 unbound_method = types.MethodType(new_func, self)
 
                 setattr(self, func_name, unbound_method)
@@ -154,6 +164,8 @@ def skip(reason):
                 data = get_case_data(test_func)
                 data.skipped = True
                 data.skip_reason = reason
+
+            skip_wrapper.skipped = True
 
             test_func = skip_wrapper
 
