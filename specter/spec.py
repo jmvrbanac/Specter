@@ -58,6 +58,7 @@ class Spec(object):
                     test_func.__code__,
                     test_func.__globals__,
                     func_name,
+                    test_func.__defaults__,
                     test_func.__closure__,
                 )
                 new_func.__qualname__ = '{0}.{1}'.format(prefix, func_name)
