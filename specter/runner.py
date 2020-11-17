@@ -174,7 +174,8 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
 
 async def setup_spec(spec, semaphore, reporting):
     reporting.track_spec(spec)
-    return await execute_method(spec.before_all, semaphore)
+    if spec.__test_cases__:
+        return await execute_method(spec.before_all, semaphore)
 
 
 async def teardown_spec(spec, semaphore):
