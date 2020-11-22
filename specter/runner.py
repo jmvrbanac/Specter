@@ -141,14 +141,8 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
     if spec.__SPEC_CONCURRENCY__:
         spec_semaphore = spec.__SPEC_CONCURRENCY__
 
-    # I Don't really like messing with the test list after the fact.
-    # This should really get fixed at somepoint
-    if test_names:
-        spec.__test_cases__ = utils.find_by_names(test_names, spec.__test_cases__)
-    if metadata:
-        spec.__test_cases__ = utils.find_by_metadata(metadata, spec.__test_cases__)
-    if exclude:
-        spec.__test_cases__ = utils.exclude_by_metadata(exclude, spec.__test_cases__)
+    if not spec.parent:
+        filter_cases_by_data(spec, metadata, test_names, exclude)
 
     successful = await setup_spec(spec, semaphore, reporting)
     if successful is False:
@@ -174,7 +168,7 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
 
 async def setup_spec(spec, semaphore, reporting):
     reporting.track_spec(spec)
-    if spec.__test_cases__:
+    if spec.has_dependencies:
         return await execute_method(spec.before_all, semaphore)
 
 
@@ -237,3 +231,21 @@ async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
         data.after_each_traces.extend(spec.after_each.__tracebacks__)
 
     reporting.case_finished(spec, case)
+
+
+def filter_cases_by_data(spec, metadata, test_names, exclude):
+    # I Don't really like messing with the test list after the fact.
+    # This should really get fixed at somepoint
+
+    if test_names:
+        spec.__test_cases__ = utils.find_by_names(
+            test_names, spec.__test_cases__)
+    if metadata:
+        spec.__test_cases__ = utils.find_by_metadata(
+            metadata, spec.__test_cases__)
+    if exclude:
+        spec.__test_cases__ = utils.exclude_by_metadata(
+            exclude, spec.__test_cases__)
+
+    for child in spec.children:
+        filter_cases_by_data(child, metadata, test_names, exclude)

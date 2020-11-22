@@ -109,6 +109,17 @@ class Spec(object):
     def is_fixture(cls):
         return vars(cls).get('__FIXTURE__') is True
 
+    @property
+    def has_dependencies(self):
+        if self.__test_cases__:
+            return True
+
+        for child in self.children:
+            if child.has_dependencies:
+                return True
+
+        return False
+
     @utils.tag_as_inherited
     async def before_all(self):
         pass
