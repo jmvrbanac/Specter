@@ -18,7 +18,8 @@ log = logger.get(__name__)
 
 class SpecterRunner(object):
     def __init__(self, reporting_options=None, concurrency=1):
-        self.semaphore = asyncio.Semaphore(concurrency)
+        self.spec_semaphore = asyncio.Semaphore(concurrency)
+        self.test_semaphore = asyncio.Semaphore(concurrency)
         self.reporting = ReportManager(reporting_options)
         self.renderer = PrettyRenderer(reporting_options)
         self.xunit_renderer = XUnitRenderer(reporting_options)
@@ -55,7 +56,7 @@ class SpecterRunner(object):
             # future = asyncio.gather(*coroutines)
 
             future = asyncio.gather(*[
-                execute_spec(cls(), self.semaphore, self.reporting, metadata, test_names, exclude)
+                execute_spec(cls(), self.spec_semaphore, self.test_semaphore, self.reporting, metadata, test_names, exclude)
                 for cls in selected_modules
             ])
 
@@ -132,10 +133,8 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
             return
 
 
-async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=None, exclude=None):
-    test_semaphore = semaphore
-    spec_semaphore = semaphore
-
+async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
+                       metadata=None, test_names=None, exclude=None):
     if spec.__CASE_CONCURRENCY__:
         test_semaphore = spec.__CASE_CONCURRENCY__
     if spec.__SPEC_CONCURRENCY__:
@@ -144,26 +143,37 @@ async def execute_spec(spec, semaphore, reporting, metadata=None, test_names=Non
     if not spec.parent:
         filter_cases_by_data(spec, metadata, test_names, exclude)
 
-    successful = await setup_spec(spec, semaphore, reporting)
-    if successful is False:
-        reporting.case_finished(spec, TestCaseData())
-        return
+    # Limit spec setups to max concurrency level
+    async with spec_semaphore:
+        successful = await setup_spec(spec, test_semaphore, reporting)
+        if successful is False:
+            reporting.case_finished(spec, TestCaseData())
+            return
 
-    test_futures = [
-        execute_test_case(spec, func, test_semaphore, reporting)
-        for func in spec.__test_cases__
-    ]
-    await asyncio.gather(*test_futures)
+        test_futures = [
+            execute_test_case(spec, func, test_semaphore, reporting)
+            for func in spec.__test_cases__
+        ]
+        await asyncio.gather(*test_futures)
 
     spec_futures = [
-        execute_spec(child, spec_semaphore, reporting, metadata, test_names, exclude)
+        execute_spec(
+            child,
+            spec_semaphore,
+            test_semaphore,
+            reporting,
+            metadata,
+            test_names,
+            exclude
+        )
         for child in spec.children
     ]
     await asyncio.gather(*spec_futures)
 
-    successful = await teardown_spec(spec, semaphore)
-    if successful is False:
-        reporting.case_finished(spec, TestCaseData())
+    async with spec_semaphore:
+        successful = await teardown_spec(spec, test_semaphore)
+        if successful is False:
+            reporting.case_finished(spec, TestCaseData())
 
 
 async def setup_spec(spec, semaphore, reporting):
