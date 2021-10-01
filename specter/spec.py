@@ -71,6 +71,7 @@ class Spec(object):
 
                 test_func_data = get_case_data(test_func)
                 case_data.incomplete = test_func_data.incomplete
+                case_data.skip = test_func_data.skip
 
                 if getattr(test_func, 'skipped', None):
                     test_func()
@@ -111,8 +112,10 @@ class Spec(object):
 
     @property
     def has_dependencies(self):
-        if self.__test_cases__:
-            return True
+        for case in self.__test_cases__:
+            data = getattr(case, '__specter__', None)
+            if not data or not (data.skip or data.incomplete):
+                return True
 
         for child in self.children:
             if child.has_dependencies:
@@ -145,6 +148,7 @@ class TestCaseData(object):
     def __init__(self):
         self.type = 'standard'
         self.incomplete = False
+        self.skip = False
         self.skipped = False
         self.skip_reason = None
         self.metadata = {}
@@ -170,6 +174,8 @@ def skip(reason):
             # If a decorator, call down and save the results
             if test_func.__name__ == 'DECORATOR_ONCALL':
                 test_func()
+
+            get_case_data(test_func).skip = True
 
             @functools.wraps(test_func)
             def skip_wrapper(*args, **kwargs):
