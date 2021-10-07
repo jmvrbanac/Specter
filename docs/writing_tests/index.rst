@@ -227,7 +227,7 @@ This dataset will produce a Spec with two tests: "sample_data_test" and "sample_
         ✘ "sample_text2" to equal "sample_text"
 
 
-Metadata in Data-Driven
+Metadata and Skipping in Data-Driven
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 There are two different methods of adding metadata to your data-driven tests. The first method is to assign metadata to the entire set of data-driven tests.
 
@@ -245,8 +245,8 @@ There are two different methods of adding metadata to your data-driven tests. Th
         def sample_data(self, data_val):
             expect(data_val).to.equal('sample_text')
 
-This will assign the metadata attributes to all tests that are generated from the decoratored instance method.
-The second way of assigning metadata is by creating a more complex dataset item. A complex dataset item contains two keys; args and meta.
+This will assign the metadata attributes to all tests that are generated from the decorated instance method.
+The second way of assigning metadata is by creating a more complex dataset item. A complex dataset item contains an args key as well as meta and/or skip keys.
 
 .. code-block:: python
 
@@ -255,7 +255,7 @@ The second way of assigning metadata is by creating a more complex dataset item.
     class ExampleData(DataSpec):
         DATASET = {
             'test': {'data_val': 'sample_text'},
-            'second_test': {'args': {'data_val': 'sample_text'}, 'meta': {'network': 'yes'}
+            'second_test': {'args': {'data_val': 'sample_text'}, 'meta': {'network': 'yes'}}
         }
 
         def sample_data(self, data_val):
@@ -263,6 +263,25 @@ The second way of assigning metadata is by creating a more complex dataset item.
 
 By doing this, only the 'second_test' will contain metadata. It is important to remember that you can use this format in conjunction with standard metadata tags as mentioned above.
 
+In addition to using decorators to skip tests, you can also use a complex dataset item to skip specific test cases within your data-driven tests.
+
+.. code-block:: python
+
+    from specter import DataSpec
+
+    class ExampleData(DataSpec):
+        DATASET = {
+            'test': {'data_val': 'sample_text'},
+            'second_test': {'args': {'data_val': 'sample_text'}, 'skip': {'skip_reason': 'Do not run this test'}},
+            'third_test': {
+                'args': {'data_val': 'sample_text'},
+                'skip': {'skip_reason': 'Do not run this test'},
+                'meta': {'network': 'yes'}
+            }
+        }
+
+        def sample_data(self, data_val):
+            expect(data_val).to.equal('sample_text')
 
 Skipping Tests
 ~~~~~~~~~~~~~~~~~~
