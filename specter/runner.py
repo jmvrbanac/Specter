@@ -183,7 +183,8 @@ async def setup_spec(spec, semaphore, reporting):
 
 
 async def teardown_spec(spec, semaphore):
-    return await execute_method(spec.after_all, semaphore)
+    if spec.has_dependencies:
+        return await execute_method(spec.after_all, semaphore)
 
 
 async def execute_method(method, semaphore, *args, **kwargs):
@@ -226,19 +227,21 @@ async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
     if data.type == 'data-driven':
         kwargs = data.data_kwargs
 
-    successful = await execute_method(spec.before_each, semaphore)
-    if successful is False:
-        data.before_each_traces.extend(spec.before_each.__tracebacks__)
-        reporting.case_finished(spec, case)
-        return
+    if not (data.skip or data.incomplete):
+        successful = await execute_method(spec.before_each, semaphore)
+        if successful is False:
+            data.before_each_traces.extend(spec.before_each.__tracebacks__)
+            reporting.case_finished(spec, case)
+            return
 
     data.start_time = time.time()
     await execute_method(getattr(spec, case.__name__), semaphore, *args, **kwargs)
     data.end_time = time.time()
 
-    successful = await execute_method(spec.after_each, semaphore)
-    if successful is False:
-        data.after_each_traces.extend(spec.after_each.__tracebacks__)
+    if not (data.skip or data.incomplete):
+        successful = await execute_method(spec.after_each, semaphore)
+        if successful is False:
+            data.after_each_traces.extend(spec.after_each.__tracebacks__)
 
     reporting.case_finished(spec, case)
 
