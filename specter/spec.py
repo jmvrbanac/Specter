@@ -41,14 +41,22 @@ class Spec(object):
         cases = []
         for test_func in self.__test_cases__:
             base_metadata = get_case_data(test_func).metadata
+            base_skip_data = {'skip_reason': ''}
 
             for name, data in self.DATASET.items():
-                args, meta = data, dict(base_metadata)
+                args = data
+                meta = dict(base_metadata)
+                skip_data = dict(base_skip_data)
+                skip = False
 
                 # Handle complex dataset item
-                if 'args' in data and 'meta' in data:
+                if 'args' in data:
                     args = data.get('args', {})
-                    meta.update(data.get('meta', {}))
+                    if 'meta' in data:
+                        meta.update(data.get('meta', {}))
+                    if 'skip' in data:
+                        skip_data.update(data.get('skip', {}))
+                        skip = True
 
                 # Extract name, args and duplicate function
                 func_name = '{0}_{1}'.format(test_func.__name__, name)
@@ -71,14 +79,26 @@ class Spec(object):
 
                 test_func_data = get_case_data(test_func)
                 case_data.incomplete = test_func_data.incomplete
-                case_data.skip = test_func_data.skip
 
                 if getattr(test_func, 'skipped', None):
                     test_func()
                     test_func_data = get_case_data(test_func)
 
+                    case_data.skip = test_func_data.skip
                     case_data.skipped = test_func_data.skipped
                     case_data.skip_reason = test_func_data.skip_reason
+                elif skip:
+                    case_data.skip = True
+
+                    def add_skip_wrapper(func, skip_data):
+                        @functools.wraps(func)
+                        def skip_wrapper(*args, **kwargs):
+                            case_data = get_case_data(func)
+                            case_data.skipped = True
+                            case_data.skip_reason = skip_data.get('skip_reason')
+                        return skip_wrapper
+
+                    new_func = add_skip_wrapper(new_func, skip_data)
 
                 unbound_method = types.MethodType(new_func, self)
 
