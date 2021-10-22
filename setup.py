@@ -5,17 +5,17 @@ long_desc = None
 if os.path.exists('README.rst'):
     long_desc = open('README.rst').read()
 
-version = '1.0.0dev1'
+version = '0.0.1'
 
 setup(
-    name='Specter',
+    name='Spektrum',
     version=version,
     packages=find_packages(exclude=('tests')),
-    url='https://github.com/jmvrbanac/Specter',
+    url='https://github.com/liquidweb/spektrum',
     license='MIT License',
-    author='John Vrbanac',
-    author_email='john.vrbanac@linux.com',
-    description='Specter is a spec-based testing library to help facilitate BDD-testing in Python.',
+    author='LiquidWeb Quality Engineering',
+    author_email='software-qa@liquidweb.com',
+    description='Spektrum is a spec-based testing library to help facilitate BDD-testing in Python.',
     long_description=long_desc,
     classifiers=(
         'Development Status :: 4 - Beta',
@@ -24,8 +24,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ),
     python_requires='>=3.5',
