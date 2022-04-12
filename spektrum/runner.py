@@ -56,7 +56,15 @@ class SpektrumRunner(object):
             # future = asyncio.gather(*coroutines)
 
             future = asyncio.gather(*[
-                execute_spec(cls(), self.spec_semaphore, self.test_semaphore, self.reporting, metadata, test_names, exclude)
+                execute_spec(
+                    cls(),
+                    self.spec_semaphore,
+                    self.test_semaphore,
+                    self.reporting,
+                    metadata,
+                    test_names,
+                    exclude
+                )
                 for cls in selected_modules
             ])
 

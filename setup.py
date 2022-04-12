@@ -17,7 +17,7 @@ setup(
     author_email='software-qa@liquidweb.com',
     description='Spektrum is a spec-based testing library to help facilitate BDD-testing in Python.',
     long_description=long_desc,
-    classifiers=(
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -25,7 +25,7 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.7',
-    ),
+    ],
     python_requires='>=3.5',
     tests_require=['pytest', 'flake8'],
     install_requires=[
