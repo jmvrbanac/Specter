@@ -1,6 +1,6 @@
-class SpecterException(BaseException):
+class SpektrumException(BaseException):
     pass
 
 
-class FailedRequireException(SpecterException):
+class FailedRequireException(SpektrumException):
     pass

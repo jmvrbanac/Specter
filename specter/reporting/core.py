@@ -1,5 +1,5 @@
-from specter import logger, utils
-from specter.spec import get_case_data
+from spektrum import logger, utils
+from spektrum.spec import get_case_data
 
 log = logger.get(__name__)
 

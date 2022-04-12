@@ -4,19 +4,19 @@ import time
 
 from pike.manager import PikeManager
 
-from specter import logger, utils
+from spektrum import logger, utils
 
-from specter.exceptions import FailedRequireException
-from specter.spec import get_case_data, Spec, spec_filter, find_children, TestCaseData
-from specter.reporting.core import ReportManager
-from specter.reporting.pretty import PrettyRenderer
-from specter.reporting.xunit import XUnitRenderer
+from spektrum.exceptions import FailedRequireException
+from spektrum.spec import get_case_data, Spec, spec_filter, find_children, TestCaseData
+from spektrum.reporting.core import ReportManager
+from spektrum.reporting.pretty import PrettyRenderer
+from spektrum.reporting.xunit import XUnitRenderer
 
 logger.setup()
 log = logger.get(__name__)
 
 
-class SpecterRunner(object):
+class SpektrumRunner(object):
     def __init__(self, reporting_options=None, concurrency=1):
         self.spec_semaphore = asyncio.Semaphore(concurrency)
         self.test_semaphore = asyncio.Semaphore(concurrency)

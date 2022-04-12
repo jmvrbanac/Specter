@@ -1,5 +1,5 @@
-from specter import Spec, fixture
-from specter import expect
+from spektrum import Spec, fixture
+from spektrum import expect
 
 
 @fixture

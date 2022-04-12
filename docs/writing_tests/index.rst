@@ -3,21 +3,21 @@
 .. role:: raw-html(raw)
    :format: html
 
-Writing Specter Tests
+Writing Spektrum Tests
 ######################
 
 Naming Rules
 ~~~~~~~~~~~~~~~~~
-Most frameworks require you to start your test with a given prefix such as :raw-html:`"test_"`. Specter does not impose any prefix rules on test functions. We believe that it is better to give the developer more flexibility in naming so that their test names better describe what they are actually testing. However, Specter does have a few rules that should be followed.
+Most frameworks require you to start your test with a given prefix such as :raw-html:`"test_"`. Spektrum does not impose any prefix rules on test functions. We believe that it is better to give the developer more flexibility in naming so that their test names better describe what they are actually testing. However, Spektrum does have a few rules that should be followed.
 
-* All helper functions should start with an underscore (_). Just as Python treats a single underscore as "protected", so does Specter.
+* All helper functions should start with an underscore (_). Just as Python treats a single underscore as "protected", so does Spektrum.
 * "before_each", "after_each", "before_all", and "after_all" are reserved for setup functions on your test suites (Specs).
 * Currently, we also treat "serialize" and "execute" as reserved names as well.
 
 
 Writing Tests
 ~~~~~~~~~~~~~~
-Writing a test in Specter is simple.
+Writing a test in Spektrum is simple.
 
 1. Create a class which extends Spec
 2. Create a function in that class that calls expect or require once
@@ -26,7 +26,7 @@ Writing a test in Specter is simple.
 
 .. code-block:: python
 
-    from specter import Spec, expect
+    from spektrum import Spec, expect
 
     class SampleSpec(Spec):
         """Docstring describing the specification"""
@@ -40,7 +40,7 @@ Test Setup / Teardown
 
 .. code-block:: python
 
-    from specter import Spec, expect
+    from spektrum import Spec, expect
 
     class SampleSpec(Spec):
         """Docstring describing the specification"""
@@ -68,15 +68,15 @@ Test Setup / Teardown
 
 Nested Tests
 ~~~~~~~~~~~~~~
-Specter tests utilizes the concept of nested test suites. This allows for you to provide a clearer picture of what you are testing within your test suites. For those who have used Jasmine or RSpec should be relatively familiar with this concept from their implementation of Spec.
+Spektrum tests utilizes the concept of nested test suites. This allows for you to provide a clearer picture of what you are testing within your test suites. For those who have used Jasmine or RSpec should be relatively familiar with this concept from their implementation of Spec.
 
-Within Specter you can create a nested test description (suite) in the form of a class that inherits from the Spec class.
+Within Spektrum you can create a nested test description (suite) in the form of a class that inherits from the Spec class.
 
 :raw-html:`<i>Example:</i>`
 
 .. code-block:: python
 
-    from specter import Spec, expect
+    from spektrum import Spec, expect
 
     class SampleSpec(Spec):
 
@@ -90,13 +90,13 @@ Within Specter you can create a nested test description (suite) in the form of a
 
 Test Fixtures
 ~~~~~~~~~~~~~~
-In Specter, a test fixture is defined as a test base class that is not treated as a runnable test specification. This allows for you to build reusable test suites through inheritance. To facilitate this, there is a decorator named "fixture" available in the spec module.
+In Spektrum, a test fixture is defined as a test base class that is not treated as a runnable test specification. This allows for you to build reusable test suites through inheritance. To facilitate this, there is a decorator named "fixture" available in the spec module.
 
 :raw-html:`<i>Example:</i>`
 
 .. code-block:: python
 
-    from specter import Spec, fixture, expect
+    from spektrum import Spec, fixture, expect
 
     @fixture
     class ExampleTestFixture(Spec):
@@ -127,11 +127,11 @@ In Specter, a test fixture is defined as a test base class that is not treated a
 
 Test State and Inheritance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Each test spec executes its tests under a clean state that does not contain the attributes of the actual Spec class. This allows for users to not worry about conflicting with the Specter infrastructure. However, the drawback to this is that the instance of "self" within a test is not actually an instance of the type defined in your hardcoded tests. This makes calling super a little bit unconventional as you can see in the example below.
+Each test spec executes its tests under a clean state that does not contain the attributes of the actual Spec class. This allows for users to not worry about conflicting with the Spektrum infrastructure. However, the drawback to this is that the instance of "self" within a test is not actually an instance of the type defined in your hardcoded tests. This makes calling super a little bit unconventional as you can see in the example below.
 
 .. code-block:: python
 
-    from specter import Spec
+    from spektrum import Spec
 
     class FirstSpec(Spec):
         def before_all(self):
@@ -150,7 +150,7 @@ As you can see in the example, you still can inherit the attributes of your othe
 
 Assertions / Expectations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Assertions or expectations in specter attempt to be as expressive as possible. This allows for cleaner and more expressive tests which can help with overall code-awareness and effectiveness. It is important to note that an expectation does not fast-fail the test; it will continue executing the test even if the expectation fails.
+Assertions or expectations in spektrum attempt to be as expressive as possible. This allows for cleaner and more expressive tests which can help with overall code-awareness and effectiveness. It is important to note that an expectation does not fast-fail the test; it will continue executing the test even if the expectation fails.
 
 Expecations follow this flow
     expect [target object] [to or not_to] [comparison] [expected object]
@@ -182,7 +182,7 @@ Asserting a raised exception
 
 Fast-fail expectations
 ^^^^^^^^^^^^^^^^^^^^^^^
-In some cases, you need to stop the execution of a test immediately upon the failure of an expectation. With specter, we call these requirements. While they follow the same flow as expectations, the name for this action is "require".
+In some cases, you need to stop the execution of a test immediately upon the failure of an expectation. With spektrum, we call these requirements. While they follow the same flow as expectations, the name for this action is "require".
 
 Lets say you are writing a test that checks for valid content within a request body. You could do something like:
 
@@ -203,7 +203,7 @@ Often times you find that you need to run numerous types of data through a given
 
 .. code-block:: python
 
-    from specter import DataSpec
+    from spektrum import DataSpec
 
     class ExampleData(DataSpec):
         DATASET = {
@@ -233,7 +233,7 @@ There are two different methods of adding metadata to your data-driven tests. Th
 
 .. code-block:: python
 
-    from specter import DataSpec
+    from spektrum import DataSpec
 
     class ExampleData(DataSpec):
         DATASET = {
@@ -250,7 +250,7 @@ The second way of assigning metadata is by creating a more complex dataset item.
 
 .. code-block:: python
 
-    from specter import DataSpec
+    from spektrum import DataSpec
 
     class ExampleData(DataSpec):
         DATASET = {
@@ -266,15 +266,15 @@ By doing this, only the 'second_test' will contain metadata. It is important to 
 
 Skipping Tests
 ~~~~~~~~~~~~~~~~~~
-Specter provided a few different ways of skipping tests.
+Spektrum provided a few different ways of skipping tests.
 
-.. autofunction:: specter.skip
-.. autofunction:: specter.skip_if
-.. autofunction:: specter.incomplete()
+.. autofunction:: spektrum.skip
+.. autofunction:: spektrum.skip_if
+.. autofunction:: spektrum.incomplete()
 
 
 Adding Metadata to Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Specter allows for you to tag tests with metadata. The primary purpose of this is to be able to carry misc information along with your test. At some point in the future, Specter will be able to output this information for consumption and processing. However, currently, metadata information can be used to select which tests you want to run.
+Spektrum allows for you to tag tests with metadata. The primary purpose of this is to be able to carry misc information along with your test. At some point in the future, Spektrum will be able to output this information for consumption and processing. However, currently, metadata information can be used to select which tests you want to run.
 
-.. autofunction:: specter.metadata
+.. autofunction:: spektrum.metadata

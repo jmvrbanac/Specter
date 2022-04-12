@@ -2,7 +2,7 @@ import sys
 
 import colored
 
-from specter import logger, utils
+from spektrum import logger, utils
 
 log = logger.get(__name__)
 

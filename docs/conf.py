@@ -10,7 +10,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.issuetracker']
 
 # Issue tracking
 issuetracker = 'github'
-issuetracker_project = 'jmvrbanac/Specter'
+issuetracker_project = 'liquidweb/Spektrum'
 issuetracker_issue_pattern = r'gh-#(\d+)'
 # issuetracker_title_template = '#{issue.id}'
 
@@ -24,7 +24,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Specter'
+project = u'Spektrum'
 copyright = u'2013-2017, John Vrbanac'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -48,7 +48,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = True
-htmlhelp_basename = 'Specterdoc'
+htmlhelp_basename = 'Spektrumdoc'
 
 
 # -- Options for LaTeX output --
@@ -65,7 +65,7 @@ latex_elements = {
 }
 
 latex_documents = [
-    ('index', 'Specter.tex', u'Specter Documentation',
+    ('index', 'Spektrum.tex', u'Spektrum Documentation',
      u'John Vrbanac', 'manual'),
 ]
 
@@ -75,7 +75,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'specter', u'Specter Documentation',
+    ('index', 'spektrum', u'Spektrum Documentation',
      [u'John Vrbanac'], 1)
 ]
 
@@ -83,6 +83,6 @@ man_pages = [
 # -- Options for Texinfo output --
 
 texinfo_documents = [
-    ('index', 'Specter', u'Specter Documentation', u'John Vrbanac', 'Specter',
+    ('index', 'Spektrum', u'Spektrum Documentation', u'John Vrbanac', 'Spektrum',
      'One line description of project.', 'Miscellaneous'),
 ]

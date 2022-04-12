@@ -36,7 +36,7 @@ setup(
     ],
     entry_points = {
         'console_scripts': [
-            'specter = specter.__main__:main'
+            'spektrum = spektrum.__main__:main'
         ]
     },
 )

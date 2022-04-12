@@ -1,5 +1,5 @@
-from specter import Spec, DataSpec
-from specter import expect, require, skip_if, incomplete, metadata, fixture
+from spektrum import Spec, DataSpec
+from spektrum import expect, require, skip_if, incomplete, metadata, fixture
 
 
 def expects_from_a_called_func():

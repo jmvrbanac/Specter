@@ -4,7 +4,7 @@ import functools
 import types
 import uuid
 
-from specter import logger, utils
+from spektrum import logger, utils
 
 
 class Spec(object):
@@ -113,7 +113,7 @@ class Spec(object):
     @property
     def has_dependencies(self):
         for case in self.__test_cases__:
-            data = getattr(case, '__specter__', None)
+            data = getattr(case, '__spektrum__', None)
             if not data or not (data.skip or data.incomplete):
                 return True
 
@@ -213,10 +213,10 @@ def metadata(**kv_pairs):
 
 
 def get_case_data(case):
-    data = getattr(case, '__specter__', None)
+    data = getattr(case, '__spektrum__', None)
     if not data:
-        case.__specter__ = TestCaseData()
-    return case.__specter__
+        case.__spektrum__ = TestCaseData()
+    return case.__spektrum__
 
 
 def case_filter(cls, obj):

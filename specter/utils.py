@@ -4,7 +4,7 @@ import itertools
 import re
 import sys
 
-from specter import logger
+from spektrum import logger
 
 log = logger.get(__name__)
 
@@ -48,7 +48,7 @@ def get_tracebacks(exc):
 
         exc_traceback = exc_traceback.tb_next
 
-    # The only time we want the full list is when specter has a problem
+    # The only time we want the full list is when spektrum has a problem
     if len(tracebacks) > 1:
         tracebacks = tracebacks[1:]
 
@@ -150,7 +150,7 @@ def find_by_metadata(metadata, cases):
     selected_cases = []
 
     for case in cases:
-        data = getattr(case, '__specter__', None)
+        data = getattr(case, '__spektrum__', None)
 
         if not data or not data.metadata:
             continue
@@ -168,7 +168,7 @@ def exclude_by_metadata(metadata, cases):
     selected_cases = []
 
     for case in cases:
-        data = getattr(case, '__specter__', None)
+        data = getattr(case, '__spektrum__', None)
 
         if not data or not data.metadata:
             selected_cases.append(case)

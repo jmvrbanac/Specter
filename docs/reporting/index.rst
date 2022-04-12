@@ -4,14 +4,14 @@ Reporting
 Types of reporting
 ===================
 
-What is a reporter? A Specter reporter is a module that interacts with
+What is a reporter? A Spektrum reporter is a module that interacts with
 test and spec events to produce human or machine-readable output. Currently,
-Specter supports four types of reporters out of the box:
+Spektrum supports four types of reporters out of the box:
 
  * Console - Serial BDD-style output.
  * Dots - Parallel output that displays a dot per test.
  * xUnit - Produces xUnit compatible XML for CI tools.
- * Specter - Produces JSON in the Specter format for storage and CI tools.
+ * Spektrum - Produces JSON in the Spektrum format for storage and CI tools.
 
 
 Console
@@ -49,7 +49,7 @@ Dots
 
 This is the default reporter that is used when tests are run in parallel mode.
 Due to the nature of parallel execution, it is impossible to build a BDD-style
-report in real-time. As a result, Specter defaults to a simple dot-based report.
+report in real-time. As a result, Spektrum defaults to a simple dot-based report.
 A single dot represents a passed test; whereas a failed test is marked with an
 "x".
 
@@ -60,10 +60,10 @@ A single dot represents a passed test; whereas a failed test is marked with an
 
 
 
-Specter Format
+Spektrum Format
 ====================
 
-The specter format is designed to be a format that allows for you to easily
+The spektrum format is designed to be a format that allows for you to easily
 store and retrieve information about your tests. Considering this format is
 just an expected structure around JSON, this format is especially useful
 when combining with a document store such as MongoDB.
@@ -75,7 +75,7 @@ Root:
 =========== ===================================================================
 Attribute   Note
 =========== ===================================================================
-format      Just a helper for parsers. It be the value "specter"
+format      Just a helper for parsers. It be the value "spektrum"
 version     Aid for parsers to know what version of the format we are running.
 specs       A list of spec objects that contain all of the test information
 =========== ===================================================================
@@ -85,7 +85,7 @@ specs       A list of spec objects that contain all of the test information
 .. code-block:: javascript
 
     {
-        "format": "specter",
+        "format": "spektrum",
         "version": "0.1.0",
         "specs": [...]
     }
