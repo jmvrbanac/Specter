@@ -2,10 +2,10 @@ import ast
 import copy
 import inspect
 
-from specter import logger, utils
-from specter.spec import Spec
-from specter.exceptions import FailedRequireException
-from specter.vendor.ast_decompiler import decompile
+from spektrum import logger, utils
+from spektrum.spec import Spec
+from spektrum.exceptions import FailedRequireException
+from spektrum.vendor.ast_decompiler import decompile
 
 log = logger.get(__name__)
 
@@ -297,7 +297,7 @@ def get_expect_params():
 
 
 def expect(obj, caller_args=None, **kwargs):
-    """Primary method for test assertions in Specter
+    """Primary method for test assertions in Spektrum
 
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception
@@ -320,7 +320,7 @@ def expect(obj, caller_args=None, **kwargs):
 
 
 def require(obj, caller_args=None, **kwargs):
-    """Primary method for test assertions in Specter
+    """Primary method for test assertions in Spektrum
 
     :param obj: The evaluated target object
     :param caller_args: Is only used when using expecting a raised Exception

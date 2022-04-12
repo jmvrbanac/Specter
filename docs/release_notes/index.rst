@@ -4,6 +4,14 @@
 Release Notes
 =================
 
+Release: 1.0.0
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Renaming project to Spektrum
+
 Release: 0.6.1
 --------------------------------
 

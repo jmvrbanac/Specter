@@ -1,11 +1,11 @@
 import pytest
 
-from specter.runner import SpecterRunner
+from spektrum.runner import SpektrumRunner
 
 
 @pytest.fixture
 def runner():
-    yield SpecterRunner()
+    yield SpektrumRunner()
 
 
 def test_can_run(runner):

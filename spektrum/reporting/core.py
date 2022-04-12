@@ -1,5 +1,5 @@
-from specter import logger, utils
-from specter.spec import get_case_data
+from spektrum import logger, utils
+from spektrum.spec import get_case_data
 
 log = logger.get(__name__)
 
@@ -180,7 +180,7 @@ class CaseFormatData(object):
             separator = '-' * 40
 
             formatted = ['|  ' + line for line in tb['source']]
-            formatted[-1] = f'->' + formatted[-1][2:]
+            formatted[-1] = '->' + formatted[-1][2:]
             formatted_tracebacks.append([
                 f'- {filename}:{tb["line"]}',
                 separator,

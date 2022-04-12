@@ -3,23 +3,23 @@
 .. role:: raw-html(raw)
    :format: html
 
-Using Specter
+Using Spektrum
 ##################
 
 Installation
 =============
-You can download Specter from PyPI for easy installation.
+You can download Spektrum from PyPI for easy installation.
 It is recommended that you use  `pip
 <http://pypi.python.org/pypi/pip>`_ or `easy_install
 <http://python-distribute.org/distribute_setup.py>`_ to install the bindings::
 
-  pip install specter
+  pip install spektrum
 
 You may consider using `virtualenv <http://www.virtualenv.org>`_ or `pyenv <https://github.com/yyuu/pyenv>`_ to create isolated Python environments.
 
 Setup
 ==========
-By default, Specter looks within the current directory for a folder called "spec" which contains your test files
+By default, Spektrum looks within the current directory for a folder called "spec" which contains your test files
 
 *Example Default Test Structure:*
 
@@ -35,16 +35,16 @@ By default, Specter looks within the current directory for a folder called "spec
 
 If you do not wish to use the default folder, you can specify an alternative using the :raw-html:`"--search"` command-line argument::
 
-   specter --search /path/to/folder
+   spektrum --search /path/to/folder
 
 Runner
 ==============
-Specter allows for quick and easy execution of your tests by just calling 'specter' within your project folder::
+Spektrum allows for quick and easy execution of your tests by just calling 'spektrum' within your project folder::
 
-	specter
+	spektrum
 	          ___
 	        _/ @@\
-	    ~- ( \  O/__     Specter
+	    ~- ( \  O/__     Spektrum
 	    ~-  \    \__)   ~~~~~~~~~~
 	    ~-  /     \     Keeping the Bogeyman away from your code!
 	    ~- /      _\
@@ -68,7 +68,7 @@ Specter allows for quick and easy execution of your tests by just calling 'spect
 
 Command-line Arguments
 ------------------------
-Specter is a spec-based testing library to help facilitate BDD in Python.
+Spektrum is a spec-based testing library to help facilitate BDD in Python.
 
 =====================  ============
 Argument               Description
@@ -81,7 +81,7 @@ Argument               Description
 --select-tests         Selects tests to run by name. (Comma delimited list)
 --select-by-metadata   Selects tests to run by specifying a list of key=value pairs
 --xunit-results        Output xUnit XML results into a specified file
---json-results         Saves Specter JSON results into a specifed file
+--json-results         Saves Spektrum JSON results into a specifed file
 --no-color             Disables ASCII color codes
 --ascii-only           Disables color and uses only ascii characters (useful for CI systems).
 --parallel             Activates parallel testing mode

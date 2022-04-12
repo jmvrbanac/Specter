@@ -5,9 +5,9 @@ Maintainer Notes
 ================
 
 These notes are directed towards helping with the maintenance of the
-Specter project.
+Spektrum project.
 
-Releasing a new version of Specter
+Releasing a new version of Spektrum
 ----------------------------------
 
 #. Start with a fresh local branch.

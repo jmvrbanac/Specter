@@ -4,11 +4,11 @@ import sys
 
 import coverage
 
-from specter.runner import SpecterRunner
-from specter.utils import translate_cli_argument
+from spektrum.runner import SpektrumRunner
+from spektrum.utils import translate_cli_argument
 
 coverage_omit_list = [
-    '*/specter/*',
+    '*/spektrum/*',
     '*/pike/*',
 ]
 
@@ -45,7 +45,7 @@ def main(argv=None):
             ]
         }
 
-    runner = SpecterRunner(
+    runner = SpektrumRunner(
         reporting_options={
             'show_all_expects': arguments.show_all_expects,
             'xunit_results': arguments.xunit_results,
@@ -76,7 +76,7 @@ def main(argv=None):
 
 def setup_argparse():
     parser = argparse.ArgumentParser(
-        description='Specter is a spec-based testing library to help facilitate BDD in Python.'
+        description='Spektrum is a spec-based testing library to help facilitate BDD in Python.'
     )
 
     parser.add_argument(

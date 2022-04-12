@@ -5,7 +5,7 @@ long_desc = None
 if os.path.exists('README.rst'):
     long_desc = open('README.rst').read()
 
-version = '0.0.1'
+version = '1.0.0'
 
 setup(
     name='Spektrum',
@@ -17,7 +17,7 @@ setup(
     author_email='software-qa@liquidweb.com',
     description='Spektrum is a spec-based testing library to help facilitate BDD-testing in Python.',
     long_description=long_desc,
-    classifiers=(
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -25,7 +25,7 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.7',
-    ),
+    ],
     python_requires='>=3.5',
     tests_require=['pytest', 'flake8'],
     install_requires=[
@@ -36,7 +36,7 @@ setup(
     ],
     entry_points = {
         'console_scripts': [
-            'specter = specter.__main__:main'
+            'spektrum = spektrum.__main__:main'
         ]
     },
 )
