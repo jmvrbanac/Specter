@@ -5,7 +5,7 @@ long_desc = None
 if os.path.exists('README.rst'):
     long_desc = open('README.rst').read()
 
-version = '0.6.1'
+version = '1.0.0'
 
 setup(
     name='Spektrum',
