@@ -24,7 +24,8 @@ class SpektrumRunner(object):
         self.renderer = PrettyRenderer(reporting_options)
         self.xunit_renderer = XUnitRenderer(reporting_options)
 
-    def run(self, search_paths, module_name=None, metadata=None, test_names=None, exclude=None):
+    def run(self, search_paths, module_name=None, metadata=None, test_names=None, exclude=None,
+            dry_run=False):
         loop = asyncio.get_event_loop()
 
         with PikeManager(search_paths) as mgr:
@@ -63,7 +64,8 @@ class SpektrumRunner(object):
                     self.reporting,
                     metadata,
                     test_names,
-                    exclude
+                    exclude,
+                    dry_run=dry_run,
                 )
                 for cls in selected_modules
             ])
@@ -99,7 +101,7 @@ class SpektrumRunner(object):
 
 
 async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_names=None,
-                              exclude=None):
+                              exclude=None, dry_run=False):
     parents = []
     cls = spec.__parent_cls__
     last = None
@@ -115,7 +117,7 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
     parents.reverse()
     last = None
     for parent in parents:
-        successful = await setup_spec(parent, semaphore, reporting)
+        successful = await setup_spec(parent, semaphore, reporting, dry_run)
         if successful is False:
             reporting.case_finished(spec, TestCaseData())
             return
@@ -129,20 +131,21 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
         reporting,
         metadata=metadata,
         test_names=test_names,
-        exclude=exclude
+        exclude=exclude,
+        dry_run=dry_run,
     )
 
     # Walk down the tree to setup specs
     parents.reverse()
     for parent in parents:
-        successful = await teardown_spec(parent, semaphore)
+        successful = await teardown_spec(parent, semaphore, dry_run)
         if successful is False:
             reporting.case_finished(spec, TestCaseData())
             return
 
 
 async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
-                       metadata=None, test_names=None, exclude=None):
+                       metadata=None, test_names=None, exclude=None, dry_run=False):
     if spec.__CASE_CONCURRENCY__:
         test_semaphore = spec.__CASE_CONCURRENCY__
     if spec.__SPEC_CONCURRENCY__:
@@ -153,13 +156,13 @@ async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
 
     # Limit spec setups to max concurrency level
     async with spec_semaphore:
-        successful = await setup_spec(spec, test_semaphore, reporting)
+        successful = await setup_spec(spec, test_semaphore, reporting, dry_run=dry_run)
         if successful is False:
             reporting.case_finished(spec, TestCaseData())
             return
 
         test_futures = [
-            execute_test_case(spec, func, test_semaphore, reporting)
+            execute_test_case(spec, func, test_semaphore, reporting, dry_run=dry_run)
             for func in spec.__test_cases__
         ]
         await asyncio.gather(*test_futures)
@@ -172,30 +175,31 @@ async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
             reporting,
             metadata,
             test_names,
-            exclude
+            exclude,
+            dry_run=dry_run,
         )
         for child in spec.children
     ]
     await asyncio.gather(*spec_futures)
 
     async with spec_semaphore:
-        successful = await teardown_spec(spec, test_semaphore)
+        successful = await teardown_spec(spec, test_semaphore, dry_run=dry_run)
         if successful is False:
             reporting.case_finished(spec, TestCaseData())
 
 
-async def setup_spec(spec, semaphore, reporting):
+async def setup_spec(spec, semaphore, reporting, dry_run=False):
     reporting.track_spec(spec)
     if spec.has_dependencies:
-        return await execute_method(spec.before_all, semaphore)
+        return await execute_method(spec.before_all, semaphore, dry_run)
 
 
-async def teardown_spec(spec, semaphore):
+async def teardown_spec(spec, semaphore, dry_run=False):
     if spec.has_dependencies:
-        return await execute_method(spec.after_all, semaphore)
+        return await execute_method(spec.after_all, semaphore, dry_run)
 
 
-async def execute_method(method, semaphore, *args, **kwargs):
+async def execute_method(method, semaphore, dry_run, *args, **kwargs):
     # If it has the inherited tag, it's from the base class and don't execute
     if getattr(method, '__inherited_from_spec__', None):
         return
@@ -203,10 +207,13 @@ async def execute_method(method, semaphore, *args, **kwargs):
     async with semaphore:
         try:
             log.debug('Executing: %s', method.__func__.__qualname__)
-            if asyncio.iscoroutinefunction(method):
-                ret = await method(*args, **kwargs)
-            else:
-                ret = method(*args, **kwargs)
+            ret = None
+
+            if not dry_run:
+                if asyncio.iscoroutinefunction(method):
+                    ret = await method(*args, **kwargs)
+                else:
+                    ret = method(*args, **kwargs)
 
             log.debug('Finished: %s', method.__func__.__qualname__)
             return ret
@@ -225,7 +232,7 @@ async def execute_method(method, semaphore, *args, **kwargs):
     return True
 
 
-async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
+async def execute_test_case(spec, case, semaphore, reporting, dry_run, *args, **kwargs):
     data = get_case_data(case)
     if data.incomplete:
         reporting.case_finished(spec, case)
@@ -236,18 +243,18 @@ async def execute_test_case(spec, case, semaphore, reporting, *args, **kwargs):
         kwargs = data.data_kwargs
 
     if not (data.skip or data.incomplete):
-        successful = await execute_method(spec.before_each, semaphore)
+        successful = await execute_method(spec.before_each, semaphore, dry_run)
         if successful is False:
             data.before_each_traces.extend(spec.before_each.__tracebacks__)
             reporting.case_finished(spec, case)
             return
 
     data.start_time = time.time()
-    await execute_method(getattr(spec, case.__name__), semaphore, *args, **kwargs)
+    await execute_method(getattr(spec, case.__name__), semaphore, dry_run, *args, **kwargs)
     data.end_time = time.time()
 
     if not (data.skip or data.incomplete):
-        successful = await execute_method(spec.after_each, semaphore)
+        successful = await execute_method(spec.after_each, semaphore, dry_run)
         if successful is False:
             data.after_each_traces.extend(spec.after_each.__tracebacks__)
 

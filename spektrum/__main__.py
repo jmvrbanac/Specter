@@ -64,6 +64,7 @@ def main(argv=None):
         metadata=select_metadata,
         exclude=exclude_metadata,
         test_names=arguments.select_tests,
+        dry_run=arguments.dry_run,
     )
 
     if activated_coverage:
@@ -126,6 +127,13 @@ def setup_argparse():
         dest='coverage',
         action='store_true',
         help='Activates coverage.py integration'
+    )
+
+    parser.add_argument(
+        '--dry-run',
+        dest='dry_run',
+        action='store_true',
+        help='Executes through suites without setup/teardown and test cases'
     )
 
     parser.add_argument(
