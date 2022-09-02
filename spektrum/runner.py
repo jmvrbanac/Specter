@@ -59,6 +59,7 @@ class SpektrumRunner(object):
 
             # future = asyncio.gather(*coroutines)
 
+            self.reporting.start_reporting(dry_run)
             future = asyncio.gather(*[
                 execute_spec(
                     spec,
@@ -122,7 +123,7 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
     for parent in parents:
         successful = await setup_spec(parent, semaphore, reporting, dry_run)
         if successful is False:
-            reporting.case_finished(spec, TestCaseData())
+            reporting.case_finished(spec, None)
             return
         last = parent
 
@@ -143,7 +144,7 @@ async def execute_nested_spec(spec, semaphore, reporting, metadata=None, test_na
     for parent in parents:
         successful = await teardown_spec(parent, semaphore, dry_run)
         if successful is False:
-            reporting.case_finished(spec, TestCaseData())
+            reporting.case_finished(spec, None)
             return
 
 
@@ -161,7 +162,7 @@ async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
     async with spec_semaphore:
         successful = await setup_spec(spec, test_semaphore, reporting, dry_run=dry_run)
         if successful is False:
-            reporting.case_finished(spec, TestCaseData())
+            reporting.case_finished(spec, None)
             return
 
         test_futures = [
@@ -188,7 +189,7 @@ async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
     async with spec_semaphore:
         successful = await teardown_spec(spec, test_semaphore, dry_run=dry_run)
         if successful is False:
-            reporting.case_finished(spec, TestCaseData())
+            reporting.case_finished(spec, None)
 
     reporting.spec_finished(spec)
 

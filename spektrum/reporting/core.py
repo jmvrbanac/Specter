@@ -28,10 +28,18 @@ class ReportManager(object):
             if reporter.enabled:
                 reporter.track_top_level(specs)
 
+    def start_reporting(self, dry_run):
+        for reporter in self.reporters.values():
+            if reporter.enabled:
+                reporter.start_reporting(dry_run)
+
     def track_spec(self, spec):
         self.specs[spec._id] = spec
 
     def case_finished(self, spec, case):
+        if not case:
+            return
+
         data = CaseFormatData(spec, case)
         indicator = '.'
 

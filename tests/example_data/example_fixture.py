@@ -26,4 +26,4 @@ class UsingFixture(ExampleTestFixture):
             Something else
         derp: true
         """
-        pass
+        expect('derp').to.equal('derp')

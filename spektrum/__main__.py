@@ -52,6 +52,10 @@ def main(argv=None):
             'tr_endpoint': arguments.tr_endpoint,
             'tr_username': arguments.tr_username,
             'tr_apikey': arguments.tr_apikey,
+            'tr_project': arguments.tr_project,
+            'tr_suite': arguments.tr_suite,
+            'tr_template': arguments.tr_template,
+            'tr_run': arguments.tr_run,
         },
         concurrency=concurrency,
     )
@@ -176,6 +180,42 @@ def setup_argparse():
         metavar='',
         default=None,
         help='TestRail API Key',
+    )
+
+    parser.add_argument(
+        '--tr-project',
+        dest='tr_project',
+        metavar='',
+        default=1,
+        type=int,
+        help='TestRail Project ID',
+    )
+
+    parser.add_argument(
+        '--tr-suite',
+        dest='tr_suite',
+        metavar='',
+        default=4,
+        type=int,
+        help='TestRail Suite ID',
+    )
+
+    parser.add_argument(
+        '--tr-template',
+        dest='tr_template',
+        metavar='',
+        default=4,
+        type=int,
+        help='TestRail Template ID',
+    )
+
+    parser.add_argument(
+        '--tr-run',
+        dest='tr_run',
+        metavar='',
+        default=None,
+        type=int,
+        help='TestRail Run ID for updating an existing run',
     )
 
     parser.add_argument(

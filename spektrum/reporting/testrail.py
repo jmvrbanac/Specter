@@ -1,18 +1,38 @@
+from enum import Enum
+from datetime import datetime
+
 from spektrum import logger, utils
-from spektrum.reporting.data import SpecFormatData
+from spektrum.reporting.data import CaseFormatData, SpecFormatData
 
 import httpx
 
 log = logger.get(__name__)
 
 
+class TestRailStatus(Enum):
+    PASSED = 1
+    BLOCKED = 2
+    UNTESTED = 3
+    RETEST = 4
+    FAILED = 5
+    SKIPPED = 7
+
+UNICODE_SKIP = u'\u2607'
+UNICODE_SEP = u'\u221F'
+UNICODE_ARROW = u'\u2192'
+UNICODE_ARROW_BAR = u'\u219B'
+UNICODE_CHECK = u'\u2713'
+UNICODE_X = u'\u2717'
+
+
 class TestRailRenderer(object):
     def __init__(self, reporting_options=None):
         self.reporting_options = reporting_options or {}
         self.enabled = False
-        self.project = 1
-        self.suite = 4
-        self.template = 4
+        self.project = self.reporting_options.get('tr_project')
+        self.suite = self.reporting_options.get('tr_suite')
+        self.template = self.reporting_options.get('tr_template')
+        self.run = self.reporting_options.get('tr_run')
         self.sections = {}
         self.specs = {}
         self.tr = TestRailClient(
@@ -76,7 +96,7 @@ class TestRailRenderer(object):
             else:
                 case.case_id = tr_case['id']
                 case.section_id = tr_case['section_id']
-                test_yaml = utils.get_yaml_fragment(case.doc)
+                test_yaml = utils.get_yaml_fragment(case.doc or '')
 
                 case_data = {
                     'title': case.name,
@@ -100,8 +120,61 @@ class TestRailRenderer(object):
         for spec in specs:
             self.reconcile_spec_and_section(spec, self.sections.values())
 
+    def start_reporting(self, dry_run):
+        if dry_run:
+            return
+
+        if not self.run:
+            time = datetime.now().strftime('%m/%d/%Y, %H:%M:%S%p')
+            resp = self.tr.add_run(
+                project_id=self.project,
+                suite_id=self.suite,
+                name=f'Spektrum {time}'
+            )
+            self.run = resp.json()['id']
+
     def report_case(self, spec, case):
-        pass
+        try:
+            cached_data = self.get_cached_case_data(spec, case.__name__)
+        except Exception as e:
+            import pdb; pdb.set_trace()
+            pass
+
+        case_data = TestRailCaseData(spec, case)
+        case_data.case_id = cached_data.case_id
+        case_data.section_id = cached_data.section_id
+
+        status = TestRailStatus.FAILED
+        if case_data.successful:
+            status = TestRailStatus.PASSED
+        elif case_data.skipped:
+            status = TestRailStatus.SKIPPED
+
+        timespan = int(case_data.elapsed_time) or 1
+
+        lines = []
+        mark = UNICODE_CHECK
+        for expect in case_data.expects:
+            mark = UNICODE_CHECK if expect.success else UNICODE_X
+            arrow = UNICODE_ARROW_BAR if expect.required else UNICODE_ARROW
+
+            lines.append(f'{arrow} {mark} {expect.evaluation}')
+
+            if not expect.success:
+                lines.append('    Values:')
+                lines.append('    -------')
+                lines.append(f'    | {expect.target_name}: {expect.target}')
+
+                if str(expect.expected_name) != str(expect.expected):
+                    lines.append(f'    | {expect.expected_name}: {expect.expected}')
+
+        resp = self.tr.add_result_for_case(
+            run_id=self.run,
+            case_id=case_data.case_id,
+            status=status,
+            elapsed=f'{timespan}s',
+            comment='\n'.join(lines),
+        )
 
     def report_spec(self, spec):
         pass
@@ -110,8 +183,23 @@ class TestRailRenderer(object):
     def render(self, report):
         self.report = report
 
+    def get_cached_case_data(self, spec, raw_name):
+        return next(
+            (case for case in self.specs[spec._id].cases if case.raw_name == raw_name),
+            None
+        )
+
+
+class TestRailCaseData(CaseFormatData):
+    def __init__(self, spec, case):
+        super().__init__(spec, case)
+        self.case_id = None
+        self.section_id = None
+
 
 class TestRailSpecData(SpecFormatData):
+    _case_format_cls = TestRailCaseData
+
     def __init__(self, spec):
         super().__init__(spec)
         self.section_id = None
@@ -141,6 +229,31 @@ class TestRailClient(object):
             )
 
         return items
+
+    def add_result_for_case(self, run_id, case_id, status, elapsed, comment):
+        body = utils.clean_dictionary({
+            'status_id': status.value,
+            'elapsed': elapsed,
+            'comment': comment,
+        })
+
+        return httpx.post(
+            f'{self.endpoint}/api/v2/add_result_for_case/{run_id}/{case_id}',
+            json=body,
+            auth=(self.username, self.api_key)
+        )
+
+    def add_run(self, project_id, suite_id, name):
+        body = utils.clean_dictionary({
+            'suite_id': suite_id,
+            'name': name,
+        })
+
+        return httpx.post(
+            f'{self.endpoint}/api/v2/add_run/{project_id}',
+            json=body,
+            auth=(self.username, self.api_key)
+        )
 
     def add_section(self, project_id, suite_id, name, description='', parent_id=None):
         body = utils.clean_dictionary({
