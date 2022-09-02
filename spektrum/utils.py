@@ -6,6 +6,8 @@ import sys
 
 from spektrum import logger
 
+import yaml
+
 log = logger.get(__name__)
 
 SOURCE_CACHE = {}
@@ -146,6 +148,10 @@ def find_by_names(names, cases):
     ]
 
 
+def clean_dictionary(data):
+    return {k: v for k, v in data.items() if v is not None}
+
+
 def find_by_metadata(metadata, cases):
     selected_cases = []
 
@@ -203,3 +209,19 @@ def traceback_occurred_msg(case_type):
     if case_type == 'case':
         return f'{msg} during execution'
     return f'{msg} running {case_type}'
+
+
+def get_yaml_fragment(input_str):
+    split = re.split('\n?---+\n?', input_str, re.M)
+    if len(split) > 1:
+        return yaml.load(split[1], yaml.SafeLoader)
+
+    return {}
+
+
+def extract_dict(data, keys):
+    return dict((k, data[k]) for k in keys if k in data)
+
+
+def flat_dict_diff(left, right):
+    return dict(left.items() - right.items())

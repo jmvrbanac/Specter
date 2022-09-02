@@ -49,6 +49,9 @@ def main(argv=None):
         reporting_options={
             'show_all_expects': arguments.show_all_expects,
             'xunit_results': arguments.xunit_results,
+            'tr_endpoint': arguments.tr_endpoint,
+            'tr_username': arguments.tr_username,
+            'tr_apikey': arguments.tr_apikey,
         },
         concurrency=concurrency,
     )
@@ -149,6 +152,30 @@ def setup_argparse():
         metavar='',
         default=None,
         help='Saves out xUnit compatible results to a specified file',
+    )
+
+    parser.add_argument(
+        '--tr-endpoint',
+        dest='tr_endpoint',
+        metavar='',
+        default='https://madqe.testrail.io',
+        help='TestRail Endpoint',
+    )
+
+    parser.add_argument(
+        '--tr-username',
+        dest='tr_username',
+        metavar='',
+        default=None,
+        help='TestRail Username',
+    )
+
+    parser.add_argument(
+        '--tr-apikey',
+        dest='tr_apikey',
+        metavar='',
+        default=None,
+        help='TestRail API Key',
     )
 
     parser.add_argument(

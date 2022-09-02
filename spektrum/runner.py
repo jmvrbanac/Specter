@@ -41,6 +41,9 @@ class SpektrumRunner(object):
                     module_name
                 )
 
+            instantiated = [cls() for cls in selected_modules]
+            self.reporting.track_top_level(instantiated)
+
             # TODO(jmvrbanac): Change how nested specs are executed
             # coroutines = []
             # for cls in selected_modules:
@@ -58,7 +61,7 @@ class SpektrumRunner(object):
 
             future = asyncio.gather(*[
                 execute_spec(
-                    cls(),
+                    spec,
                     self.spec_semaphore,
                     self.test_semaphore,
                     self.reporting,
@@ -67,7 +70,7 @@ class SpektrumRunner(object):
                     exclude,
                     dry_run=dry_run,
                 )
-                for cls in selected_modules
+                for spec in instantiated
             ])
 
             loop.run_until_complete(future)
@@ -186,6 +189,8 @@ async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
         successful = await teardown_spec(spec, test_semaphore, dry_run=dry_run)
         if successful is False:
             reporting.case_finished(spec, TestCaseData())
+
+    reporting.spec_finished(spec)
 
 
 async def setup_spec(spec, semaphore, reporting, dry_run=False):

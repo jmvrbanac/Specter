@@ -33,6 +33,8 @@ setup(
         'docopt',
         'pike>=0.1.0',
         'coverage',
+        'httpx>=0.23.0',
+        'pyyaml',
     ],
     entry_points = {
         'console_scripts': [

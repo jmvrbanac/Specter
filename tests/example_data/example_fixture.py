@@ -16,4 +16,14 @@ class ExampleTestFixture(Spec):
 class UsingFixture(ExampleTestFixture):
 
     def another_test(self):
+        """
+        Blarg
+
+        --------
+        description: |
+            adsasda
+            asdasd
+            Something else
+        derp: true
+        """
         pass
