@@ -7,7 +7,7 @@ from pike.manager import PikeManager
 from spektrum import logger, utils
 
 from spektrum.exceptions import FailedRequireException
-from spektrum.spec import get_case_data, Spec, spec_filter, find_children, TestCaseData
+from spektrum.spec import get_case_data, Spec, spec_filter, find_children
 from spektrum.reporting.core import ReportManager
 from spektrum.reporting.pretty import PrettyRenderer
 from spektrum.reporting.xunit import XUnitRenderer
