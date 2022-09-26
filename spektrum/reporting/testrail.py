@@ -207,8 +207,8 @@ class TestRailClient(object):
         self.username = username
         self.api_key = api_key
 
-    def _get_paginated(self, item_collection, url=None, auth=None, params=None):
-        resp = httpx.get(url, auth=auth, params=params)
+    def _get_paginated(self, item_collection, url=None, auth=None, params=None, timeout=None):
+        resp = httpx.get(url, auth=auth, params=params, timeout=timeout)
         data = resp.json()
         offset = data.get('offset', 0)
         limit = data.get('limit', 150)
@@ -235,7 +235,8 @@ class TestRailClient(object):
         return httpx.post(
             f'{self.endpoint}/api/v2/add_result_for_case/{run_id}/{case_id}',
             json=body,
-            auth=(self.username, self.api_key)
+            auth=(self.username, self.api_key),
+            timeout=30,
         )
 
     def add_run(self, project_id, suite_id, name):
@@ -247,7 +248,8 @@ class TestRailClient(object):
         return httpx.post(
             f'{self.endpoint}/api/v2/add_run/{project_id}',
             json=body,
-            auth=(self.username, self.api_key)
+            auth=(self.username, self.api_key),
+            timeout=30,
         )
 
     def add_section(self, project_id, suite_id, name, description='', parent_id=None):
@@ -261,7 +263,8 @@ class TestRailClient(object):
         return httpx.post(
             f'{self.endpoint}/api/v2/add_section/{project_id}',
             json=body,
-            auth=(self.username, self.api_key)
+            auth=(self.username, self.api_key),
+            timeout=30,
         )
 
     def add_case(self, section_id, title, template=None, description=None):
@@ -274,7 +277,8 @@ class TestRailClient(object):
         return httpx.post(
             f'{self.endpoint}/api/v2/add_case/{section_id}',
             json=body,
-            auth=(self.username, self.api_key)
+            auth=(self.username, self.api_key),
+            timeout=30,
         )
 
     def update_case(self, case_id, **kwargs):
@@ -283,13 +287,15 @@ class TestRailClient(object):
         return httpx.post(
             f'{self.endpoint}/api/v2/update_case/{case_id}',
             json=body,
-            auth=(self.username, self.api_key)
+            auth=(self.username, self.api_key),
+            timeout=30
         )
 
     def get_sections(self, project_id, suite_id):
         return httpx.get(
             f'{self.endpoint}/api/v2/get_sections/{project_id}/&suite_id={suite_id}',
-            auth=(self.username, self.api_key)
+            auth=(self.username, self.api_key),
+            timeout=30,
         )
 
     def get_cases(self, project_id, suite_id, section_id=None):
@@ -306,6 +312,7 @@ class TestRailClient(object):
             url=f'{self.endpoint}',
             auth=(self.username, self.api_key),
             params=parameters,
+            timeout=30
         )
 
 
