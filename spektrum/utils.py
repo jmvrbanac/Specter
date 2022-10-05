@@ -225,3 +225,18 @@ def extract_dict(data, keys):
 
 def flat_dict_diff(left, right):
     return dict(left.items() - right.items())
+
+
+def filter_cases_by_data(spec, metadata, test_names, exclude):
+    # I Don't really like messing with the test list after the fact.
+    # This should really get fixed at somepoint
+
+    if test_names:
+        spec.__test_cases__ = find_by_names(test_names, spec.__test_cases__)
+    if metadata:
+        spec.__test_cases__ = find_by_metadata(metadata, spec.__test_cases__)
+    if exclude:
+        spec.__test_cases__ = exclude_by_metadata(exclude, spec.__test_cases__)
+
+    for child in spec.children:
+        filter_cases_by_data(child, metadata, test_names, exclude)

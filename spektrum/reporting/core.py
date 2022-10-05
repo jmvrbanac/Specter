@@ -23,10 +23,10 @@ class ReportManager(object):
             if not spec.parent
         ]
 
-    def track_top_level(self, specs):
+    def track_top_level(self, specs, metadata, test_names, exclude):
         for reporter in self.reporters.values():
             if reporter.enabled:
-                reporter.track_top_level(specs)
+                reporter.track_top_level(specs, metadata, test_names, exclude)
 
     def start_reporting(self, dry_run):
         for reporter in self.reporters.values():

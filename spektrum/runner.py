@@ -42,7 +42,7 @@ class SpektrumRunner(object):
                 )
 
             instantiated = [cls() for cls in selected_modules]
-            self.reporting.track_top_level(instantiated)
+            self.reporting.track_top_level(instantiated, metadata, test_names, exclude)
 
             # TODO(jmvrbanac): Change how nested specs are executed
             # coroutines = []
@@ -156,7 +156,7 @@ async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
         spec_semaphore = spec.__SPEC_CONCURRENCY__
 
     if not spec.parent:
-        filter_cases_by_data(spec, metadata, test_names, exclude)
+        utils.filter_cases_by_data(spec, metadata, test_names, exclude)
 
     # Limit spec setups to max concurrency level
     async with spec_semaphore:
@@ -265,21 +265,3 @@ async def execute_test_case(spec, case, semaphore, reporting, dry_run, *args, **
             data.after_each_traces.extend(spec.after_each.__tracebacks__)
 
     reporting.case_finished(spec, case)
-
-
-def filter_cases_by_data(spec, metadata, test_names, exclude):
-    # I Don't really like messing with the test list after the fact.
-    # This should really get fixed at somepoint
-
-    if test_names:
-        spec.__test_cases__ = utils.find_by_names(
-            test_names, spec.__test_cases__)
-    if metadata:
-        spec.__test_cases__ = utils.find_by_metadata(
-            metadata, spec.__test_cases__)
-    if exclude:
-        spec.__test_cases__ = utils.exclude_by_metadata(
-            exclude, spec.__test_cases__)
-
-    for child in spec.children:
-        filter_cases_by_data(child, metadata, test_names, exclude)
