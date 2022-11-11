@@ -117,7 +117,7 @@ class TestRailRenderer(object):
 
             self.reconcile_spec_and_section(child._spec, metadata, test_names, exclude, child_sections)
 
-    def track_top_level(self, specs, metadata, test_names, exclude):
+    def track_top_level(self, specs, all_inherited, metadata, test_names, exclude):
         for spec in specs:
             self.reconcile_spec_and_section(spec, metadata, test_names, exclude, self.sections.values())
 
@@ -164,6 +164,15 @@ class TestRailRenderer(object):
 
                 if str(expect.expected_name) != str(expect.expected):
                     lines.append(f'    | {expect.expected_name}: {expect.expected}')
+
+        if case_data.errors:
+            lines.append('')
+            lines.append(utils.traceback_occurred_msg(case_data.error_type))
+            lines.append('-' * 40)
+
+            for error in case_data.errors:
+                for line in error:
+                    lines.append(line)
 
         self.tr.add_result_for_case(
             run_id=self.run,

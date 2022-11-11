@@ -29,9 +29,10 @@ class SpektrumRunner(object):
         loop = asyncio.get_event_loop()
 
         with PikeManager(search_paths) as mgr:
+            all_inherited = mgr.get_all_inherited_classes(Spec)
             selected_modules = [
                 cls
-                for cls in mgr.get_all_inherited_classes(Spec)
+                for cls in all_inherited
                 if spec_filter(Spec, cls)
             ]
 
@@ -42,7 +43,7 @@ class SpektrumRunner(object):
                 )
 
             instantiated = [cls() for cls in selected_modules]
-            self.reporting.track_top_level(instantiated, metadata, test_names, exclude)
+            self.reporting.track_top_level(instantiated, all_inherited, metadata, test_names, exclude)
 
             # TODO(jmvrbanac): Change how nested specs are executed
             # coroutines = []
@@ -195,12 +196,15 @@ async def execute_spec(spec, spec_semaphore, test_semaphore, reporting,
 
 
 async def setup_spec(spec, semaphore, reporting, dry_run=False):
+    log.debug('Setting up Spec: %s', utils.get_fullname(spec))
+
     reporting.track_spec(spec)
     if spec.has_dependencies:
         return await execute_method(spec.before_all, semaphore, dry_run)
 
 
 async def teardown_spec(spec, semaphore, dry_run=False):
+    log.debug('Tearing down Spec: %s', utils.get_fullname(spec))
     if spec.has_dependencies:
         return await execute_method(spec.after_all, semaphore, dry_run)
 
