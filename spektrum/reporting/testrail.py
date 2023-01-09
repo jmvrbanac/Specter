@@ -196,7 +196,6 @@ class TestRailRenderer(object):
 
     def report_spec(self, spec):
         pass
-        # import pdb; pdb.set_trace()
 
     def render(self, report):
         self.report = report
