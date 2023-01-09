@@ -43,7 +43,13 @@ class SpektrumRunner(object):
                 )
 
             instantiated = [cls() for cls in selected_modules]
-            self.reporting.track_top_level(instantiated, all_inherited, metadata, test_names, exclude)
+            self.reporting.track_top_level(
+                instantiated,
+                all_inherited,
+                metadata,
+                test_names,
+                exclude
+            )
 
             # TODO(jmvrbanac): Change how nested specs are executed
             # coroutines = []

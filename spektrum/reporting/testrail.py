@@ -115,11 +115,23 @@ class TestRailRenderer(object):
             if tr_section:
                 child_sections = tr_section['children'].values()
 
-            self.reconcile_spec_and_section(child._spec, metadata, test_names, exclude, child_sections)
+            self.reconcile_spec_and_section(
+                child._spec,
+                metadata,
+                test_names,
+                exclude,
+                child_sections
+            )
 
     def track_top_level(self, specs, all_inherited, metadata, test_names, exclude):
         for spec in specs:
-            self.reconcile_spec_and_section(spec, metadata, test_names, exclude, self.sections.values())
+            self.reconcile_spec_and_section(
+                spec,
+                metadata,
+                test_names,
+                exclude,
+                self.sections.values()
+            )
 
     def start_reporting(self, dry_run):
         if dry_run:
