@@ -2,7 +2,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Specter"
-version = "0.6.1"
+version = "0.7.0"
 description = "Specter is a spec-based testing library to help facilitate BDD-testing in Python."
 readme = "README.rst"
 license = { text = "MIT License" }
