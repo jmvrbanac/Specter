@@ -4,6 +4,15 @@
 Release Notes
 =================
 
+Release: 0.7.0
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Removing support for Python 2.7, 3.4, 3.5, and 3.6
+ #. Adding support for Python 3.8, 3.9, 3.10, and 3.12
+
 Release: 0.6.1
 --------------------------------
 
