@@ -42,3 +42,14 @@ specter = "specter.runner:activate"
 
 [tool.setuptools.packages.find]
 exclude = ["tests"]
+
+[tool.coverage.run]
+omit = [
+    "specter/vendor/ast_decompiler.py",
+    "tests/*",
+]
+[tool.coverage.report]
+omit = [
+    "specter/vendor/ast_decompiler.py",
+    "tests/*",
+]

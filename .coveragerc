@@ -1,4 +1,0 @@
-[run]
-branch = True
-source = coveralls,specter
-omit = tests/*, specter/vendor/*, *pyevents*, *unittest*, *pynsive*, *six*, *python2*, *python3*, *pypy*
