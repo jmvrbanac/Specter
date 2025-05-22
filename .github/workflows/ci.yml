@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10.14, 3.11, 3.12]
+        python-version: [3.8, 3.9, "3.10", 3.11, 3.12]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -22,7 +22,7 @@ jobs:
       - name: Install tox
         run: python -m pip install --upgrade pip tox
       - name: Run tox
-        run: tox
+        run: tox -e py${{ matrix.python-version }}
       - name: Upload coverage to Codecov
         if: always() # Always run even if tests fail
         uses: codecov/codecov-action@v4
