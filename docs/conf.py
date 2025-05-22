@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- General configuration --
 
-extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.issuetracker']
+extensions = ['sphinx.ext.autodoc']
 
 # Issue tracking
 issuetracker = 'github'

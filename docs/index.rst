@@ -53,12 +53,12 @@ Continuous Integration
 
 Tested Python Versions
 ------------------------
-* 2.7.x
-* 3.3.x
-* 3.4.x
-* 3.5.x
-* 3.6.x
-* PyPy2 5.6.0
+* 3.7.x
+* 3.8.x
+* 3.9.x
+* 3.10.x
+* 3.11.x
+* 3.12.x
 
 
 .. Indices and tables
