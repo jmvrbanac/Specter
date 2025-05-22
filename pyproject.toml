@@ -1,0 +1,44 @@
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Specter"
+version = "0.6.1"
+description = "Specter is a spec-based testing library to help facilitate BDD-testing in Python."
+readme = "README.rst"
+license = { text = "MIT License" }
+authors = [
+    { name = "John Vrbanac", email = "john.vrbanac@linux.com" }
+]
+requires-python = ">=3.7"
+urls = { "Homepage" = "https://github.com/jmvrbanac/Specter" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "pike>=0.2.0",
+    "pyevents",
+    "coverage"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "flake8"
+]
+
+[project.scripts]
+specter = "specter.runner:activate"
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
