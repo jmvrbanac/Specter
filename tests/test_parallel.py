@@ -1,7 +1,6 @@
 import multiprocessing as mp
 from unittest import TestCase
 
-import six
 from specter.spec import Spec, CaseWrapper
 from specter.expect import expect
 from specter.parallel import ParallelManager, ExecuteTestProcess
@@ -37,7 +36,7 @@ class TestParallelManager(TestCase):
 
     def test_execution(self):
         self.manager.execute_all()
-        for parent in six.itervalues(self.manager.case_parents):
+        for parent in self.manager.case_parents.values():
             self.assertTrue(parent.complete)
 
     def test_before_all_in_parallel(self):
@@ -45,11 +44,11 @@ class TestParallelManager(TestCase):
         spec = BeforeAllStateSpec()
         spec._state.before_all()
 
-        for wrapper in six.itervalues(spec.cases):
+        for wrapper in spec.cases.values():
             self.manager.add_to_queue(wrapper)
         self.manager.execute_all()
 
-        for wrapper in six.itervalues(spec.cases):
+        for wrapper in spec.cases.values():
             self.assertTrue(wrapper.complete)
             self.assertTrue(wrapper.success, wrapper.error)
 

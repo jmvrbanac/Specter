@@ -3,7 +3,6 @@ import inspect
 import re
 import itertools
 import sys
-import six
 
 from specter.vendor.ast_decompiler import decompile
 
@@ -185,7 +184,7 @@ def get_real_last_traceback(exception):
 
 def find_by_names(names, cases):
     selected_cases = {}
-    for case_id, case in six.iteritems(cases):
+    for case_id, case in cases.items():
         if case.name in names or case.pretty_name in names:
             selected_cases[case_id] = case
 
@@ -205,7 +204,7 @@ def children_with_tests_named(names, describe):
 
 def find_by_metadata(meta, cases):
     selected_cases = {}
-    for case_id, case in six.iteritems(cases):
+    for case_id, case in cases.items():
         matched_keys = set(meta.keys()) & set(case.metadata.keys())
 
         for key in matched_keys:
@@ -245,4 +244,4 @@ def extract_metadata(case_func):
 
 
 def remove_empty_entries_from_dict(input_dict):
-    return {k: v for k, v in six.iteritems(input_dict) if v is not None}
+    return {k: v for k, v in input_dict.items() if v is not None}

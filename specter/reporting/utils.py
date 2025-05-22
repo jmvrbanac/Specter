@@ -1,5 +1,4 @@
 import re
-import six
 
 from specter import _
 
@@ -47,7 +46,7 @@ def pretty_print_args(kwargs):
         return u'None'
     first_seen = False
     parts = []
-    for k, v in six.iteritems(kwargs):
+    for k, v in kwargs.items():
         if not first_seen:
             first_seen = True
         else:
@@ -118,7 +117,7 @@ def print_expects(test_case, level, use_color=True, use_unicode=True):
         print_test_msg(expect_msg, level + 1, status=status)
 
         def hardcoded(param):
-            result = re.match('^(\'|"|\d)', str(param)) is not None
+            result = re.match(r'^(\'|"|\d)', str(param)) is not None
             return result
 
         def print_param(value, param, indent, prefix=None):
