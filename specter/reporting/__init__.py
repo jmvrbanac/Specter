@@ -1,10 +1,8 @@
-from six import add_metaclass
 from abc import ABCMeta, abstractmethod
 from pike.discovery import py
 
 
-@add_metaclass(ABCMeta)
-class AbstractReporterPlugin(object):
+class AbstractReporterPlugin(metaclass=ABCMeta):
     """ Do not use a plugin base. Use the appropriate parallel and/or
     serial reporter abstracts depending on your use case.
     """
@@ -27,18 +25,15 @@ class AbstractReporterPlugin(object):
         pass  # pragma: no cover
 
 
-@add_metaclass(ABCMeta)
-class AbstractParallelReporter(AbstractReporterPlugin):
+class AbstractParallelReporter(AbstractReporterPlugin, metaclass=ABCMeta):
     pass
 
 
-@add_metaclass(ABCMeta)
-class AbstractSerialReporter(AbstractReporterPlugin):
+class AbstractSerialReporter(AbstractReporterPlugin, metaclass=ABCMeta):
     pass
 
 
-@add_metaclass(ABCMeta)
-class AbstractConsoleReporter(AbstractReporterPlugin):
+class AbstractConsoleReporter(AbstractReporterPlugin, metaclass=ABCMeta):
 
     @abstractmethod
     def print_summary(self):

@@ -32,7 +32,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ),
     tests_require=['pytest', 'flake8'],
-    install_requires=['pike>=0.1.0', 'pyevents', 'coverage', 'six'],
+    install_requires=['pike>=0.1.0', 'pyevents', 'coverage'],
     entry_points = {
         'console_scripts':
         ['specter = specter.runner:activate']}

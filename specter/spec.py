@@ -14,7 +14,6 @@ from specter.util import (
     extract_metadata, children_with_tests_with_metadata,
     remove_empty_entries_from_dict, find_by_names, children_with_tests_named,
 )
-import six
 
 
 class TimedObject(object):
@@ -116,8 +115,8 @@ class CaseWrapper(TimedObject):
 
     @property
     def success(self):
-        return (self.complete and not self.failed and not self.error and
-                len([exp for exp in self.expects if not exp.success]) == 0)
+        return (self.complete and not self.failed and not self.error
+                and len([exp for exp in self.expects if not exp.success]) == 0)
 
     @property
     def complete(self):
@@ -129,7 +128,7 @@ class CaseWrapper(TimedObject):
         if not safe_kwargs:
             return
 
-        for k, v in six.iteritems(safe_kwargs):
+        for k, v in safe_kwargs.items():
             if type(v) not in [str, int, list, bool, dict]:
                 safe_kwargs[k] = str(v)
         return safe_kwargs
@@ -197,7 +196,7 @@ class Describe(EventDispatcher):
     @property
     def total_time(self):
         total = 0.0
-        for key, case in six.iteritems(self.cases):
+        for key, case in self.cases.items():
             total += case.elapsed_time
 
         for describe in self.describes:
@@ -209,7 +208,7 @@ class Describe(EventDispatcher):
     def success(self):
         ok = True
         case_successes = [case.success
-                          for key, case in six.iteritems(self.cases)]
+                          for key, case in self.cases.items()]
         spec_successes = [spec.success for spec in self.describes]
         if case_successes and False in case_successes:
             ok = False
@@ -285,7 +284,7 @@ class Describe(EventDispatcher):
         tests have completed.
         """
 
-        cases = [case.serialize() for key, case in six.iteritems(self.cases)]
+        cases = [case.serialize() for key, case in self.cases.items()]
         specs = [spec.serialize() for spec in self.describes]
 
         converted_dict = {
@@ -349,7 +348,7 @@ class Describe(EventDispatcher):
         self.top_parent.dispatch(DescribeEvent(DescribeEvent.START, self))
         self._state.before_all()
 
-        for key, case in six.iteritems(self.cases):
+        for key, case in self.cases.items():
             manager.add_to_queue(case)
 
         for describe in self.describes:
@@ -360,7 +359,7 @@ class Describe(EventDispatcher):
         self._state.before_all()
 
         # Execute Cases
-        for key, case in six.iteritems(self.cases):
+        for key, case in self.cases.items():
             self._state.before_each()
             case.execute(context=self._state)
             self._state.after_each()
@@ -479,7 +478,7 @@ def convert_to_hashable(obj):
     hashed = obj
     if isinstance(obj, dict):
         hashed = tuple([(k, convert_to_hashable(v))
-                       for k, v in six.iteritems(obj)])
+                       for k, v in obj.items()])
     elif isinstance(obj, list):
         hashed = tuple(convert_to_hashable(item) for item in obj)
     return hashed
@@ -502,7 +501,9 @@ def copy_function(func, name):
 
 
 def get_function_kwargs(old_func, new_args):
-    args, _, _, defaults = inspect.getargspec(old_func)
+    argspec = inspect.getfullargspec(old_func)
+    args = argspec.args
+    defaults = argspec.defaults
     if 'self' in args:
         args.remove('self')
 

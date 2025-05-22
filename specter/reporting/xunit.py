@@ -1,6 +1,5 @@
 from xml.etree.ElementTree import Element, tostring as element_to_str
 
-import six
 from specter import _
 from specter.spec import DescribeEvent
 from specter.reporting import AbstractParallelReporter, AbstractSerialReporter
@@ -62,7 +61,7 @@ class XUnitTestSuite(object):
 
     def assign_describe(self, describe):
         self.describe = describe
-        for key, case in six.iteritems(self.describe.cases):
+        for key, case in self.describe.cases.items():
             test_case = XUnitTestCase()
             test_case.assign_case_wrapper(case)
             self.tests.append(test_case)
