@@ -9,7 +9,7 @@ license = { text = "MIT License" }
 authors = [
     { name = "John Vrbanac", email = "john.vrbanac@linux.com" }
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 urls = { "Homepage" = "https://github.com/jmvrbanac/Specter" }
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -18,12 +18,12 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12"
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14"
 ]
 dependencies = [
     "pike>=0.2.0",
