@@ -18,15 +18,15 @@ Getting Started
 ~~~~~~~~~~~~~~~~
 
 - Specter `Documentation <http://specter.readthedocs.org/en/latest/>`_
-- Problems or Questions? Ask us on Freenode on the #specterframework channel
+- Problems or Questions? Open an issue on `GitHub`_
 
 Continuous Integration
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. image:: https://travis-ci.org/jmvrbanac/Specter.svg?branch=master
-    :target: https://travis-ci.org/jmvrbanac/Specter
-    :alt: Travis CI Build status
+.. image:: https://github.com/jmvrbanac/Specter/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/jmvrbanac/Specter/actions/workflows/ci.yml
+    :alt: GitHub Actions Build Status
 
 .. image:: https://codecov.io/gh/jmvrbanac/Specter/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/jmvrbanac/Specter
