@@ -5,15 +5,21 @@ from time import time
 from coverage import coverage
 from specter.spec import TestEvent, DescribeEvent
 
+# Specter passes live function references across process boundaries, which
+# requires fork-style process creation (inherited memory, no pickling).
+# Python 3.14 changed the Linux default to forkserver, so we pin to fork
+# explicitly. This matches the existing Linux-only support declaration.
+_ctx = mp.get_context('fork')
 
-class ExecuteTestProcess(mp.Process):
+
+class ExecuteTestProcess(_ctx.Process):
     def __init__(self, work_queue, all_cases, all_parents,
                  pipe, track_coverage=False, coverage_omit=None):
         super(ExecuteTestProcess, self).__init__()
         self.work_queue = work_queue
         self.all_cases = all_cases
         self.all_parents = all_parents
-        self.worked = mp.Value('i', 0)
+        self.worked = _ctx.Value('i', 0)
         self.pipe = pipe
         self.coverage = None
 
@@ -69,7 +75,7 @@ class ParallelManager(object):
         self.num_processes = num_processes
         self.stops_hit = 0
         self.thead_lock = threading.Lock()
-        self.work_queue = mp.Queue()
+        self.work_queue = _ctx.Queue()
         self.active_pipes = []
         self.case_functions = {}
         self.case_parents = {}
@@ -118,7 +124,7 @@ class ParallelManager(object):
 
     def execute_all(self):
         for i in range(0, self.num_processes):
-            parent_pipe, child_pipe = mp.Pipe(duplex=False)
+            parent_pipe, child_pipe = _ctx.Pipe(duplex=False)
             test_process = ExecuteTestProcess(
                 self.work_queue, self.case_functions,
                 self.case_parents, child_pipe,

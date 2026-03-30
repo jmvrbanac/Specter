@@ -1,9 +1,8 @@
-import multiprocessing as mp
 from unittest import TestCase
 
 from specter.spec import Spec, CaseWrapper
 from specter.expect import expect
-from specter.parallel import ParallelManager, ExecuteTestProcess
+from specter.parallel import ParallelManager, ExecuteTestProcess, _ctx
 
 
 def _create_testing_spec():
@@ -57,8 +56,8 @@ class TestExecuteTestProcess(TestCase):
     def setUp(self):
         spec, wrapper = _create_testing_spec()
 
-        self.parent_pipe, self.child_pipe = mp.Pipe(duplex=False)
-        self.work_queue = mp.Queue()
+        self.parent_pipe, self.child_pipe = _ctx.Pipe(duplex=False)
+        self.work_queue = _ctx.Queue()
         self.work_queue.put(wrapper)
         self.work_queue.put('STOP')
 
