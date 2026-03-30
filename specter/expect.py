@@ -13,6 +13,18 @@ from specter.util import ExpectParams, get_module_and_line
 
 
 class ExpectAssert(object):
+    """Fluent assertion object returned by :func:`expect` and :func:`require`.
+
+    Assertions follow the pattern::
+
+        expect(target).to.<comparison>(expected)
+        expect(target).not_to.<comparison>(expected)
+
+    Use the ``.to`` property to begin a positive assertion and ``.not_to``
+    (or ``.to.not_to``) to negate it. A failed ``expect`` is recorded but
+    execution continues; a failed :class:`RequireAssert` stops the test
+    immediately.
+    """
 
     def __init__(self, target, required=False, src_params=None,
                  caller_args=[]):
@@ -75,10 +87,29 @@ class ExpectAssert(object):
         self._verify_condition(condition=condition)
 
     def equal(self, expected):
+        """Assert that the target is equal to *expected* (``==``).
+
+        Example::
+
+            expect(1 + 1).to.equal(2)
+            expect('hello').not_to.equal('world')
+        """
         self._compare(action_name=_('equal'), expected=expected,
                       condition=self.target == expected)
 
     def almost_equal(self, expected, places=7):
+        """Assert that the target is approximately equal to *expected*.
+
+        Uses the same rounding logic as :func:`round`: the assertion passes
+        when ``round(abs(target - expected), places) == 0``.
+
+        :param expected: The numeric value to compare against.
+        :param places: Number of decimal places to round to (default 7).
+
+        Example::
+
+            expect(0.1 + 0.2).to.almost_equal(0.3, places=5)
+        """
         if not isinstance(places, int):
             raise TypeError('Places must be an integer')
 
@@ -89,42 +120,130 @@ class ExpectAssert(object):
         )
 
     def be_greater_than(self, expected):
+        """Assert that the target is greater than *expected* (``>``).
+
+        Example::
+
+            expect(5).to.be_greater_than(3)
+        """
         self._compare(action_name=_('be greater than'), expected=expected,
                       condition=self.target > expected)
 
     def be_less_than(self, expected):
+        """Assert that the target is less than *expected* (``<``).
+
+        Example::
+
+            expect(2).to.be_less_than(10)
+        """
         self._compare(action_name=_('be less than'), expected=expected,
                       condition=self.target < expected)
 
     def be_none(self):
+        """Assert that the target is ``None``.
+
+        Example::
+
+            expect(result).to.be_none()
+            expect(value).not_to.be_none()
+        """
         self._compare(action_name=_('be'), expected=None,
                       condition=self.target is None)
 
     def be_true(self):
+        """Assert that the target is truthy.
+
+        Example::
+
+            expect(True).to.be_true()
+            expect([1, 2]).to.be_true()
+        """
         self._compare(action_name=_('be'), expected=True,
                       condition=self.target)
 
     def be_false(self):
+        """Assert that the target is falsy.
+
+        Example::
+
+            expect(False).to.be_false()
+            expect([]).to.be_false()
+        """
         self._compare(action_name=_('be'), expected=False,
                       condition=not self.target)
 
     def contain(self, expected):
+        """Assert that the target contains *expected* (``in`` operator).
+
+        Works with strings, lists, dicts, and any other container type.
+
+        Example::
+
+            expect([1, 2, 3]).to.contain(2)
+            expect('hello world').to.contain('world')
+            expect({'key': 'val'}).to.contain('key')
+        """
         self._compare(action_name=_('contain'), expected=expected,
                       condition=expected in self.target)
 
     def be_in(self, expected):
+        """Assert that the target is a member of *expected*.
+
+        The inverse of :meth:`contain`.
+
+        Example::
+
+            expect(2).to.be_in([1, 2, 3])
+            expect('world').to.be_in('hello world')
+        """
         self._compare(action_name=_('be in'), expected=expected,
                       condition=self.target in expected)
 
     def be_a(self, expected):
+        """Assert that the target's type is exactly *expected* (``type()`` check).
+
+        Use :meth:`be_an_instance_of` if you want to allow subclasses.
+
+        :param expected: The exact type to check against.
+
+        Example::
+
+            expect(42).to.be_a(int)
+            expect('hi').to.be_a(str)
+            expect(True).not_to.be_a(int)  # bool is a subclass, but type() is strict
+        """
         self._compare(action_name=_('be a'), expected=expected,
                       condition=type(self.target) is expected)
 
     def be_an_instance_of(self, expected):
+        """Assert that the target is an instance of *expected* (``isinstance()`` check).
+
+        Unlike :meth:`be_a`, this passes for subclasses.
+
+        :param expected: The type (or tuple of types) to check against.
+
+        Example::
+
+            expect(True).to.be_an_instance_of(int)  # bool is a subclass of int
+            expect(MySub()).to.be_an_instance_of(MyBase)
+        """
         self._compare(action_name=_('be an instance of'), expected=expected,
                       condition=isinstance(self.target, expected))
 
     def raise_a(self, exception):
+        """Assert that the target callable raises *exception* when called.
+
+        Pass any positional arguments for the callable as the second argument
+        to :func:`expect`::
+
+            expect(my_func, [arg1, arg2]).to.raise_a(ValueError)
+
+        To assert that a callable does *not* raise::
+
+            expect(my_func, [arg]).not_to.raise_a(TypeError)
+
+        :param exception: The exact exception type expected to be raised.
+        """
         self.expected = exception
         self.actions.extend(['raise', exception])
         condition = False
@@ -218,10 +337,22 @@ def expect(obj, caller_args=[]):
 
 
 def require(obj, caller_args=[]):
-    """Primary method for test assertions in Specter
+    """Like :func:`expect`, but stops the test immediately on failure.
 
-    :param obj: The evaluated target object
-    :param caller_args: Is only used when using expecting a raised Exception
+    Use ``require`` when subsequent assertions only make sense if this one
+    passes. For example, verify a response is non-null before inspecting its
+    fields.
+
+    :param obj: The value or callable to assert against.
+    :param caller_args: Arguments forwarded to *obj* when using
+        :meth:`~ExpectAssert.raise_a`. Pass as a list.
+
+    Example::
+
+        require(response.status_code).to.equal(200)
+        require(response.json()).not_to.be_none()
+        # These lines only run if both requires above pass
+        expect(response.json()['id']).to.be_a(int)
     """
     line, module = get_module_and_line('__spec__')
     src_params = ExpectParams(line, module)

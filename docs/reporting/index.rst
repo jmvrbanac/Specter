@@ -181,3 +181,110 @@ success     Indicates the pass/fail status of the expecation
         "required": false,
         "success": true
     }
+
+
+Custom Reporters
+================
+
+Specter discovers reporter plugins automatically from within the
+``specter.reporting`` package. You can write your own reporter by subclassing
+one of the abstract base classes and placing it in a package that Specter
+can discover, or by contributing it to the ``specter/reporting/`` directory
+directly.
+
+Choosing a base class
+----------------------
+
++-------------------------------+-------------------------------------------+
+| Base class                    | Use when                                  |
++===============================+===========================================+
+| ``AbstractSerialReporter``    | Standard (non-parallel) test runs         |
++-------------------------------+-------------------------------------------+
+| ``AbstractParallelReporter``  | Parallel test runs (``--parallel``)       |
++-------------------------------+-------------------------------------------+
+| ``AbstractConsoleReporter``   | Reporters that write a summary to stdout  |
++-------------------------------+-------------------------------------------+
+
+You can inherit from multiple base classes if your reporter should work in
+both serial and parallel modes.
+
+Events
+-------
+
+Reporters react to events by subscribing listeners in ``subscribe_to_spec``.
+Two event types are available:
+
+``DescribeEvent``
+    Fired when a suite (``Spec``) starts or finishes.
+
+    * ``DescribeEvent.START`` -- payload is the ``Describe`` instance.
+    * ``DescribeEvent.COMPLETE`` -- payload is the ``Describe`` instance.
+
+``TestEvent``
+    Fired when a single test case finishes.
+
+    * ``TestEvent.COMPLETE`` -- payload is the ``CaseWrapper`` instance.
+
+The ``CaseWrapper`` payload exposes:
+
+* ``pretty_name`` -- human-readable test name.
+* ``success`` -- bool, True if all expectations passed.
+* ``skipped`` / ``skip_reason`` -- skip status and reason string.
+* ``incomplete`` -- bool, True if the test is marked ``@incomplete``.
+* ``error`` -- list of traceback lines, or ``None``.
+* ``expects`` -- list of ``ExpectAssert`` objects, each with a ``success``
+  flag and ``assertion`` string.
+* ``elapsed_time`` -- float, seconds the test took.
+* ``metadata`` -- dict of key/value pairs from the ``@metadata`` decorator.
+
+Implementing a reporter
+------------------------
+
+.. code-block:: python
+
+    from specter.spec import TestEvent, DescribeEvent
+    from specter.reporting import AbstractSerialReporter, AbstractConsoleReporter
+
+
+    class MyReporter(AbstractConsoleReporter, AbstractSerialReporter):
+
+        def get_name(self):
+            return 'My Custom Reporter'
+
+        def add_arguments(self, argparser):
+            """Add any custom CLI arguments here."""
+            argparser.add_argument(
+                '--my-output', dest='my_output', default=None,
+                help='Path to write custom output')
+
+        def process_arguments(self, args):
+            """Read parsed arguments here."""
+            self.output_path = getattr(args, 'my_output', None)
+
+        def subscribe_to_spec(self, spec):
+            spec.add_listener(DescribeEvent.START, self.on_suite_start)
+            spec.add_listener(TestEvent.COMPLETE, self.on_test_complete)
+
+        def on_suite_start(self, evt):
+            suite = evt.payload
+            print(f'Suite: {suite.name}')
+
+        def on_test_complete(self, evt):
+            case = evt.payload
+            status = 'PASS' if case.success else 'FAIL'
+            print(f'  [{status}] {case.pretty_name}')
+
+        def print_summary(self):
+            print('Done.')
+
+        def finished(self):
+            if self.output_path:
+                with open(self.output_path, 'w') as f:
+                    f.write('custom output here')
+
+.. note::
+    Specter discovers reporters by scanning the ``specter.reporting`` module
+    for subclasses of ``AbstractReporterPlugin``. If you want Specter to pick
+    up your reporter automatically you need to place it inside that package.
+    The cleanest approach for external reporters is to place your reporter
+    module inside ``specter/reporting/`` in your own fork or contrib package.

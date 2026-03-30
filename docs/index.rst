@@ -12,7 +12,7 @@ Specter is open-source and is available on `GitHub`_. We love contributions!
 
 .. note::
 
-	Questions? Join us on Freenode on the #specterframework channel
+    Questions or issues? Open an issue on `GitHub`_.
 
 Documentation
 -----------------
@@ -24,26 +24,11 @@ Documentation
     writing_tests/index
     parallel/index
     reporting/index
+    api/index
+    migrating/index
+    troubleshooting/index
     release_notes/index
     maintenance/index
-
-Continuous Integration
------------------------
-
-.. only:: latex
-
-    Travis CI builds - https://travis-ci.org/jmvrbanac/Specter
-
-    Coveralls Coverage - https://coveralls.io/r/jmvrbanac/Specter?branch=master
-
-
-.. image:: https://travis-ci.org/jmvrbanac/Specter.png?branch=master
-    :target: https://travis-ci.org/jmvrbanac/Specter
-    :alt: Travis CI Build status
-
-.. image:: https://coveralls.io/repos/jmvrbanac/Specter/badge.png?branch=master
-    :target: https://coveralls.io/r/jmvrbanac/Specter?branch=master
-    :alt: Coveralls Coverage Status
 
 .. image:: https://badge.fury.io/py/Specter.png
     :target: http://badge.fury.io/py/Specter

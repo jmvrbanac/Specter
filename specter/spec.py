@@ -436,6 +436,44 @@ class Describe(EventDispatcher):
 
 
 class Spec(Describe):
+    """Base class for all Specter test suites.
+
+    Extend this class to define a test specification. Any public method
+    (not prefixed with ``_`` and not a reserved name) is treated as a test
+    case. Nested ``Spec`` subclasses defined inside the class body become
+    child suites and are executed as part of the parent.
+
+    **Lifecycle hooks** (all optional):
+
+    * ``before_all(self)`` -- called once before any tests in this suite run.
+    * ``after_all(self)`` -- called once after all tests in this suite finish.
+    * ``before_each(self)`` -- called before every individual test.
+    * ``after_each(self)`` -- called after every individual test.
+
+    .. note::
+        Inside lifecycle hooks and test methods, ``self`` is a *state object*,
+        not an actual instance of your ``Spec`` subclass. See
+        :ref:`test-state` for details on calling ``super()`` from hooks.
+
+    Example::
+
+        from specter import Spec, expect
+
+        class CalculatorSpec(Spec):
+            \"\"\"Tests for the Calculator class.\"\"\"
+
+            def before_each(self):
+                self.calc = Calculator()
+
+            def it_adds_two_numbers(self):
+                expect(self.calc.add(1, 2)).to.equal(3)
+
+            class WhenDividingByZero(Spec):
+                \"\"\"Edge cases for division.\"\"\"
+
+                def it_raises_an_exception(self):
+                    expect(lambda: 1 / 0).to.raise_a(ZeroDivisionError)
+    """
     pass
 
 
@@ -471,6 +509,39 @@ class DataDescribe(Describe):
 
 
 class DataSpec(DataDescribe):
+    """Base class for data-driven Specter test suites.
+
+    Set the ``DATASET`` class attribute to a dictionary mapping dataset names
+    to argument dictionaries. For every entry in ``DATASET``, Specter generates
+    one test case per test method with the dataset name appended to the method
+    name.
+
+    Each dataset entry can be either:
+
+    * A plain ``{kwarg: value, ...}`` dict -- passed directly as keyword
+      arguments to the test method.
+    * A complex entry ``{'args': {...}, 'meta': {...}}`` -- lets you attach
+      per-entry :func:`~specter.metadata` in addition to arguments.
+
+    Example::
+
+        from specter import DataSpec, expect
+
+        class AdditionSpec(DataSpec):
+            \"\"\"Data-driven tests for addition.\"\"\"
+
+            DATASET = {
+                'small': {'a': 1, 'b': 2, 'expected': 3},
+                'large': {'a': 100, 'b': 200, 'expected': 300},
+                'negative': {
+                    'args': {'a': -1, 'b': -1, 'expected': -2},
+                    'meta': {'type': 'negative'},
+                },
+            }
+
+            def it_adds_correctly(self, a, b, expected):
+                expect(a + b).to.equal(expected)
+    """
     pass
 
 

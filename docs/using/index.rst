@@ -88,3 +88,166 @@ Argument               Description
 --num-processes        Specifies the number of processes to use under parallel mode (default: 6)
 --show-all-expects     Displays all expectations for test cases
 =====================  ============
+
+Selecting Tests
+================
+
+Specter provides three ways to select a subset of tests at run time. They can
+be combined: for example, ``--select-module`` narrows the search space and
+``--select-by-metadata`` then filters within that module.
+
+By module
+---------
+
+``--select-module`` accepts a dot-separated module path matching the class
+hierarchy inside your ``spec/`` folder::
+
+    specter --select-module spec.users.UserCreationSpec
+
+You can also target a whole sub-package::
+
+    specter --select-module spec.users
+
+By test name
+------------
+
+``--select-tests`` accepts a comma-separated list of test method names
+(without the class prefix). The match is exact::
+
+    # Run a single test
+    specter --select-tests it_creates_a_user
+
+    # Run multiple tests
+    specter --select-tests it_creates_a_user,it_deletes_a_user
+
+By metadata
+-----------
+
+``--select-by-metadata`` accepts a space-separated list of ``key=value``
+pairs. Only tests decorated with matching :func:`~specter.metadata` tags are
+run::
+
+    # Run only smoke tests
+    specter --select-by-metadata type=smoke
+
+    # Run tests tagged as both smoke and positive
+    specter --select-by-metadata type=smoke kind=positive
+
+Combining selectors
+--------------------
+
+All three selectors can be combined in a single invocation. The module filter
+is applied first, then the name/metadata filters operate on the resulting set::
+
+    specter --select-module spec.api \
+            --select-by-metadata type=smoke \
+            --xunit-results results/smoke.xml
+
+Coverage
+=========
+
+Enable coverage tracking by passing ``--coverage``. Configure what to include
+or exclude using a ``.coveragerc`` file in your project root.
+
+*Minimal .coveragerc example:*
+
+.. code-block:: ini
+
+    [run]
+    source = mypackage
+    omit =
+        spec/*
+        */vendor/*
+
+    [report]
+    show_missing = True
+
+Then run::
+
+    specter --coverage
+
+CI/CD Integration
+==================
+
+Specter integrates with CI pipelines through its xUnit XML output
+(``--xunit-results``) and ``--ascii-only`` flag, which removes color codes
+and Unicode symbols that can confuse log parsers.
+
+GitHub Actions
+--------------
+
+.. code-block:: yaml
+
+    name: Tests
+    on: [push, pull_request]
+
+    jobs:
+      test:
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+        steps:
+          - uses: actions/checkout@v4
+
+          - name: Set up Python ${{ matrix.python-version }}
+            uses: actions/setup-python@v5
+            with:
+              python-version: ${{ matrix.python-version }}
+
+          - name: Install dependencies
+            run: pip install -e .[dev]
+
+          - name: Run tests
+            run: specter --ascii-only --xunit-results results/xunit.xml
+
+          - name: Publish test results
+            uses: EnricoMi/publish-unit-test-result-action@v2
+            if: always()
+            with:
+              files: results/xunit.xml
+
+GitLab CI
+----------
+
+.. code-block:: yaml
+
+    test:
+      image: python:3.12
+      script:
+        - pip install -e .[dev]
+        - specter --ascii-only --xunit-results results/xunit.xml
+      artifacts:
+        when: always
+        reports:
+          junit: results/xunit.xml
+
+Jenkins
+-------
+
+.. code-block:: groovy
+
+    pipeline {
+        agent any
+        stages {
+            stage('Test') {
+                steps {
+                    sh 'pip install -e .[dev]'
+                    sh 'specter --ascii-only --xunit-results results/xunit.xml'
+                }
+                post {
+                    always {
+                        junit 'results/xunit.xml'
+                    }
+                }
+            }
+        }
+    }
+
+Running with coverage in CI
+----------------------------
+
+Add ``--coverage`` to any of the commands above and configure ``.coveragerc``
+as shown in the Coverage section. The coverage report is printed to stdout at
+the end of the run.

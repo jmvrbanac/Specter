@@ -1,0 +1,54 @@
+# Ghost Scrub Configuration File
+# This file configures which files to process and what invisible characters to remove
+
+# File extensions to include (leave empty to include all)
+include_extensions = [
+    "rs", "py", "js", "ts", "jsx", "tsx", "go", "java", "c", "cpp", "h", "hpp",
+    "cs", "php", "rb", "swift", "kt", "scala", "clj", "hs", "ml",
+    "txt", "md", "json", "xml", "yaml", "yml", "toml", "ini", "cfg", "conf"
+]
+
+# File extensions to exclude
+exclude_extensions = []
+
+# Glob patterns to include
+include_patterns = ["**/*"]
+
+# Glob patterns to exclude
+exclude_patterns = [
+    # Version control
+    "**/.git/**", "**/.svn/**", "**/.hg/**", "**/.bzr/**",
+
+    # Build artifacts and dependencies
+    "**/target/**", "**/node_modules/**", "**/build/**", "**/dist/**",
+    "**/out/**", "**/bin/**", "**/obj/**",
+
+    # Python
+    "**/__pycache__/**", "**/.pytest_cache/**", "**/venv/**", "**/.venv/**",
+    "**/*.egg-info/**", "**/.tox/**", "./.coverage",
+
+    # IDEs and editors
+    "**/.idea/**", "**/.vscode/**", "**/.vs/**", "**/*.swp", "**/*.swo",
+    "**/*~", "**/.#*",
+
+    # OS specific
+    "**/.DS_Store", "**/Thumbs.db", "**/desktop.ini",
+
+    # Temporary files
+    "**/*.tmp", "**/*.temp", "**/*.bak", "**/*.orig",
+
+    # Logs
+    "**/*.log", "**/logs/**"
+]
+
+# Configure which invisible characters to target
+[target_characters]
+zero_width_spaces = true      # U+200B, U+200C, U+200D, U+FEFF
+non_breaking_spaces = true    # U+00A0
+control_characters = true     # ASCII control chars (0x00-0x1F, 0x7F)
+unicode_whitespace = true     # Other Unicode whitespace characters
+trailing_whitespace = true    # Remove whitespace at end of lines
+custom_chars = []             # Additional specific Unicode characters to remove
+
+# Verbosity level: "silent", "normal", "verbose"
+verbosity = "normal"

@@ -125,9 +125,16 @@ In Specter, a test fixture is defined as a test base class that is not treated a
         ✔ 'this' not to equal 'that'
 
 
+.. _test-state:
+
 Test State and Inheritance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Each test spec executes its tests under a clean state that does not contain the attributes of the actual Spec class. This allows for users to not worry about conflicting with the Specter infrastructure. However, the drawback to this is that the instance of "self" within a test is not actually an instance of the type defined in your hardcoded tests. This makes calling super a little bit unconventional as you can see in the example below.
+Each test spec executes its tests under a clean state that does not contain
+the attributes of the actual Spec class. This allows for users to not worry
+about conflicting with the Specter infrastructure. However, the drawback to
+this is that the instance of "self" within a test is not actually an instance
+of the type defined in your hardcoded tests. This makes calling super a little
+bit unconventional as you can see in the example below.
 
 .. code-block:: python
 
@@ -145,54 +152,123 @@ Each test spec executes its tests under a clean state that does not contain the 
 
             # Do something else
 
-As you can see in the example, you still can inherit the attributes of your other spec classes. However, you just have to keep in mind, that "self" is actually the state object and not the actual instance of the spec.
+As you can see in the example, you still can inherit the attributes of your
+other spec classes. However, you just have to keep in mind, that "self" is
+actually the state object and not the actual instance of the spec.
 
 
 Assertions / Expectations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Assertions or expectations in specter attempt to be as expressive as possible. This allows for cleaner and more expressive tests which can help with overall code-awareness and effectiveness. It is important to note that an expectation does not fast-fail the test; it will continue executing the test even if the expectation fails.
+Assertions or expectations in Specter attempt to be as expressive as possible.
+An expectation does **not** fast-fail the test -- execution continues even if
+the expectation fails, and all failures are reported together.
 
-Expecations follow this flow
-    expect [target object] [to or not_to] [comparison] [expected object]
+Expectations follow this flow::
 
-If you were expecting a status_code object was equal to 200 you would write:
+    expect(target).to.<comparison>(expected)
+    expect(target).not_to.<comparison>(expected)
+
+For example::
+
     expect(request.status_code).to.equal(200)
+    expect(error_message).not_to.be_none()
 
 Available Comparisons
 ^^^^^^^^^^^^^^^^^^^^^^^
-    * equal(expected_object)
-    * almost_equal(expected_number, places)
-    * be_greater_than(expected_object)
-    * be_less_than(expected_object)
-    * be_none()
-    * be_true()
-    * be_false()
-    * be_a(expected_object_type)
-    * be_an_instance_of(expected_object_type)
-    * be_in(expected_object)
-    * contain(expected_object)
-    * raise_a(expected_exception_type)
 
-Asserting a raised exception
------------------------------
-.. code::
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
 
-    expect(example_func, ['args_here']).to.raise_a(Exception)
+   * - Comparison
+     - Description
+   * - ``equal(expected)``
+     - Target ``==`` expected (strict equality).
+   * - ``almost_equal(expected, places=7)``
+     - Passes when ``round(abs(target - expected), places) == 0``.
+       Use for floating-point comparisons.
+   * - ``be_greater_than(expected)``
+     - Target ``>`` expected.
+   * - ``be_less_than(expected)``
+     - Target ``<`` expected.
+   * - ``be_none()``
+     - Target ``is None``.
+   * - ``be_true()``
+     - Target is truthy.
+   * - ``be_false()``
+     - Target is falsy.
+   * - ``be_a(type)``
+     - ``type(target) is type`` -- exact type match, no subclasses.
+   * - ``be_an_instance_of(type)``
+     - ``isinstance(target, type)`` -- passes for subclasses.
+   * - ``be_in(collection)``
+     - Target is a member of *collection*.
+   * - ``contain(item)``
+     - *collection* target contains *item*.
+   * - ``raise_a(exception_type)``
+     - Target callable raises the given exception type.
 
+Negating an assertion
+-----------------------
 
-Fast-fail expectations
-^^^^^^^^^^^^^^^^^^^^^^^
-In some cases, you need to stop the execution of a test immediately upon the failure of an expectation. With specter, we call these requirements. While they follow the same flow as expectations, the name for this action is "require".
-
-Lets say you are writing a test that checks for valid content within a request body. You could do something like:
+Any comparison can be negated by using ``.not_to`` instead of ``.to``:
 
 .. code-block:: python
 
-    expect(request.status_code).to.equal(200)
-    require(request.content).not_to.be_none()
-    # ... continue processing content
+    expect('hello').not_to.equal('world')
+    expect(result).not_to.be_none()
+    expect([]).not_to.contain('item')
+    expect(some_func).not_to.raise_a(ValueError)
 
-Utilizing this concept can allow for better visibility into an issue when a test fails. For example, if in the given example, the request status code was 202, but the rest of the test passes, you will instantly can see the problem is with the response code and not the body of the message. This has the ability to save you quite a bit of time; especially if you are testing web APIs.
+Asserting a raised exception
+-----------------------------
+
+Pass the callable and its arguments separately to ``expect``:
+
+.. code-block:: python
+
+    def divide(a, b):
+        return a / b
+
+    # No arguments
+    expect(lambda: divide(1, 0)).to.raise_a(ZeroDivisionError)
+
+    # With arguments via caller_args list
+    expect(divide, [1, 0]).to.raise_a(ZeroDivisionError)
+
+    # Assert it does NOT raise
+    expect(divide, [10, 2]).not_to.raise_a(ZeroDivisionError)
+
+Floating-point comparisons
+---------------------------
+
+Use ``almost_equal`` when comparing floats to avoid precision issues:
+
+.. code-block:: python
+
+    expect(0.1 + 0.2).to.almost_equal(0.3, places=5)
+
+Fast-fail expectations
+^^^^^^^^^^^^^^^^^^^^^^^
+In some cases you need to stop the test immediately upon failure. With Specter,
+we call these requirements. Use ``require`` when subsequent assertions only
+make sense if an earlier one passes.
+
+.. code-block:: python
+
+    from specter import Spec, expect, require
+
+    class ApiSpec(Spec):
+        def it_returns_valid_json(self):
+            response = get('/api/users/1')
+            require(response.status_code).to.equal(200)
+            # The lines below only run if the status code check passed
+            require(response.json()).not_to.be_none()
+            expect(response.json()['id']).to.be_a(int)
+
+If the status code is not 200, the test stops immediately. This prevents
+misleading errors from cascading through assertions that depend on earlier
+ones being true.
 
 
 Data-Driven Tests
@@ -269,8 +345,11 @@ Skipping Tests
 Specter provided a few different ways of skipping tests.
 
 .. autofunction:: specter.skip
+   :no-index:
 .. autofunction:: specter.skip_if
+   :no-index:
 .. autofunction:: specter.incomplete()
+   :no-index:
 
 
 Adding Metadata to Tests
@@ -278,3 +357,4 @@ Adding Metadata to Tests
 Specter allows for you to tag tests with metadata. The primary purpose of this is to be able to carry misc information along with your test. At some point in the future, Specter will be able to output this information for consumption and processing. However, currently, metadata information can be used to select which tests you want to run.
 
 .. autofunction:: specter.metadata
+   :no-index:
