@@ -4,6 +4,17 @@
 Release Notes
 =================
 
+Release: 0.7.1
+--------------------------------
+
+Features and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+ #. Drop support for Python 3.7 and 3.8
+ #. Add support for Python 3.13 and 3.14
+ #. Fix parallel execution on Python 3.14
+ #. Add GitHub Actions workflow for automated PyPI publishing
+
 Release: 0.7.0
 --------------------------------
 
